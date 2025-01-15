@@ -22,7 +22,7 @@ import (
 	"testing"
 )
 
-const testPath = "../../json-schema-org/JSON-Schema-Test-Suite/tests/draft4/"
+const testPath = "../../../json-schema-org/JSON-Schema-Test-Suite/tests/draft4/"
 
 func getFileNames() []string {
 	files := []string{}
@@ -36,6 +36,9 @@ func getFileNames() []string {
 		files = append(files, path)
 		return nil
 	})
+	if len(files) == 0 {
+		panic("no test files found at " + testPath)
+	}
 	return files
 }
 
