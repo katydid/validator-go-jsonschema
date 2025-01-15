@@ -22,7 +22,7 @@ import (
 	"testing"
 )
 
-const testPath = "./JSON-Schema-Test-Suite/tests/draft4/"
+const testPath = "../../json-schema-org/JSON-Schema-Test-Suite/tests/draft4/"
 
 func getFileNames() []string {
 	files := []string{}

@@ -18,19 +18,19 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/katydid/katydid/funcs"
-	"github.com/katydid/katydid/relapse/combinator"
+	"github.com/katydid/validator-go-jsonschema/validator/ast"
+	"github.com/katydid/validator-go-jsonschema/validator/combinator"
 )
 
-func TranslateDraft4(schema *Schema) (*relapse.Grammar, error) {
+func TranslateDraft4(schema *Schema) (*ast.Grammar, error) {
 	p, err := translate(schema)
 	if err != nil {
 		return nil, err
 	}
-	return relapse.NewGrammar(relapse.RefLookup(map[string]*relapse.Pattern{"main": p})), nil
+	return ast.NewGrammar(ast.RefLookup(map[string]*ast.Pattern{"main": p})), nil
 }
 
-func translate(schema *Schema) (*relapse.Pattern, error) {
+func translate(schema *Schema) (*ast.Pattern, error) {
 	pattern, err := translateOne(schema)
 	if err != nil {
 		return nil, err
@@ -42,9 +42,9 @@ func translate(schema *Schema) (*relapse.Pattern, error) {
 			if err != nil {
 				return nil, err
 			}
-			pattern = relapse.NewAnd(p, pattern)
+			pattern = ast.NewAnd(p, pattern)
 		} else {
-			ps := make([]*relapse.Pattern, len(types))
+			ps := make([]*ast.Pattern, len(types))
 			for i := range types {
 				var err error
 				ps[i], err = translateType(types[i])
@@ -52,14 +52,14 @@ func translate(schema *Schema) (*relapse.Pattern, error) {
 					return nil, err
 				}
 			}
-			ors := relapse.NewOr(ps...)
-			pattern = relapse.NewAnd(ors, pattern)
+			ors := ast.NewOr(ps...)
+			pattern = ast.NewAnd(ors, pattern)
 		}
 	}
 	return pattern, nil
 }
 
-func translateOne(schema *Schema) (*relapse.Pattern, error) {
+func translateOne(schema *Schema) (*ast.Pattern, error) {
 	if len(schema.Id) > 0 {
 		return nil, fmt.Errorf("id not supported")
 	}
@@ -95,11 +95,11 @@ func translateOne(schema *Schema) (*relapse.Pattern, error) {
 	if len(schema.Format) > 0 {
 		return nil, fmt.Errorf("format not supported")
 	}
-	return relapse.NewZAny(), nil
+	return ast.NewZAny(), nil
 }
 
-func translates(schemas []*Schema) ([]*relapse.Pattern, error) {
-	ps := make([]*relapse.Pattern, len(schemas))
+func translates(schemas []*Schema) ([]*ast.Pattern, error) {
+	ps := make([]*ast.Pattern, len(schemas))
 	for i := range schemas {
 		var err error
 		ps[i], err = translate(schemas[i])
@@ -110,13 +110,13 @@ func translates(schemas []*Schema) ([]*relapse.Pattern, error) {
 	return ps, nil
 }
 
-func rest(xs []*relapse.Pattern, index int) []*relapse.Pattern {
-	ys := make([]*relapse.Pattern, index)
+func rest(xs []*ast.Pattern, index int) []*ast.Pattern {
+	ys := make([]*ast.Pattern, index)
 	copy(ys, xs)
 	return append(ys, xs[index+1:]...)
 }
 
-func translateInstance(schema *Schema) (*relapse.Pattern, error) {
+func translateInstance(schema *Schema) (*ast.Pattern, error) {
 	if len(schema.Definitions) > 0 {
 		return nil, fmt.Errorf("definitions not supported")
 	}
@@ -128,14 +128,14 @@ func translateInstance(schema *Schema) (*relapse.Pattern, error) {
 		if err != nil {
 			return nil, err
 		}
-		return relapse.NewAnd(ps...), nil
+		return ast.NewAnd(ps...), nil
 	}
 	if len(schema.AnyOf) > 0 {
 		ps, err := translates(schema.AnyOf)
 		if err != nil {
 			return nil, err
 		}
-		return relapse.NewOr(ps...), nil
+		return ast.NewOr(ps...), nil
 	}
 	if len(schema.OneOf) > 0 {
 		ps, err := translates(schema.OneOf)
@@ -148,57 +148,57 @@ func translateInstance(schema *Schema) (*relapse.Pattern, error) {
 		if len(ps) == 1 {
 			return ps[0], nil
 		}
-		orps := make([]*relapse.Pattern, len(ps))
+		orps := make([]*ast.Pattern, len(ps))
 		for i, _ := range ps {
 			other := rest(ps, i)
-			orps[i] = relapse.NewAnd(
+			orps[i] = ast.NewAnd(
 				ps[i],
-				relapse.NewNot(
-					relapse.NewOr(other...),
+				ast.NewNot(
+					ast.NewOr(other...),
 				),
 			)
 		}
-		return relapse.NewOr(orps...), nil
+		return ast.NewOr(orps...), nil
 	}
 	if schema.Not != nil {
 		p, err := translate(schema.Not)
 		if err != nil {
 			return nil, err
 		}
-		return relapse.NewNot(p), nil
+		return ast.NewNot(p), nil
 	}
 	panic("unreachable object")
 }
 
-func translateType(typ SimpleType) (*relapse.Pattern, error) {
+func translateType(typ SimpleType) (*ast.Pattern, error) {
 	switch typ {
 	case TypeArray, TypeObject:
 		//This does not distinguish between arrays and objects
 		return combinator.Many(combinator.InAny(combinator.Any())), nil
 	case TypeBoolean:
-		return combinator.Value(funcs.TypeBool(funcs.BoolVar())), nil
+		return combinator.Value(ast.NewType(combinator.BoolVar())), nil
 	case TypeInteger:
-		return combinator.Value(funcs.TypeDouble(Integer())), nil
+		return combinator.Value(ast.NewType(ast.NewFunction("integer"))), nil
 	case TypeNull:
 		//TODO null is not being returned by json parser, but is also not empty
-		return combinator.Value(funcs.Not(
-			funcs.Or(
-				funcs.TypeDouble(Number()),
-				funcs.Or(
-					funcs.TypeBool(funcs.BoolVar()),
-					funcs.TypeString(funcs.StringVar()),
+		return combinator.Value(combinator.Not(
+			combinator.Or(
+				ast.NewType(ast.NewFunction("number")),
+				combinator.Or(
+					ast.NewType(combinator.BoolVar()),
+					ast.NewType(combinator.StringVar()),
 				),
 			),
 		)), nil
 	case TypeNumber:
-		return combinator.Value(funcs.TypeDouble(Number())), nil
+		return combinator.Value(ast.NewType(ast.NewFunction("number"))), nil
 	case TypeString:
-		return combinator.Value(funcs.TypeString(funcs.StringVar())), nil
+		return combinator.Value(ast.NewType(combinator.StringVar())), nil
 	}
 	panic(fmt.Sprintf("unknown simpletype: %s", typ))
 }
 
-func translateObject(schema *Schema) (*relapse.Pattern, error) {
+func translateObject(schema *Schema) (*ast.Pattern, error) {
 	if schema.MaxProperties != nil {
 		return nil, fmt.Errorf("maxProperties not supported")
 	}
@@ -226,38 +226,38 @@ func translateObject(schema *Schema) (*relapse.Pattern, error) {
 		names = append(names, name)
 	}
 	sort.Strings(names)
-	additional := relapse.NewZAny()
+	additional := ast.NewZAny()
 	if len(names) > 0 {
-		nameExprs := make([]*relapse.NameExpr, len(names))
+		nameExprs := make([]*ast.NameExpr, len(names))
 		for i, name := range names {
-			nameExprs[i] = relapse.NewStringName(name)
+			nameExprs[i] = ast.NewStringName(name)
 		}
-		additional = relapse.NewZeroOrMore(
-			relapse.NewTreeNode(relapse.NewAnyNameExcept(
-				relapse.NewNameChoice(nameExprs...),
-			), relapse.NewZAny()),
+		additional = ast.NewZeroOrMore(
+			ast.NewTreeNode(ast.NewAnyNameExcept(
+				ast.NewNameChoice(nameExprs...),
+			), ast.NewZAny()),
 		)
 	}
 	if schema.AdditionalProperties != nil {
 		if schema.AdditionalProperties.Bool != nil && !(*schema.AdditionalProperties.Bool) {
-			additional = relapse.NewEmpty()
+			additional = ast.NewEmpty()
 		} else if schema.AdditionalProperties.Type != TypeUnknown {
 			typ, err := translateType(schema.AdditionalProperties.Type)
 			if err != nil {
 				return nil, err
 			}
-			additional = relapse.NewZeroOrMore(
-				relapse.NewTreeNode(relapse.NewAnyName(), typ),
+			additional = ast.NewZeroOrMore(
+				ast.NewTreeNode(ast.NewAnyName(), typ),
 			)
 		}
 	}
-	patterns := make(map[string]*relapse.Pattern)
+	patterns := make(map[string]*ast.Pattern)
 	for _, name := range names {
 		child, err := translate(schema.Properties[name])
 		if err != nil {
 			return nil, err
 		}
-		patterns[name] = relapse.NewTreeNode(relapse.NewStringName(name), child)
+		patterns[name] = ast.NewTreeNode(ast.NewStringName(name), child)
 	}
 	for _, name := range names {
 		if _, ok := requiredIf[name]; ok {
@@ -267,86 +267,86 @@ func translateObject(schema *Schema) (*relapse.Pattern, error) {
 			return nil, fmt.Errorf("dependencies are not supported")
 		}
 		if _, ok := required[name]; !ok {
-			patterns[name] = relapse.NewOptional(patterns[name])
+			patterns[name] = ast.NewOptional(patterns[name])
 		}
 	}
 	if len(schema.PatternProperties) > 0 {
 		return nil, fmt.Errorf("patternProperties not supported")
 	}
-	patternList := make([]*relapse.Pattern, 0, len(patterns))
+	patternList := make([]*ast.Pattern, 0, len(patterns))
 	for _, name := range names {
 
 		patternList = append(patternList, patterns[name])
 	}
 	patternList = append(patternList, additional)
-	return relapse.NewInterleave(patternList...), nil
+	return ast.NewInterleave(patternList...), nil
 }
 
-func optional(p *relapse.Pattern) *relapse.Pattern {
-	return relapse.NewOr(relapse.NewEmpty(), p)
+func optional(p *ast.Pattern) *ast.Pattern {
+	return ast.NewOr(ast.NewEmpty(), p)
 }
 
-func translateNumeric(schema Numeric) (*relapse.Pattern, error) {
-	v := Number()
-	list := []funcs.Bool{}
-	notNum := funcs.Not(funcs.TypeDouble(Number()))
+func translateNumeric(schema Numeric) (*ast.Pattern, error) {
+	v := ast.NewFunction("number")
+	list := []*ast.Expr{}
+	notNum := combinator.Not(ast.NewType(ast.NewFunction("number")))
 	if schema.MultipleOf != nil {
-		mult := MultipleOf(v, funcs.DoubleConst(*schema.MultipleOf))
-		list = append(list, funcs.Or(mult, notNum))
+		mult := ast.NewFunction("multipleOf", v, combinator.DoubleConst(*schema.MultipleOf))
+		list = append(list, combinator.Or(mult, notNum))
 	}
 	if schema.Maximum != nil {
-		lt := funcs.DoubleLE(v, funcs.DoubleConst(*schema.Maximum))
+		lt := combinator.LE(v, combinator.DoubleConst(*schema.Maximum))
 		if schema.ExclusiveMaximum {
-			lt = funcs.DoubleLt(v, funcs.DoubleConst(*schema.Maximum))
+			lt = combinator.LT(v, combinator.DoubleConst(*schema.Maximum))
 		}
-		list = append(list, funcs.Or(lt, notNum))
+		list = append(list, combinator.Or(lt, notNum))
 	}
 	if schema.Minimum != nil {
-		lt := funcs.DoubleGE(v, funcs.DoubleConst(*schema.Minimum))
+		lt := combinator.GE(v, combinator.DoubleConst(*schema.Minimum))
 		if schema.ExclusiveMinimum {
-			lt = funcs.DoubleGt(v, funcs.DoubleConst(*schema.Minimum))
+			lt = combinator.GT(v, combinator.DoubleConst(*schema.Minimum))
 		}
-		list = append(list, funcs.Or(lt, notNum))
+		list = append(list, combinator.Or(lt, notNum))
 	}
 	if len(list) == 0 {
-		return combinator.Value(funcs.TypeDouble(v)), nil
+		return combinator.Value(ast.NewType(v)), nil
 	}
 	return combinator.Value(and(list)), nil
 }
 
-func and(list []funcs.Bool) funcs.Bool {
+func and(list []*ast.Expr) *ast.Expr {
 	if len(list) == 0 {
 		panic("unreachable")
 	}
 	if len(list) == 1 {
 		return list[0]
 	}
-	return funcs.And(list[0], and(list[1:]))
+	return combinator.And(list[0], and(list[1:]))
 }
 
-func translateString(schema String) (*relapse.Pattern, error) {
-	v := funcs.StringVar()
-	list := []funcs.Bool{}
-	notStr := funcs.Not(funcs.TypeString(funcs.StringVar()))
+func translateString(schema String) (*ast.Pattern, error) {
+	v := combinator.StringVar()
+	list := []*ast.Expr{}
+	notStr := combinator.Not(ast.NewType(combinator.StringVar()))
 	if schema.MaxLength != nil {
-		ml := MaxLength(v, int64(*schema.MaxLength))
-		list = append(list, funcs.Or(ml, notStr))
+		ml := ast.NewFunction("maxLength", v, combinator.IntConst(int64(*schema.MaxLength)))
+		list = append(list, combinator.Or(ml, notStr))
 	}
 	if schema.MinLength > 0 {
-		ml := MinLength(v, int64(schema.MinLength))
-		list = append(list, funcs.Or(ml, notStr))
+		ml := ast.NewFunction("minLength", v, combinator.IntConst(int64(schema.MinLength)))
+		list = append(list, combinator.Or(ml, notStr))
 	}
 	if schema.Pattern != nil {
-		p := funcs.Regex(funcs.StringConst(*schema.Pattern), v)
-		list = append(list, funcs.Or(p, notStr))
+		p := combinator.Regex(combinator.StringConst(*schema.Pattern), v)
+		list = append(list, combinator.Or(p, notStr))
 	}
 	if len(list) == 0 {
-		return combinator.Value(funcs.TypeString(v)), nil
+		return combinator.Value(ast.NewType(v)), nil
 	}
 	return combinator.Value(and(list)), nil
 }
 
-func translateArray(schema *Schema) (*relapse.Pattern, error) {
+func translateArray(schema *Schema) (*ast.Pattern, error) {
 	if schema.Type != nil {
 		if len(*schema.Type) > 1 {
 			return nil, fmt.Errorf("list of types not supported with array constraints %#v", schema)
