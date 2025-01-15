@@ -16,7 +16,6 @@ package testsuite
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -66,7 +65,7 @@ func BenchSuiteExists() (bool, error) {
 
 func getFolders(path string) (map[string][]string, error) {
 	folders := make(map[string][]string)
-	codecFileInfos, err := ioutil.ReadDir(path)
+	codecFileInfos, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +75,7 @@ func getFolders(path string) (map[string][]string, error) {
 		}
 		codecFolderName := codecFileInfo.Name()
 		codecPath := filepath.Join(path, codecFolderName)
-		caseDirInfos, err := ioutil.ReadDir(codecPath)
+		caseDirInfos, err := os.ReadDir(codecPath)
 		if err != nil {
 			return nil, err
 		}
@@ -153,7 +152,7 @@ func readTestFolder(path string) (*Test, error) {
 	if err != nil {
 		return nil, err
 	}
-	fileInfos, err := ioutil.ReadDir(path)
+	fileInfos, err := os.ReadDir(path)
 	if err != nil {
 		return nil, fmt.Errorf("err <%v> reading folder <%s>", err, path)
 	}
@@ -216,7 +215,7 @@ func readBenchFolder(path string) (*Bench, error) {
 	if err != nil {
 		return nil, err
 	}
-	fileInfos, err := ioutil.ReadDir(path)
+	fileInfos, err := os.ReadDir(path)
 	if err != nil {
 		return nil, fmt.Errorf("err <%v> reading folder <%s>", err, path)
 	}
@@ -263,7 +262,7 @@ func capFirst(s string) string {
 
 func readGrammar(path string) (*ast.Grammar, error) {
 	validatorTxt := filepath.Join(path, "validator.txt")
-	validatorBytes, err := ioutil.ReadFile(validatorTxt)
+	validatorBytes, err := os.ReadFile(validatorTxt)
 	if err != nil {
 		return nil, fmt.Errorf("err <%v> reading file <%s>", err, validatorTxt)
 	}
@@ -275,7 +274,7 @@ func readGrammar(path string) (*ast.Grammar, error) {
 }
 
 func newJsonParser(filename string) (ResetParser, error) {
-	bytes, err := ioutil.ReadFile(filename)
+	bytes, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("err <%v> reading file <%s>", err, filename)
 	}
