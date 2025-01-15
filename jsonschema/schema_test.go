@@ -15,26 +15,13 @@
 package jsonschema
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
-	"github.com/katydid/katydid/relapse/interp"
-	"github.com/katydid/katydid/serialize/debug"
-	"github.com/katydid/katydid/serialize/json"
+	"github.com/katydid/parser-go/parser/debug"
+	"github.com/katydid/validator-go-jsonschema/json"
+	"github.com/katydid/validator-go-jsonschema/validator/interp"
 )
-
-func catch(f func() bool) (v bool, err error) {
-	defer func() {
-		// recover from panic if one occured. Set err to nil otherwise.
-		r := recover()
-		if r != nil {
-			err = fmt.Errorf("%v", r)
-		}
-	}()
-	v = f()
-	return
-}
 
 var skippingFile = map[string]bool{
 	"format.json":               true, //optional
@@ -94,9 +81,7 @@ func TestDraft4(t *testing.T) {
 				}
 				_ = interp.Interpret
 				_ = g
-				valid, err := catch(func() bool {
-					return interp.Interpret(g, p)
-				})
+				valid, err := interp.Interpret(g, p)
 				if err != nil {
 					t.Errorf("--- FAIL: %v: Interpret error %v", test, err)
 				} else if valid != test.Valid {
@@ -129,9 +114,7 @@ func testDebug(t *testing.T, test Test) {
 	if err := jsonp.Init(test.Data); err != nil {
 		t.Fatalf("parser Init error %v", err)
 	}
-	valid, err := catch(func() bool {
-		return interp.Interpret(g, p)
-	})
+	valid, err := interp.Interpret(g, p)
 	if err != nil {
 		t.Fatalf("Interpret error %v", err)
 	} else if valid != test.Valid {
