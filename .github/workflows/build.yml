@@ -18,8 +18,8 @@ jobs:
     - name: Checkout JSON Schema testsuite
       uses: actions/checkout@v4
       with:
-        repository: json-schema-org/SON-Schema-Test-Suite
-        path: gopath/src/github.com/json-schema-org/SON-Schema-Test-Suite
+        repository: json-schema-org/JSON-Schema-Test-Suite
+        path: gopath/src/github.com/json-schema-org/JSON-Schema-Test-Suite
     - name: Setup Go
       uses: actions/setup-go@v3
       with:
