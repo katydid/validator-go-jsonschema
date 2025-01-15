@@ -60,14 +60,14 @@ func TestDraft4(t *testing.T) {
 	p := json.NewJsonParser()
 	for _, test := range tests {
 		if skippingFile[test.Filename] {
-			//t.Logf("--- SKIP: %v", test)
+			t.Logf("--- SKIP: %v", test)
 			continue
 		}
 		if skippingTest[test.String()] {
-			//t.Logf("--- SKIP: %v", test)
+			t.Logf("--- SKIP: %v", test)
 			continue
 		}
-		//t.Logf("--- RUN: %v", test)
+		t.Logf("--- RUN: %v", test)
 		schema, err := ParseSchema(test.Schema)
 		if err != nil {
 			t.Errorf("--- FAIL: %v: Parse error %v", test, err)
