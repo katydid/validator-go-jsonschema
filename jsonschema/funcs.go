@@ -89,16 +89,18 @@ func init() {
 }
 
 type integer struct {
-	U    funcs.Uint
-	I    funcs.Int
-	hash uint64
+	U           funcs.Uint
+	I           funcs.Int
+	hasVariable bool
+	hash        uint64
 }
 
-func Integer() (funcs.Double, error) {
+func Integer(U funcs.Uint, I funcs.Int) (funcs.Double, error) {
 	return &integer{
-		U:    funcs.UintVar(),
-		I:    funcs.IntVar(),
-		hash: funcs.Hash("integer"),
+		U:           U,
+		I:           I,
+		hasVariable: U.HasVariable() || I.HasVariable(),
+		hash:        funcs.Hash("integer", U, I),
 	}, nil
 }
 
@@ -119,7 +121,7 @@ func (this *integer) String() string {
 }
 
 func (this *integer) HasVariable() bool {
-	return true
+	return this.hasVariable
 }
 
 func (this *integer) Hash() uint64 {
@@ -144,24 +146,31 @@ func init() {
 }
 
 type number struct {
-	I    funcs.Double
-	D    funcs.Double
-	hash uint64
+	U           funcs.Uint
+	I           funcs.Int
+	D           funcs.Double
+	hasVariable bool
+	hash        uint64
 }
 
-func Number() (funcs.Double, error) {
-	i, err := Integer()
+func Number(U funcs.Uint, I funcs.Int, D funcs.Double) (funcs.Double, error) {
 	return &number{
-		I:    i,
-		D:    funcs.DoubleVar(),
-		hash: funcs.Hash("number"),
-	}, err
+		U:           U,
+		I:           I,
+		D:           D,
+		hash:        funcs.Hash("number", U, I, D),
+		hasVariable: U.HasVariable() || I.HasVariable() || D.HasVariable(),
+	}, nil
 }
 
 func (this *number) Eval() (float64, error) {
+	u, err := this.U.Eval()
+	if err == nil {
+		return float64(u), nil
+	}
 	i, err := this.I.Eval()
 	if err == nil {
-		return i, nil
+		return float64(i), nil
 	}
 	return this.D.Eval()
 }

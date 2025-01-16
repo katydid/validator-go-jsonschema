@@ -15,6 +15,8 @@
 package combinator
 
 import (
+	"fmt"
+
 	"github.com/katydid/validator-go-jsonschema/validator/ast"
 	"github.com/katydid/validator-go-jsonschema/validator/parser"
 	"github.com/katydid/validator-go-jsonschema/validator/types"
@@ -40,9 +42,10 @@ func Value(expr *ast.Expr) *ast.Pattern {
 			}
 		}
 	}
-	e, err := parser.ParseExpr(expr.String())
+	exprStr := expr.String()
+	e, err := parser.ParseExpr(exprStr)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("%v: %q", err, exprStr))
 	}
 	return ast.NewLeafNode(e)
 }
