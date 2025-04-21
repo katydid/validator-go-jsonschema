@@ -56,7 +56,7 @@ jobs:
     - name: Checklicencse
       uses: awalterschulze/checklicense@v1.0.6
       with:
-        path: .
+        path: gopath/src/github.com/katydid/validator-go-jsonschema
         ignores: doc.go .svg .txt
     - name: Diff
       run: |
