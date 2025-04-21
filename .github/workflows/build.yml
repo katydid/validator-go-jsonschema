@@ -33,7 +33,6 @@ jobs:
         cd gopath/src/github.com/katydid/validator-go-jsonschema
         go install -x github.com/goccmack/gocc
         go install -x github.com/awalterschulze/goderive
-        go install -x github.com/awalterschulze/checklicense
     - name: env
       run: env && go env && pwd
     - name: tree
@@ -55,9 +54,10 @@ jobs:
         cd gopath/src/github.com/katydid/validator-go-jsonschema
         make vet
     - name: Checklicencse
-      run: |
-        cd gopath/src/github.com/katydid/validator-go-jsonschema
-        make checklicense
+      uses: awalterschulze/checklicense@v1.0.6
+      with:
+        path: .
+        ignores: doc.go .svg .txt
     - name: Diff
       run: |
         cd gopath/src/github.com/katydid/validator-go-jsonschema
