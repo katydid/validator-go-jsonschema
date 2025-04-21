@@ -25,7 +25,7 @@ import (
 
 func TestNoEqualError(t *testing.T) {
 	exprStr := Sprint(StringEq(ElemStrings(NewListOfString([]String{StringVar()}), IntConst(3)), StringConst("0123456789")))
-	t.Logf(exprStr)
+	t.Log(exprStr)
 	e, err := parser.NewParser().ParseExpr(exprStr)
 	if err != nil {
 		t.Fatal(err)
