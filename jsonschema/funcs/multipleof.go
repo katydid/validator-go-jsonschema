@@ -15,27 +15,32 @@
 package funcs
 
 import (
+	"github.com/katydid/parser-go/cast"
+	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
 )
 
 type multipleOf struct {
-	N           funcs.Double
-	d           float64
-	hash        uint64
-	hasVariable bool
+	Token parse.Token
+	d     float64
+	hash  uint64
 }
 
-func MultipleOf(n funcs.Double, d funcs.ConstDouble) (funcs.Bool, error) {
+var _ funcs.Setter = &multipleOf{}
+
+func (this *multipleOf) SetValue(v parse.Token) {
+	this.Token = v
+}
+
+func MultipleOf(d funcs.ConstDouble) (funcs.Bool, error) {
 	evaluatedD, err := d.Eval()
 	if err != nil {
 		return nil, err
 	}
 	return &multipleOf{
-		N:           n,
-		d:           evaluatedD,
-		hash:        funcs.Hash("multipleOf", n, d),
-		hasVariable: n.HasVariable(),
+		d:    evaluatedD,
+		hash: funcs.Hash("multipleOf", d),
 	}, nil
 }
 
@@ -45,19 +50,33 @@ func isMultipleOf(n float64, d float64) bool {
 }
 
 func (this *multipleOf) Eval() (bool, error) {
-	n, err := this.N.Eval()
+	if this.Token == nil {
+		return false, nil
+	}
+	kind, v, err := this.Token.Token()
 	if err != nil {
 		return false, err
+	}
+	var n float64
+	switch kind {
+	case parse.Int64Kind:
+		// TODO: Consider not supporting Int64Kind here
+		n = float64(cast.ToInt64(v))
+	case parse.Float64Kind:
+		n = cast.ToFloat64(v)
+	default:
+		// not a number is ignored
+		return true, nil
 	}
 	return isMultipleOf(n, this.d), nil
 }
 
 func (this *multipleOf) ToExpr() *ast.Expr {
-	return ast.NewFunction("multipleOf", this.N.ToExpr(), ast.NewDoubleConst(this.d))
+	return ast.NewFunction("multipleOf", ast.NewDoubleConst(this.d))
 }
 
 func (this *multipleOf) HasVariable() bool {
-	return this.hasVariable
+	return true
 }
 
 func (this *multipleOf) Hash() uint64 {
@@ -77,9 +96,6 @@ func (this *multipleOf) Compare(that funcs.Comparable) int {
 				return -1
 			}
 			return 1
-		}
-		if c := this.N.Compare(other.N); c != 0 {
-			return c
 		}
 		return 0
 	}

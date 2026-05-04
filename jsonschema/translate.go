@@ -302,13 +302,17 @@ func optional(p *ast.Pattern) *ast.Pattern {
 	return ast.NewOr(ast.NewEmpty(), p)
 }
 
+func multipleOfExpr(d float64) *ast.Expr {
+	return ast.NewFunction("multipleOf", combinator.DoubleConst(d))
+}
+
 func translateNumeric(schema Numeric) (*ast.Pattern, error) {
 	v := newNumber()
 	list := []*ast.Expr{}
 	notNum := combinator.Not(newType(newNumber()))
 	if schema.MultipleOf != nil {
-		mult := ast.NewFunction("multipleOf", v, combinator.DoubleConst(*schema.MultipleOf))
-		list = append(list, combinator.Or(mult, notNum))
+		mult := multipleOfExpr(*schema.MultipleOf)
+		list = append(list, mult)
 	}
 	if schema.Maximum != nil {
 		lt := combinator.LE(v, combinator.DoubleConst(*schema.Maximum))
