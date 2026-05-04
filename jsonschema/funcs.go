@@ -55,7 +55,7 @@ func newNumber() *ast.Expr {
 }
 
 func newInteger() *ast.Expr {
-	return ast.NewFunction("integer", ast.NewUintVar(), ast.NewIntVar())
+	return ast.NewFunction("integer")
 }
 
 func newType(e *ast.Expr) *ast.Expr {

@@ -15,44 +15,50 @@
 package funcs
 
 import (
+	"github.com/katydid/parser-go/cast"
+	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
 )
 
 type integer struct {
-	U           funcs.Uint
-	I           funcs.Int
-	hasVariable bool
-	hash        uint64
+	Token parse.Token
+	hash  uint64
 }
 
-func Integer(U funcs.Uint, I funcs.Int) (funcs.Double, error) {
+var _ funcs.Setter = &integer{}
+
+func (this *integer) SetValue(v parse.Token) {
+	this.Token = v
+}
+
+func Integer() (funcs.Double, error) {
 	return &integer{
-		U:           U,
-		I:           I,
-		hasVariable: U.HasVariable() || I.HasVariable(),
-		hash:        funcs.Hash("integer", U, I),
+		hash: funcs.Hash("integer"),
 	}, nil
 }
 
 func (this *integer) Eval() (float64, error) {
-	u, err := this.U.Eval()
-	if err == nil {
-		return float64(u), nil
+	if this.Token == nil {
+		return 0, errTokenNotSet
 	}
-	i, err := this.I.Eval()
-	if err == nil {
-		return float64(i), nil
+	kind, v, err := this.Token.Token()
+	if err != nil {
+		return 0, err
 	}
-	return 0, err
+	switch kind {
+	case parse.Int64Kind:
+		return float64(cast.ToInt64(v)), nil
+	}
+	return 0, errNotAnInteger
 }
 
 func (this *integer) ToExpr() *ast.Expr {
-	return ast.NewFunction("integer", this.U.ToExpr(), this.I.ToExpr())
+	return ast.NewFunction("integer")
 }
 
 func (this *integer) HasVariable() bool {
-	return this.hasVariable
+	return true
 }
 
 func (this *integer) Hash() uint64 {
