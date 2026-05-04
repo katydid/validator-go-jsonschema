@@ -65,3 +65,7 @@ func newTypeExpr(e *ast.Expr) *ast.Expr {
 func maxLengthExpr(d uint64) *ast.Expr {
 	return ast.NewFunction("maxLength", combinator.IntConst(int64(d)))
 }
+
+func minLengthExpr(d uint64) *ast.Expr {
+	return ast.NewFunction("minLength", combinator.IntConst(int64(d)))
+}

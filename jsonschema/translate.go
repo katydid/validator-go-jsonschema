@@ -336,8 +336,7 @@ func translateString(schema String, format string) (*ast.Pattern, error) {
 		list = append(list, maxLengthExpr(*schema.MaxLength))
 	}
 	if schema.MinLength > 0 {
-		ml := ast.NewFunction("minLength", v, combinator.IntConst(int64(schema.MinLength)))
-		list = append(list, combinator.Or(ml, notStr))
+		list = append(list, minLengthExpr(schema.MinLength))
 	}
 	if schema.Pattern != nil {
 		p := combinator.Regex(combinator.StringConst(*schema.Pattern), v)
