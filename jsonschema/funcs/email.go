@@ -15,55 +15,60 @@
 package funcs
 
 import (
-	"github.com/katydid/parser-go/cast"
-	"github.com/katydid/parser-go/pool"
+	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/email/lexer"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
 )
 
 // Email returns whether a string is a valid email
-func Email(input funcs.String) (funcs.Bool, error) {
+func Email() (funcs.Bool, error) {
 	return funcs.TrimBool(&email{
-		lexer:       lexer.NewLexer([]byte{}),
-		pool:        pool.New(),
-		S:           input,
-		hash:        funcs.Hash("email", input),
-		hasVariable: input.HasVariable(),
+		lexer: lexer.NewLexer([]byte{}),
+		hash:  funcs.Hash("email"),
 	}), nil
 }
 
+var _ funcs.Setter = &email{}
+
+func (this *email) SetValue(v parse.Token) {
+	this.Token = v
+}
+
 type email struct {
-	lexer       *lexer.Lexer
-	pool        pool.Pool
-	S           funcs.String
-	hash        uint64
-	hasVariable bool
+	Token parse.Token
+	lexer *lexer.Lexer
+	hash  uint64
 }
 
 func (this *email) HasVariable() bool {
-	return this.hasVariable
+	return true
 }
 
 func (this *email) ToExpr() *ast.Expr {
-	return ast.NewFunction("email", this.S.ToExpr())
+	return ast.NewFunction("email")
 }
 
-func isEmail(pool pool.Pool, lexer *lexer.Lexer, s string) bool {
-	bytes := cast.FromString(s, pool.Alloc)
-	lexer.Init(bytes)
+func isEmail(lexer *lexer.Lexer, data []byte) bool {
+	lexer.Init(data)
 	_, err := lexer.Next()
 	valid := err == nil
-	pool.FreeAll()
 	return valid
 }
 
 func (this *email) Eval() (bool, error) {
-	s, err := this.S.Eval()
+	if this.Token == nil {
+		return false, errTokenNotSet
+	}
+	kind, v, err := this.Token.Token()
 	if err != nil {
 		return false, err
 	}
-	return isEmail(this.pool, this.lexer, s), nil
+	if kind != parse.StringKind {
+		// ignore non appropriate kinds
+		return true, nil
+	}
+	return isEmail(this.lexer, v), nil
 }
 
 func (this *email) Compare(that funcs.Comparable) int {
@@ -72,12 +77,6 @@ func (this *email) Compare(that funcs.Comparable) int {
 			return -1
 		}
 		return 1
-	}
-	if other, ok := that.(*email); ok {
-		if c := this.S.Compare(other.S); c != 0 {
-			return c
-		}
-		return 0
 	}
 	return this.ToExpr().Compare(that.ToExpr())
 }

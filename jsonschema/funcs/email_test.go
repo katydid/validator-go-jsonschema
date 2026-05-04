@@ -17,12 +17,10 @@ package funcs
 import (
 	"testing"
 
-	"github.com/katydid/parser-go/pool"
 	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/email/lexer"
 )
 
 func TestEmail(t *testing.T) {
-	pool := pool.New()
 	var valid = map[string]string{
 		"joe.bloggs@example.com": "a valid e-mail address",
 		"te~st@example.com":      "tilde in local part is valid",
@@ -39,12 +37,12 @@ func TestEmail(t *testing.T) {
 	}
 	lex := lexer.NewLexer([]byte{})
 	for email, desc := range valid {
-		if !isEmail(pool, lex, email) {
+		if !isEmail(lex, []byte(email)) {
 			t.Fatalf("got false, but expected true for %s: %s", email, desc)
 		}
 	}
 	for email, desc := range invalid {
-		if isEmail(pool, lex, email) {
+		if isEmail(lex, []byte(email)) {
 			t.Fatalf("got true, but expected false for %s: %s", email, desc)
 		}
 	}

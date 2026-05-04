@@ -27,9 +27,7 @@ func multipleOfExpr(d float64) *ast.Expr {
 }
 
 func emailExpr() *ast.Expr {
-	notStr := combinator.Not(newType(combinator.StringVar()))
-	f := ast.NewFunction("email", combinator.StringVar())
-	return combinator.Or(f, notStr)
+	return ast.NewFunction("email")
 }
 
 func datetimeExpr() *ast.Expr {
