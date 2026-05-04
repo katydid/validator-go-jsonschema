@@ -294,6 +294,7 @@ func translateObject(schema *Schema) (*ast.Pattern, error) {
 		patternList = append(patternList, patterns[name])
 	}
 	patternList = append(patternList, additional)
+	// TODO: Be more specific and create ast.NewTagName for "object"
 	return ast.NewTreeNode(ast.NewStringName("object"), ast.NewInterleave(patternList...)), nil
 }
 

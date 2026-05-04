@@ -39,13 +39,17 @@ func MultipleOf(n funcs.Double, d funcs.ConstDouble) (funcs.Bool, error) {
 	}, nil
 }
 
+func isMultipleOf(n float64, d float64) bool {
+	v := n / d
+	return v == float64(int64(v)) || v == float64(uint64(v))
+}
+
 func (this *multipleOf) Eval() (bool, error) {
 	n, err := this.N.Eval()
 	if err != nil {
 		return false, err
 	}
-	v := n / this.d
-	return v == float64(int64(v)) || v == float64(uint64(v)), nil
+	return isMultipleOf(n, this.d), nil
 }
 
 func (this *multipleOf) ToExpr() *ast.Expr {
