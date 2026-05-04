@@ -37,9 +37,7 @@ func datetimeExpr() *ast.Expr {
 }
 
 func dateExpr() *ast.Expr {
-	notStr := combinator.Not(newType(combinator.StringVar()))
-	f := ast.NewFunction("date", combinator.StringVar())
-	return combinator.Or(f, notStr)
+	return ast.NewFunction("date")
 }
 
 func formatExpr(format string) (*ast.Expr, error) {

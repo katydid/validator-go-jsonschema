@@ -15,6 +15,8 @@
 package funcs
 
 import (
+	"github.com/katydid/parser-go/cast"
+	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
 
@@ -22,34 +24,45 @@ import (
 )
 
 // Date returns whether a string is a valid date
-func Date(input funcs.String) (funcs.Bool, error) {
+func Date() (funcs.Bool, error) {
 	return funcs.TrimBool(&date{
-		S:           input,
-		hash:        funcs.Hash("date", input),
-		hasVariable: input.HasVariable(),
+		hash: funcs.Hash("date"),
 	}), nil
 }
 
+var _ funcs.Setter = &date{}
+
+func (this *date) SetValue(v parse.Token) {
+	this.Token = v
+}
+
 type date struct {
-	S           funcs.String
-	hash        uint64
-	hasVariable bool
+	Token parse.Token
+	hash  uint64
 }
 
 func (this *date) HasVariable() bool {
-	return this.hasVariable
+	return true
 }
 
 func (this *date) ToExpr() *ast.Expr {
-	return ast.NewFunction("date", this.S.ToExpr())
+	return ast.NewFunction("date")
 }
 
 func (this *date) Eval() (bool, error) {
-	s, err := this.S.Eval()
+	if this.Token == nil {
+		return false, errTokenNotSet
+	}
+	kind, v, err := this.Token.Token()
 	if err != nil {
 		return false, err
 	}
-	err = jsonschema.ValidateDate(s)
+	if kind != parse.StringKind && kind != parse.DateTimeKind {
+		// ignore non appropriate kinds
+		return true, nil
+	}
+	str := cast.ToString(v)
+	err = jsonschema.ValidateDate(str)
 	return err == nil, nil
 }
 
@@ -59,12 +72,6 @@ func (this *date) Compare(that funcs.Comparable) int {
 			return -1
 		}
 		return 1
-	}
-	if other, ok := that.(*date); ok {
-		if c := this.S.Compare(other.S); c != 0 {
-			return c
-		}
-		return 0
 	}
 	return this.ToExpr().Compare(that.ToExpr())
 }
