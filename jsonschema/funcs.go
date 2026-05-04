@@ -74,6 +74,22 @@ func uriExpr() *ast.Expr {
 	return ast.NewFunction("uri")
 }
 
+func uriReferenceExpr() *ast.Expr {
+	return ast.NewFunction("uriReference")
+}
+
+func uriTemplateExpr() *ast.Expr {
+	return ast.NewFunction("uriTemplate")
+}
+
+func periodExpr() *ast.Expr {
+	return ast.NewFunction("period")
+}
+
+func semverExpr() *ast.Expr {
+	return ast.NewFunction("semver")
+}
+
 func formatExpr(format string) (*ast.Expr, error) {
 	switch format {
 	case "date":
@@ -100,6 +116,14 @@ func formatExpr(format string) (*ast.Expr, error) {
 		return timeExpr(), nil
 	case "uri", "iri":
 		return uriExpr(), nil
+	case "uri-reference", "iri-reference":
+		return uriReferenceExpr(), nil
+	case "uri-template":
+		return uriTemplateExpr(), nil
+	case "period":
+		return periodExpr(), nil
+	case "semver":
+		return semverExpr(), nil
 	}
 	return nil, fmt.Errorf("format %s not supported", format)
 }
