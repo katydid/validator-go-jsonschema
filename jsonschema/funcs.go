@@ -49,3 +49,15 @@ func formatExpr(format string) (*ast.Expr, error) {
 	}
 	return nil, fmt.Errorf("format %s not supported", format)
 }
+
+func newNumber() *ast.Expr {
+	return ast.NewFunction("number")
+}
+
+func newInteger() *ast.Expr {
+	return ast.NewFunction("integer", ast.NewUintVar(), ast.NewIntVar())
+}
+
+func newType(e *ast.Expr) *ast.Expr {
+	return ast.NewFunction("type", e)
+}

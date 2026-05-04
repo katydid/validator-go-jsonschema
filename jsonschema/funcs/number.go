@@ -15,42 +15,48 @@
 package funcs
 
 import (
+	"github.com/katydid/parser-go/cast"
+	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
 )
 
 type number struct {
-	U           funcs.Uint
-	I           funcs.Int
-	D           funcs.Double
-	hasVariable bool
-	hash        uint64
+	Token parse.Token
+	hash  uint64
 }
 
-func Number(U funcs.Uint, I funcs.Int, D funcs.Double) (funcs.Double, error) {
+var _ funcs.Setter = &number{}
+
+func (this *number) SetValue(v parse.Token) {
+	this.Token = v
+}
+
+func Number() (funcs.Double, error) {
 	return &number{
-		U:           U,
-		I:           I,
-		D:           D,
-		hash:        funcs.Hash("number", U, I, D),
-		hasVariable: U.HasVariable() || I.HasVariable() || D.HasVariable(),
+		hash: funcs.Hash("number"),
 	}, nil
 }
 
 func (this *number) Eval() (float64, error) {
-	u, err := this.U.Eval()
-	if err == nil {
-		return float64(u), nil
+	if this.Token == nil {
+		return 0, errTokenNotSet
 	}
-	i, err := this.I.Eval()
-	if err == nil {
-		return float64(i), nil
+	kind, v, err := this.Token.Token()
+	if err != nil {
+		return 0, err
 	}
-	return this.D.Eval()
+	switch kind {
+	case parse.Float64Kind:
+		return cast.ToFloat64(v), nil
+	case parse.Int64Kind:
+		return float64(cast.ToInt64(v)), nil
+	}
+	return 0, errNotANumber
 }
 
 func (this *number) ToExpr() *ast.Expr {
-	return ast.NewFunction("number", this.U.ToExpr(), this.I.ToExpr(), this.D.ToExpr())
+	return ast.NewFunction("number")
 }
 
 func (this *number) HasVariable() bool {

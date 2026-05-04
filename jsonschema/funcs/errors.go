@@ -17,3 +17,5 @@ package funcs
 import "errors"
 
 var errTokenNotSet = errors.New("Token not St")
+
+var errNotANumber = errors.New("not a number")

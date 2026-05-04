@@ -174,18 +174,6 @@ func translateInstance(schema *Schema) (*ast.Pattern, error) {
 	panic("unreachable object")
 }
 
-func newNumber() *ast.Expr {
-	return ast.NewFunction("number", ast.NewUintVar(), ast.NewIntVar(), ast.NewDoubleVar())
-}
-
-func newInteger() *ast.Expr {
-	return ast.NewFunction("integer", ast.NewUintVar(), ast.NewIntVar())
-}
-
-func newType(e *ast.Expr) *ast.Expr {
-	return ast.NewFunction("type", e)
-}
-
 func translateType(typ SimpleType) (*ast.Pattern, error) {
 	switch typ {
 	case TypeArray, TypeObject:
