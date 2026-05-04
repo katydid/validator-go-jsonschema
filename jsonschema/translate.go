@@ -88,6 +88,13 @@ func translateOne(schema *Schema) (*ast.Pattern, error) {
 		p, err := translateInstance(schema)
 		return p, err
 	}
+	if len(schema.Format) > 0 {
+		expr, err := formatExpr(schema.Format)
+		if err != nil {
+			return nil, err
+		}
+		return combinator.Value(expr), nil
+	}
 
 	if len(schema.Ref) > 0 {
 		return nil, fmt.Errorf("ref not supported")
@@ -333,6 +340,36 @@ func and(list []*ast.Expr) *ast.Expr {
 	return combinator.And(list[0], and(list[1:]))
 }
 
+func emailExpr() *ast.Expr {
+	notStr := combinator.Not(newType(combinator.StringVar()))
+	f := ast.NewFunction("email", combinator.StringVar())
+	return combinator.Or(f, notStr)
+}
+
+func datetimeExpr() *ast.Expr {
+	notStr := combinator.Not(newType(combinator.StringVar()))
+	f := ast.NewFunction("datetime", combinator.StringVar())
+	return combinator.Or(f, notStr)
+}
+
+func dateExpr() *ast.Expr {
+	notStr := combinator.Not(newType(combinator.StringVar()))
+	f := ast.NewFunction("date", combinator.StringVar())
+	return combinator.Or(f, notStr)
+}
+
+func formatExpr(format string) (*ast.Expr, error) {
+	switch format {
+	case "date":
+		return dateExpr(), nil
+	case "datetime":
+		return datetimeExpr(), nil
+	case "email":
+		return emailExpr(), nil
+	}
+	return nil, fmt.Errorf("format %s not supported", format)
+}
+
 func translateString(schema String, format string) (*ast.Pattern, error) {
 	v := combinator.StringVar()
 	list := []*ast.Expr{}
@@ -350,16 +387,11 @@ func translateString(schema String, format string) (*ast.Pattern, error) {
 		list = append(list, combinator.Or(p, notStr))
 	}
 	if len(format) > 0 {
-		switch format {
-		case "date":
-			datef := ast.NewFunction("date", v)
-			list = append(list, datef)
-		case "datetime":
-			datetimef := ast.NewFunction("datetime", v)
-			list = append(list, datetimef)
-		default:
-			return nil, fmt.Errorf("format %s not supported", format)
+		formatExpr, err := formatExpr(format)
+		if err != nil {
+			return nil, err
 		}
+		list = append(list, formatExpr)
 	}
 	if len(list) == 0 {
 		return combinator.Value(newType(v)), nil
