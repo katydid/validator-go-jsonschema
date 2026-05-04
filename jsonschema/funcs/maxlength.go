@@ -15,48 +15,60 @@
 package funcs
 
 import (
+	"unicode/utf8"
+
+	"github.com/katydid/parser-go/cast"
+	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
 )
 
 type maxLength struct {
-	S           funcs.String
-	n           int64
-	hasVariable bool
-	hash        uint64
+	Token parse.Token
+	n     int64
+	hash  uint64
 }
 
-func MaxLength(S funcs.String, N funcs.ConstInt) (funcs.Bool, error) {
+var _ funcs.Setter = &maxLength{}
+
+func (this *maxLength) SetValue(v parse.Token) {
+	this.Token = v
+}
+
+func MaxLength(N funcs.ConstInt) (funcs.Bool, error) {
 	n, err := N.Eval()
 	if err != nil {
 		return nil, err
 	}
 	return &maxLength{
-		S:           S,
-		n:           n,
-		hasVariable: S.HasVariable(),
-		hash:        funcs.Hash("maxLength", S, N),
+		n:    n,
+		hash: funcs.Hash("maxLength", N),
 	}, nil
 }
 
 func (this *maxLength) Eval() (bool, error) {
-	s, err := this.S.Eval()
+	if this.Token == nil {
+		return false, errTokenNotSet
+	}
+	kind, v, err := this.Token.Token()
 	if err != nil {
 		return false, err
 	}
-	l := int64(0)
-	for range s {
-		l++
+	if kind != parse.StringKind {
+		// ignore non string values.
+		return true, nil
 	}
-	return l <= this.n, nil
+	s := cast.ToString(v)
+	l := utf8.RuneCountInString(s)
+	return l <= int(this.n), nil
 }
 
 func (this *maxLength) ToExpr() *ast.Expr {
-	return ast.NewFunction("maxLength", this.S.ToExpr(), ast.NewIntConst(this.n))
+	return ast.NewFunction("maxLength", ast.NewIntConst(this.n))
 }
 
 func (this *maxLength) HasVariable() bool {
-	return this.hasVariable
+	return true
 }
 
 func (this *maxLength) Hash() uint64 {
@@ -76,9 +88,6 @@ func (this *maxLength) Compare(that funcs.Comparable) int {
 				return -1
 			}
 			return 1
-		}
-		if c := this.S.Compare(other.S); c != 0 {
-			return c
 		}
 		return 0
 	}

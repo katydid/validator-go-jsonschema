@@ -50,14 +50,18 @@ func formatExpr(format string) (*ast.Expr, error) {
 	return nil, fmt.Errorf("format %s not supported", format)
 }
 
-func newNumber() *ast.Expr {
+func newNumberExpr() *ast.Expr {
 	return ast.NewFunction("number")
 }
 
-func newInteger() *ast.Expr {
+func newIntegerExpr() *ast.Expr {
 	return ast.NewFunction("integer")
 }
 
-func newType(e *ast.Expr) *ast.Expr {
+func newTypeExpr(e *ast.Expr) *ast.Expr {
 	return ast.NewFunction("type", e)
+}
+
+func maxLengthExpr(d uint64) *ast.Expr {
+	return ast.NewFunction("maxLength", combinator.IntConst(int64(d)))
 }

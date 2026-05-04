@@ -180,24 +180,24 @@ func translateType(typ SimpleType) (*ast.Pattern, error) {
 		//This does not distinguish between arrays and objects
 		return combinator.Many(combinator.InAny(combinator.Any())), nil
 	case TypeBoolean:
-		return combinator.Value(newType(combinator.BoolVar())), nil
+		return combinator.Value(newTypeExpr(combinator.BoolVar())), nil
 	case TypeInteger:
-		return combinator.Value(newType(newInteger())), nil
+		return combinator.Value(newTypeExpr(newIntegerExpr())), nil
 	case TypeNull:
 		//TODO null is not being returned by json parser, but is also not empty
 		return combinator.Value(combinator.Not(
 			combinator.Or(
-				newType(newNumber()),
+				newTypeExpr(newNumberExpr()),
 				combinator.Or(
-					newType(combinator.BoolVar()),
-					newType(combinator.StringVar()),
+					newTypeExpr(combinator.BoolVar()),
+					newTypeExpr(combinator.StringVar()),
 				),
 			),
 		)), nil
 	case TypeNumber:
-		return combinator.Value(newType(newNumber())), nil
+		return combinator.Value(newTypeExpr(newNumberExpr())), nil
 	case TypeString:
-		return combinator.Value(newType(combinator.StringVar())), nil
+		return combinator.Value(newTypeExpr(combinator.StringVar())), nil
 	}
 	panic(fmt.Sprintf("unknown simpletype: %s", typ))
 }
@@ -291,9 +291,9 @@ func optional(p *ast.Pattern) *ast.Pattern {
 }
 
 func translateNumeric(schema Numeric) (*ast.Pattern, error) {
-	v := newNumber()
+	v := newNumberExpr()
 	list := []*ast.Expr{}
-	notNum := combinator.Not(newType(newNumber()))
+	notNum := combinator.Not(newTypeExpr(newNumberExpr()))
 	if schema.MultipleOf != nil {
 		mult := multipleOfExpr(*schema.MultipleOf)
 		list = append(list, mult)
@@ -313,7 +313,7 @@ func translateNumeric(schema Numeric) (*ast.Pattern, error) {
 		list = append(list, combinator.Or(lt, notNum))
 	}
 	if len(list) == 0 {
-		return combinator.Value(newType(v)), nil
+		return combinator.Value(newTypeExpr(v)), nil
 	}
 	return combinator.Value(and(list)), nil
 }
@@ -331,10 +331,9 @@ func and(list []*ast.Expr) *ast.Expr {
 func translateString(schema String, format string) (*ast.Pattern, error) {
 	v := combinator.StringVar()
 	list := []*ast.Expr{}
-	notStr := combinator.Not(newType(combinator.StringVar()))
+	notStr := combinator.Not(newTypeExpr(combinator.StringVar()))
 	if schema.MaxLength != nil {
-		ml := ast.NewFunction("maxLength", v, combinator.IntConst(int64(*schema.MaxLength)))
-		list = append(list, combinator.Or(ml, notStr))
+		list = append(list, maxLengthExpr(*schema.MaxLength))
 	}
 	if schema.MinLength > 0 {
 		ml := ast.NewFunction("minLength", v, combinator.IntConst(int64(schema.MinLength)))
@@ -352,7 +351,7 @@ func translateString(schema String, format string) (*ast.Pattern, error) {
 		list = append(list, formatExpr)
 	}
 	if len(list) == 0 {
-		return combinator.Value(newType(v)), nil
+		return combinator.Value(newTypeExpr(v)), nil
 	}
 	return combinator.Value(and(list)), nil
 }
