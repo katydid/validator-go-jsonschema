@@ -33,6 +33,9 @@ func getFileNames() []string {
 		if info.IsDir() {
 			return nil
 		}
+		if filepath.Base(path) == ".DS_Store" {
+			return nil
+		}
 		files = append(files, path)
 		return nil
 	})
