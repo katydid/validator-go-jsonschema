@@ -57,7 +57,7 @@ func TestDraft4(t *testing.T) {
 	t.Logf("total number of tests: %d", len(tests))
 	total := 0
 
-	p := json.NewParser()
+	p := json.NewJSONSchemaParser()
 	for _, test := range tests {
 		if skippingFile[test.Filename] {
 			t.Logf("--- SKIP: %v", test)
@@ -95,7 +95,7 @@ func TestDraft4(t *testing.T) {
 }
 
 func testDebug(t *testing.T, test Test) {
-	jsonp := json.NewParser()
+	jsonp := json.NewJSONSchemaParser()
 	p := debug.NewLogger(jsonp, debug.NewLineLogger())
 	t.Logf("Schema = %v", string(test.Schema))
 	schema, err := ParseSchema(test.Schema)

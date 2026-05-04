@@ -16,7 +16,6 @@ package jsonschema
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -47,13 +46,13 @@ func getFileNames() []string {
 
 type SchemaTest struct {
 	Description string
-	Schema      interface{}
+	Schema      any
 	Tests       []*SchemaTesty
 }
 
 type SchemaTesty struct {
 	Description string
-	Data        interface{}
+	Data        any
 	Valid       bool
 }
 
@@ -62,7 +61,7 @@ func buildTests(t *testing.T) []Test {
 	filenames := getFileNames()
 	t.Logf("number of test files: %d", len(filenames))
 	for _, filename := range filenames {
-		content, err := ioutil.ReadFile(filename)
+		content, err := os.ReadFile(filename)
 		if err != nil {
 			panic(err)
 		}

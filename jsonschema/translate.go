@@ -238,7 +238,7 @@ func translateObject(schema *Schema) (*ast.Pattern, error) {
 		}
 	}
 	names := []string{}
-	for name, _ := range schema.Properties {
+	for name := range schema.Properties {
 		names = append(names, name)
 	}
 	sort.Strings(names)
@@ -291,11 +291,10 @@ func translateObject(schema *Schema) (*ast.Pattern, error) {
 	}
 	patternList := make([]*ast.Pattern, 0, len(patterns))
 	for _, name := range names {
-
 		patternList = append(patternList, patterns[name])
 	}
 	patternList = append(patternList, additional)
-	return ast.NewInterleave(patternList...), nil
+	return ast.NewTreeNode(ast.NewStringName("object"), ast.NewInterleave(patternList...)), nil
 }
 
 func optional(p *ast.Pattern) *ast.Pattern {

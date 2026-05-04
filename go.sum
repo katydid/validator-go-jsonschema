@@ -8,5 +8,7 @@ github.com/katydid/parser-go-reflect v0.3.0 h1:K0tMs6C56RYGtywtWZgNKel9q8MFUXR+h
 github.com/katydid/parser-go-reflect v0.3.0/go.mod h1:iyvC2cj+5iwPJrJB2zcT3klHUetRmVni3sV/dw5FtNs=
 github.com/katydid/validator-go v0.6.5-0.20260503154706-35c981ce87ea h1:3WpJAEIXquCqLk5aLi7rjVdg3uJtRMg59WZjHJ6wMaU=
 github.com/katydid/validator-go v0.6.5-0.20260503154706-35c981ce87ea/go.mod h1:n3yOuUQrn4vQtbV+Hq9OjK0xZ2ggQmDtxY8/zEgab8s=
+github.com/katydid/validator-go v0.6.5-0.20260504132729-3b8a9601d682 h1:V++4P/VGxY/5Dgifz2QTDfxIOa6ZvARmbammvjRIymU=
+github.com/katydid/validator-go v0.6.5-0.20260504132729-3b8a9601d682/go.mod h1:n3yOuUQrn4vQtbV+Hq9OjK0xZ2ggQmDtxY8/zEgab8s=
 golang.org/x/mod v0.8.0 h1:LUYupSeNrTNCGzR/hVBk2NHZO4hXcVaW1k4Qx7rjPx8=
 golang.org/x/mod v0.8.0/go.mod h1:iBbtSCu2XBx23ZKBPSOrRkjjQPZFPuis4dIYUhu/chs=
