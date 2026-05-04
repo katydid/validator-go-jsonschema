@@ -55,26 +55,32 @@ func TestDraft4(t *testing.T) {
 	tests := buildTests(t)
 	t.Logf("skipping files: %d", len(skippingFile))
 	t.Logf("total number of tests: %d", len(tests))
-	total := 0
+	passed := 0
+	skippedTests := 0
+	failedTests := 0
 
 	p := json.NewJSONSchemaParser()
 	for _, test := range tests {
 		if skippingFile[test.Filename] {
 			t.Logf("--- SKIP: %v", test)
+			skippedTests++
 			continue
 		}
 		if skippingTest[test.String()] {
 			t.Logf("--- SKIP: %v", test)
+			skippedTests++
 			continue
 		}
 		t.Logf("--- RUN: %v", test)
 		schema, err := ParseSchema(test.Schema)
 		if err != nil {
 			t.Logf("--- FAIL: %v: Parse error %v", test, err)
+			failedTests++
 		} else {
 			g, err := TranslateDraft4(schema)
 			if err != nil {
 				t.Logf("--- FAIL: %v: Translate error %v", test, err)
+				failedTests++
 			} else {
 				p.Init(test.Data)
 				_ = intern.Interpret
@@ -82,16 +88,18 @@ func TestDraft4(t *testing.T) {
 				valid, err := intern.Interpret(g, true, p)
 				if err != nil {
 					t.Logf("--- FAIL: %v: Interpret error %v", test, err)
+					failedTests++
 				} else if valid != test.Valid {
 					t.Logf("--- FAIL: %v: expected %v got %v", test, test.Valid, valid)
+					failedTests++
 				} else {
 					t.Logf("--- PASS: %v", test)
-					total++
+					passed++
 				}
 			}
 		}
 	}
-	t.Logf("number of tests passing: %d", total)
+	t.Logf("number of tests passing: %d, skippedTests: %d, failedTests: %d", passed, skippedTests, failedTests)
 }
 
 func testDebug(t *testing.T, test Test) {

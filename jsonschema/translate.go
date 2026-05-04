@@ -302,10 +302,6 @@ func optional(p *ast.Pattern) *ast.Pattern {
 	return ast.NewOr(ast.NewEmpty(), p)
 }
 
-func multipleOfExpr(d float64) *ast.Expr {
-	return ast.NewFunction("multipleOf", combinator.DoubleConst(d))
-}
-
 func translateNumeric(schema Numeric) (*ast.Pattern, error) {
 	v := newNumber()
 	list := []*ast.Expr{}
@@ -342,36 +338,6 @@ func and(list []*ast.Expr) *ast.Expr {
 		return list[0]
 	}
 	return combinator.And(list[0], and(list[1:]))
-}
-
-func emailExpr() *ast.Expr {
-	notStr := combinator.Not(newType(combinator.StringVar()))
-	f := ast.NewFunction("email", combinator.StringVar())
-	return combinator.Or(f, notStr)
-}
-
-func datetimeExpr() *ast.Expr {
-	notStr := combinator.Not(newType(combinator.StringVar()))
-	f := ast.NewFunction("datetime", combinator.StringVar())
-	return combinator.Or(f, notStr)
-}
-
-func dateExpr() *ast.Expr {
-	notStr := combinator.Not(newType(combinator.StringVar()))
-	f := ast.NewFunction("date", combinator.StringVar())
-	return combinator.Or(f, notStr)
-}
-
-func formatExpr(format string) (*ast.Expr, error) {
-	switch format {
-	case "date":
-		return dateExpr(), nil
-	case "datetime":
-		return datetimeExpr(), nil
-	case "email":
-		return emailExpr(), nil
-	}
-	return nil, fmt.Errorf("format %s not supported", format)
 }
 
 func translateString(schema String, format string) (*ast.Pattern, error) {

@@ -15,5 +15,41 @@
 package jsonschema
 
 import (
+	"fmt"
+
 	_ "github.com/katydid/validator-go-jsonschema/jsonschema/funcs"
+	"github.com/katydid/validator-go/validator/ast"
+	"github.com/katydid/validator-go/validator/combinator"
 )
+
+func multipleOfExpr(d float64) *ast.Expr {
+	return ast.NewFunction("multipleOf", combinator.DoubleConst(d))
+}
+
+func emailExpr() *ast.Expr {
+	notStr := combinator.Not(newType(combinator.StringVar()))
+	f := ast.NewFunction("email", combinator.StringVar())
+	return combinator.Or(f, notStr)
+}
+
+func datetimeExpr() *ast.Expr {
+	return ast.NewFunction("datetime")
+}
+
+func dateExpr() *ast.Expr {
+	notStr := combinator.Not(newType(combinator.StringVar()))
+	f := ast.NewFunction("date", combinator.StringVar())
+	return combinator.Or(f, notStr)
+}
+
+func formatExpr(format string) (*ast.Expr, error) {
+	switch format {
+	case "date":
+		return dateExpr(), nil
+	case "date-time":
+		return datetimeExpr(), nil
+	case "email":
+		return emailExpr(), nil
+	}
+	return nil, fmt.Errorf("format %s not supported", format)
+}

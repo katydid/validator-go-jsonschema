@@ -51,7 +51,7 @@ func isMultipleOf(n float64, d float64) bool {
 
 func (this *multipleOf) Eval() (bool, error) {
 	if this.Token == nil {
-		return false, nil
+		return false, errTokenNotSet
 	}
 	kind, v, err := this.Token.Token()
 	if err != nil {
