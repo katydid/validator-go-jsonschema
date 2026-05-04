@@ -54,6 +54,10 @@ func uuidExpr() *ast.Expr {
 	return ast.NewFunction("uuid")
 }
 
+func durationExpr() *ast.Expr {
+	return ast.NewFunction("duration")
+}
+
 func formatExpr(format string) (*ast.Expr, error) {
 	switch format {
 	case "date":
@@ -70,6 +74,8 @@ func formatExpr(format string) (*ast.Expr, error) {
 		return relativeJSONPointerExpr(), nil
 	case "uuid":
 		return uuidExpr(), nil
+	case "duration":
+		return durationExpr(), nil
 	}
 	return nil, fmt.Errorf("format %s not supported", format)
 }
