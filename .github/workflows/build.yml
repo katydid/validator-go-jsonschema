@@ -44,7 +44,7 @@ jobs:
       uses: awalterschulze/checklicense@v1.0.6
       with:
         path: gopath/src/github.com/katydid/validator-go-jsonschema
-        ignores: doc.go .svg .txt .bnf .md
+        ignores: doc.go .svg .txt .bnf .md COPIED santhosh-tekuri/format.go
     - name: Diff
       run: |
         cd gopath/src/github.com/katydid/validator-go-jsonschema
