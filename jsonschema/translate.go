@@ -74,7 +74,7 @@ func translateOne(schema *Schema) (*ast.Pattern, error) {
 		if schema.Type != nil && len(*schema.Type) > 1 {
 			return nil, fmt.Errorf("list of types not supported with string constraints %#v", schema)
 		}
-		p, err := translateString(schema.String)
+		p, err := translateString(schema.String, schema.Format)
 		return p, err
 	}
 	if schema.HasArrayConstraints() {
@@ -91,9 +91,6 @@ func translateOne(schema *Schema) (*ast.Pattern, error) {
 
 	if len(schema.Ref) > 0 {
 		return nil, fmt.Errorf("ref not supported")
-	}
-	if len(schema.Format) > 0 {
-		return nil, fmt.Errorf("format not supported")
 	}
 	return ast.NewZAny(), nil
 }
@@ -336,7 +333,7 @@ func and(list []*ast.Expr) *ast.Expr {
 	return combinator.And(list[0], and(list[1:]))
 }
 
-func translateString(schema String) (*ast.Pattern, error) {
+func translateString(schema String, format string) (*ast.Pattern, error) {
 	v := combinator.StringVar()
 	list := []*ast.Expr{}
 	notStr := combinator.Not(newType(combinator.StringVar()))
@@ -351,6 +348,18 @@ func translateString(schema String) (*ast.Pattern, error) {
 	if schema.Pattern != nil {
 		p := combinator.Regex(combinator.StringConst(*schema.Pattern), v)
 		list = append(list, combinator.Or(p, notStr))
+	}
+	if len(format) > 0 {
+		switch format {
+		case "date":
+			datef := ast.NewFunction("date", v)
+			list = append(list, datef)
+		case "datetime":
+			datetimef := ast.NewFunction("datetime", v)
+			list = append(list, datetimef)
+		default:
+			return nil, fmt.Errorf("format %s not supported", format)
+		}
 	}
 	if len(list) == 0 {
 		return combinator.Value(newType(v)), nil

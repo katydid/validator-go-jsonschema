@@ -17,66 +17,50 @@ package funcs
 import (
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
+
+	jsonschema "github.com/katydid/validator-go-jsonschema/jsonschema/funcs/santhosh-tekuri"
 )
 
-type maxLength struct {
+// Date returns whether a string is a valid date
+func Date(input funcs.String) (funcs.Bool, error) {
+	return funcs.TrimBool(&date{
+		S:           input,
+		hash:        funcs.Hash("date", input),
+		hasVariable: input.HasVariable(),
+	}), nil
+}
+
+type date struct {
 	S           funcs.String
-	n           int64
-	hasVariable bool
 	hash        uint64
+	hasVariable bool
 }
 
-func MaxLength(S funcs.String, N funcs.ConstInt) (funcs.Bool, error) {
-	n, err := N.Eval()
-	if err != nil {
-		return nil, err
-	}
-	return &maxLength{
-		S:           S,
-		n:           n,
-		hasVariable: S.HasVariable(),
-		hash:        funcs.Hash("maxLength", S, N),
-	}, nil
+func (this *date) HasVariable() bool {
+	return this.hasVariable
 }
 
-func (this *maxLength) Eval() (bool, error) {
+func (this *date) ToExpr() *ast.Expr {
+	return ast.NewFunction("date", this.S.ToExpr())
+}
+
+func (this *date) Eval() (bool, error) {
 	s, err := this.S.Eval()
 	if err != nil {
 		return false, err
 	}
-	l := int64(0)
-	for range s {
-		l++
-	}
-	return l <= this.n, nil
+	err = jsonschema.ValidateDate(s)
+	return err == nil, nil
 }
 
-func (this *maxLength) ToExpr() *ast.Expr {
-	return ast.NewFunction("maxLength", this.S.ToExpr(), ast.NewIntConst(this.n))
-}
-
-func (this *maxLength) HasVariable() bool {
-	return this.hasVariable
-}
-
-func (this *maxLength) Hash() uint64 {
-	return this.hash
-}
-
-func (this *maxLength) Compare(that funcs.Comparable) int {
+func (this *date) Compare(that funcs.Comparable) int {
 	if this.Hash() != that.Hash() {
 		if this.Hash() < that.Hash() {
 			return -1
 		}
 		return 1
 	}
-	if other, ok := that.(*maxLength); ok {
-		if this.n != other.n {
-			if this.n < other.n {
-				return -1
-			}
-			return 1
-		}
+	if other, ok := that.(*date); ok {
 		if c := this.S.Compare(other.S); c != 0 {
 			return c
 		}
@@ -85,6 +69,10 @@ func (this *maxLength) Compare(that funcs.Comparable) int {
 	return this.ToExpr().Compare(that.ToExpr())
 }
 
+func (this *date) Hash() uint64 {
+	return this.hash
+}
+
 func init() {
-	funcs.Register("maxLength", MaxLength)
+	funcs.Register("date", Date)
 }
