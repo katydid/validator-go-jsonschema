@@ -42,6 +42,14 @@ func hostNameExpr() *ast.Expr {
 	return ast.NewFunction("hostname")
 }
 
+func jsonPointerExpr() *ast.Expr {
+	return ast.NewFunction("jsonPointer")
+}
+
+func relativeJSONPointerExpr() *ast.Expr {
+	return ast.NewFunction("relativeJSONPointer")
+}
+
 func formatExpr(format string) (*ast.Expr, error) {
 	switch format {
 	case "date":
@@ -52,6 +60,10 @@ func formatExpr(format string) (*ast.Expr, error) {
 		return emailExpr(), nil
 	case "hostname":
 		return hostNameExpr(), nil
+	case "json-pointer":
+		return jsonPointerExpr(), nil
+	case "relative-json-pointer":
+		return relativeJSONPointerExpr(), nil
 	}
 	return nil, fmt.Errorf("format %s not supported", format)
 }
