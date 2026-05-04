@@ -1,6 +1,6 @@
 module github.com/katydid/validator-go-jsonschema
 
-go 1.24
+go 1.26
 
 tool github.com/awalterschulze/goderive
 
