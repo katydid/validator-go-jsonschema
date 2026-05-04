@@ -50,6 +50,10 @@ func relativeJSONPointerExpr() *ast.Expr {
 	return ast.NewFunction("relativeJSONPointer")
 }
 
+func uuidExpr() *ast.Expr {
+	return ast.NewFunction("uuid")
+}
+
 func formatExpr(format string) (*ast.Expr, error) {
 	switch format {
 	case "date":
@@ -64,6 +68,8 @@ func formatExpr(format string) (*ast.Expr, error) {
 		return jsonPointerExpr(), nil
 	case "relative-json-pointer":
 		return relativeJSONPointerExpr(), nil
+	case "uuid":
+		return uuidExpr(), nil
 	}
 	return nil, fmt.Errorf("format %s not supported", format)
 }
