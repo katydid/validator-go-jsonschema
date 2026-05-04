@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/katydid/validator-go-jsonschema/validator/ast"
-	"github.com/katydid/validator-go-jsonschema/validator/combinator"
+	"github.com/katydid/validator-go/validator/ast"
+	"github.com/katydid/validator-go/validator/combinator"
 )
 
 func TranslateDraft4(schema *Schema) (*ast.Grammar, error) {

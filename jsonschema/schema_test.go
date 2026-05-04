@@ -18,9 +18,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/katydid/parser-go/parser/debug"
-	"github.com/katydid/validator-go-jsonschema/json"
-	"github.com/katydid/validator-go-jsonschema/validator/interp"
+	"github.com/katydid/parser-go-json/json"
+	"github.com/katydid/parser-go/parse/debug"
+	"github.com/katydid/validator-go/validator/intern"
 )
 
 var skippingFile = map[string]bool{
@@ -57,7 +57,7 @@ func TestDraft4(t *testing.T) {
 	t.Logf("total number of tests: %d", len(tests))
 	total := 0
 
-	p := json.NewJsonParser()
+	p := json.NewParser()
 	for _, test := range tests {
 		if skippingFile[test.Filename] {
 			t.Logf("--- SKIP: %v", test)
@@ -76,12 +76,10 @@ func TestDraft4(t *testing.T) {
 			if err != nil {
 				t.Logf("--- FAIL: %v: Translate error %v", test, err)
 			} else {
-				if err := p.Init(test.Data); err != nil {
-					t.Logf("--- FAIL: %v: parser Init error %v", test, err)
-				}
-				_ = interp.Interpret
+				p.Init(test.Data)
+				_ = intern.Interpret
 				_ = g
-				valid, err := interp.Interpret(g, p)
+				valid, err := intern.Interpret(g, true, p)
 				if err != nil {
 					t.Logf("--- FAIL: %v: Interpret error %v", test, err)
 				} else if valid != test.Valid {
@@ -97,7 +95,7 @@ func TestDraft4(t *testing.T) {
 }
 
 func testDebug(t *testing.T, test Test) {
-	jsonp := json.NewJsonParser()
+	jsonp := json.NewParser()
 	p := debug.NewLogger(jsonp, debug.NewLineLogger())
 	t.Logf("Schema = %v", string(test.Schema))
 	schema, err := ParseSchema(test.Schema)
@@ -111,10 +109,8 @@ func testDebug(t *testing.T, test Test) {
 	}
 	t.Logf("Translated = %v", g)
 	t.Logf("Input = %v", string(test.Data))
-	if err := jsonp.Init(test.Data); err != nil {
-		t.Fatalf("parser Init error %v", err)
-	}
-	valid, err := interp.Interpret(g, p)
+	jsonp.Init(test.Data)
+	valid, err := intern.Interpret(g, true, p)
 	if err != nil {
 		t.Fatalf("Interpret error %v", err)
 	} else if valid != test.Valid {

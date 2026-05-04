@@ -21,7 +21,8 @@ dep:
 	go install -v github.com/awalterschulze/goderive
 
 test:
-	TESTSUITE=MUST go test ./...
+	go clean -testcache
+	TESTSUITE=MUST go test -v ./...
 
 build:
 	go build ./...

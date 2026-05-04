@@ -15,10 +15,8 @@
 package jsonschema
 
 import (
-	"fmt"
-	"strings"
-
-	"github.com/katydid/validator-go-jsonschema/validator/funcs"
+	"github.com/katydid/validator-go/validator/ast"
+	"github.com/katydid/validator-go/validator/funcs"
 )
 
 type multipleOf struct {
@@ -50,8 +48,8 @@ func (this *multipleOf) Eval() (bool, error) {
 	return v == float64(int64(v)) || v == float64(uint64(v)), nil
 }
 
-func (this *multipleOf) String() string {
-	return "multipleOf(" + this.N.String() + "," + fmt.Sprintf("%v", this.d) + ")"
+func (this *multipleOf) ToExpr() *ast.Expr {
+	return ast.NewFunction("multipleOf", this.N.ToExpr(), ast.NewDoubleConst(this.d))
 }
 
 func (this *multipleOf) HasVariable() bool {
@@ -81,7 +79,7 @@ func (this *multipleOf) Compare(that funcs.Comparable) int {
 		}
 		return 0
 	}
-	return strings.Compare(this.String(), that.String())
+	return this.ToExpr().Compare(that.ToExpr())
 }
 
 func init() {
@@ -116,8 +114,8 @@ func (this *integer) Eval() (float64, error) {
 	return 0, err
 }
 
-func (this *integer) String() string {
-	return "integer"
+func (this *integer) ToExpr() *ast.Expr {
+	return ast.NewFunction("integer", this.U.ToExpr(), this.I.ToExpr())
 }
 
 func (this *integer) HasVariable() bool {
@@ -138,7 +136,7 @@ func (this *integer) Compare(that funcs.Comparable) int {
 	if _, ok := that.(*integer); ok {
 		return 0
 	}
-	return strings.Compare(this.String(), that.String())
+	return this.ToExpr().Compare(that.ToExpr())
 }
 
 func init() {
@@ -175,8 +173,8 @@ func (this *number) Eval() (float64, error) {
 	return this.D.Eval()
 }
 
-func (this *number) String() string {
-	return "number"
+func (this *number) ToExpr() *ast.Expr {
+	return ast.NewFunction("number", this.U.ToExpr(), this.I.ToExpr(), this.D.ToExpr())
 }
 
 func (this *number) HasVariable() bool {
@@ -197,7 +195,7 @@ func (this *number) Compare(that funcs.Comparable) int {
 	if _, ok := that.(*number); ok {
 		return 0
 	}
-	return strings.Compare(this.String(), that.String())
+	return this.ToExpr().Compare(that.ToExpr())
 }
 
 func init() {
@@ -236,8 +234,8 @@ func (this *maxLength) Eval() (bool, error) {
 	return l <= this.n, nil
 }
 
-func (this *maxLength) String() string {
-	return "maxLength(" + this.S.String() + "," + fmt.Sprintf("%d", this.n) + ")"
+func (this *maxLength) ToExpr() *ast.Expr {
+	return ast.NewFunction("maxLength", this.S.ToExpr(), ast.NewIntConst(this.n))
 }
 
 func (this *maxLength) HasVariable() bool {
@@ -267,7 +265,7 @@ func (this *maxLength) Compare(that funcs.Comparable) int {
 		}
 		return 0
 	}
-	return strings.Compare(this.String(), that.String())
+	return this.ToExpr().Compare(that.ToExpr())
 }
 
 func init() {
@@ -306,8 +304,8 @@ func (this *minLength) Eval() (bool, error) {
 	return l >= this.n, nil
 }
 
-func (this *minLength) String() string {
-	return "minLength(" + this.S.String() + "," + fmt.Sprintf("%d", this.n) + ")"
+func (this *minLength) ToExpr() *ast.Expr {
+	return ast.NewFunction("minLength", this.S.ToExpr(), ast.NewIntConst(this.n))
 }
 
 func (this *minLength) HasVariable() bool {
@@ -337,7 +335,7 @@ func (this *minLength) Compare(that funcs.Comparable) int {
 		}
 		return 0
 	}
-	return strings.Compare(this.String(), that.String())
+	return this.ToExpr().Compare(that.ToExpr())
 }
 
 func init() {

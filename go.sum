@@ -2,8 +2,14 @@ github.com/awalterschulze/goderive v0.5.1 h1:H2XNRDw0Ordwj/pgLAVqQgDC1LQWP7L99of
 github.com/awalterschulze/goderive v0.5.1/go.mod h1:DLlff0SRVo846CBrp8nXuXJ4mdWA92ai5CYTr+LV/II=
 github.com/goccmack/gocc v1.0.2 h1:PHv20lcM1Erz+kovS+c07DnDFp6X5cvghndtTXuEyfE=
 github.com/goccmack/gocc v1.0.2/go.mod h1:LXX2tFVUggS/Zgx/ICPOr3MLyusuM7EcbfkPvNsjdO8=
-github.com/katydid/parser-go v0.6.0 h1:8VFYXEp9pZsq4CCxYLDavPPqOSX+JXsmhjfU4XMB8iw=
-github.com/katydid/parser-go v0.6.0/go.mod h1:1BwRfDlyRgDlAaURZ4FXi7IzHqWKTsrCdsstLsFeQho=
+github.com/katydid/parser-go v0.8.5 h1:nybzT6/bTY0gPYWTMujmrjddX2QEFZgq8mBsBGsngzM=
+github.com/katydid/parser-go v0.8.5/go.mod h1:e6PzxUlxRtkeyCMHQW7l+xG6/r/3edg14k2KK4l2WL4=
+github.com/katydid/parser-go-json v0.5.2 h1:3QfhMKC1oRWA9BbS+QA1LjWCbhRI25Wr2QS2o/iGPIY=
+github.com/katydid/parser-go-json v0.5.2/go.mod h1:t+K8lXmZ3KwDt/Qf1mmcmxnR3hjgfjbWR3x/ypHg0s4=
+github.com/katydid/parser-go-reflect v0.3.0 h1:K0tMs6C56RYGtywtWZgNKel9q8MFUXR+hSC4z0S30gY=
+github.com/katydid/parser-go-reflect v0.3.0/go.mod h1:iyvC2cj+5iwPJrJB2zcT3klHUetRmVni3sV/dw5FtNs=
+github.com/katydid/validator-go v0.6.5-0.20260503154706-35c981ce87ea h1:3WpJAEIXquCqLk5aLi7rjVdg3uJtRMg59WZjHJ6wMaU=
+github.com/katydid/validator-go v0.6.5-0.20260503154706-35c981ce87ea/go.mod h1:n3yOuUQrn4vQtbV+Hq9OjK0xZ2ggQmDtxY8/zEgab8s=
 github.com/kisielk/gotool v1.0.0 h1:AV2c/EiW3KqPNT9ZKl07ehoAGi4C5/01Cfbblndcapg=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 golang.org/x/mod v0.8.0 h1:LUYupSeNrTNCGzR/hVBk2NHZO4hXcVaW1k4Qx7rjPx8=
