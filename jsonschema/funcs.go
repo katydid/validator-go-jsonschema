@@ -58,6 +58,14 @@ func durationExpr() *ast.Expr {
 	return ast.NewFunction("duration")
 }
 
+func ipv4Expr() *ast.Expr {
+	return ast.NewFunction("ipv4")
+}
+
+func ipv6Expr() *ast.Expr {
+	return ast.NewFunction("ipv6")
+}
+
 func formatExpr(format string) (*ast.Expr, error) {
 	switch format {
 	case "date":
@@ -76,6 +84,10 @@ func formatExpr(format string) (*ast.Expr, error) {
 		return uuidExpr(), nil
 	case "duration":
 		return durationExpr(), nil
+	case "ipv4":
+		return ipv4Expr(), nil
+	case "ipv6":
+		return ipv6Expr(), nil
 	}
 	return nil, fmt.Errorf("format %s not supported", format)
 }
