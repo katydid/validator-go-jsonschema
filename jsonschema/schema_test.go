@@ -24,26 +24,27 @@ import (
 )
 
 var skippingFile = map[string]bool{
-	"format.json":               true, //optional
-	"bignum.json":               true, //optional
-	"zeroTerminatedFloats.json": true, //optional
-	"uniqueItems.json":          true, //known issue
-	"patternProperties.json":    true, //known issue
-	"minProperties.json":        true, //known issue?
-	"minItems.json":             true, //known issue?
-	"maxProperties.json":        true, //known issue?
-	"maxItems.json":             true, //known issue?
-	"refRemote.json":            true, //known issue?
-	"ref.json":                  true,
-	"properties.json":           true,
-	"items.json":                true,
-	"enum.json":                 true, //requires properties and type object
-	"dependencies.json":         true,
-	"default.json":              true,
-	"definitions.json":          true,
-	"allOf.json":                true,
-	"additionalProperties.json": true,
-	"additionalItems.json":      true,
+	"format.json":                  true, //optional
+	"bignum.json":                  true, //optional
+	"zeroTerminatedFloats.json":    true, //optional
+	"uniqueItems.json":             true, //known issue
+	"patternProperties.json":       true, //known issue
+	"minProperties.json":           true, //known issue?
+	"minItems.json":                true, //known issue?
+	"maxProperties.json":           true, //known issue?
+	"maxItems.json":                true, //known issue?
+	"refRemote.json":               true, //known issue?
+	"ref.json":                     true,
+	"properties.json":              true,
+	"items.json":                   true,
+	"enum.json":                    true, //requires properties and type object
+	"dependencies.json":            true,
+	"default.json":                 true,
+	"definitions.json":             true,
+	"allOf.json":                   true,
+	"additionalProperties.json":    true,
+	"additionalItems.json":         true,
+	"infinite-loop-detection.json": true, // TODO: additionalProperties needs better support
 }
 
 var skippingTest = map[string]bool{

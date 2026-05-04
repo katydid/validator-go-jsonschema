@@ -38,6 +38,10 @@ func dateExpr() *ast.Expr {
 	return ast.NewFunction("date")
 }
 
+func hostNameExpr() *ast.Expr {
+	return ast.NewFunction("hostname")
+}
+
 func formatExpr(format string) (*ast.Expr, error) {
 	switch format {
 	case "date":
@@ -46,6 +50,8 @@ func formatExpr(format string) (*ast.Expr, error) {
 		return datetimeExpr(), nil
 	case "email":
 		return emailExpr(), nil
+	case "hostname":
+		return hostNameExpr(), nil
 	}
 	return nil, fmt.Errorf("format %s not supported", format)
 }
