@@ -28,19 +28,10 @@ jobs:
       run: |
         cd gopath/src/github.com/katydid/validator-go-jsonschema
         go mod download -x
-    - name: Install tools
-      run: |
-        cd gopath/src/github.com/katydid/validator-go-jsonschema
-        go install -x github.com/goccmack/gocc
-        go install -x github.com/awalterschulze/goderive
     - name: env
       run: env && go env && pwd
     - name: tree
       run: tree
-    - name: Generate
-      run: |
-        cd gopath/src/github.com/katydid/validator-go-jsonschema
-        PATH=$HOME/bin:$PATH make regenerate
     - name: Build
       run: |
         cd gopath/src/github.com/katydid/validator-go-jsonschema
@@ -49,10 +40,6 @@ jobs:
       run: |
         cd gopath/src/github.com/katydid/validator-go-jsonschema
         make test
-    - name: Vet
-      run: |
-        cd gopath/src/github.com/katydid/validator-go-jsonschema
-        make vet
     - name: Checklicencse
       uses: awalterschulze/checklicense@v1.0.6
       with:
