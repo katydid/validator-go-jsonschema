@@ -91,7 +91,7 @@ func translateOne(schema *schema.Schema) (*ast.Pattern, error) {
 		return p, err
 	}
 	if len(schema.Format) > 0 {
-		expr, err := formatExpr(schema.Format)
+		expr, err := translateFormat(schema.Format)
 		if err != nil {
 			return nil, err
 		}

@@ -33,7 +33,7 @@ func translateString(schema schema.String, format string) (*ast.Pattern, error) 
 		list = append(list, regexExpr(*schema.Pattern))
 	}
 	if len(format) > 0 {
-		formatExpr, err := formatExpr(format)
+		formatExpr, err := translateFormat(format)
 		if err != nil {
 			return nil, err
 		}

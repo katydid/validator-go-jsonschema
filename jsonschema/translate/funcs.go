@@ -92,47 +92,6 @@ func anyExpr() *ast.Expr {
 	return ast.NewFunction("any")
 }
 
-func formatExpr(format string) (*ast.Expr, error) {
-	switch format {
-	case "date":
-		return dateExpr(), nil
-	case "date-time":
-		return datetimeExpr(), nil
-	case "email":
-		return emailExpr(), nil
-	case "hostname":
-		return hostNameExpr(), nil
-	case "json-pointer":
-		return jsonPointerExpr(), nil
-	case "relative-json-pointer":
-		return relativeJSONPointerExpr(), nil
-	case "uuid":
-		return uuidExpr(), nil
-	case "duration":
-		return durationExpr(), nil
-	case "ipv4":
-		return ipv4Expr(), nil
-	case "ipv6":
-		return ipv6Expr(), nil
-	case "time":
-		return timeExpr(), nil
-	case "uri", "iri":
-		return uriExpr(), nil
-	case "uri-reference", "iri-reference":
-		return uriReferenceExpr(), nil
-	case "uri-template":
-		return uriTemplateExpr(), nil
-	case "period":
-		return periodExpr(), nil
-	case "semver":
-		return semverExpr(), nil
-	default:
-		// A format attribute can generally only validate a given set of instance types.
-		// If the type of the instance to validate is not in this set, validation for this format attribute and instance SHOULD succeed.
-		return anyExpr(), nil
-	}
-}
-
 func regexExpr(s string) *ast.Expr {
 	return ast.NewFunction("regex", combinator.StringConst(s), combinator.StringVar())
 }
