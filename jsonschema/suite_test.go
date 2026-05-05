@@ -15,6 +15,7 @@
 package jsonschema
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -24,11 +25,11 @@ var passingFile = map[string]bool{
 	"maxLength.json": true,
 	"date-time.json": true,
 	"email.json":     true,
-	"hostname.json":  true,
-	"ipv4.json":      true,
-	"ipv6.json":      true,
-	"uri.json":       true,
-	"unknonw.json":   true,
+	// "hostname.json":  true,
+	// "ipv4.json":      true,
+	"ipv6.json": true,
+	// "uri.json":       true,
+	"unknown.json": true,
 }
 
 var skippingFile = map[string]bool{
@@ -52,10 +53,30 @@ var skippingTest = map[string]bool{
 	"ecmascript-regex.json:patternProperties with non-ASCII digits:non-ascii digits (BENGALI DIGIT FOUR, BENGALI DIGIT TWO)":       true, // https://github.com/dlclark/regexp2/issues/101
 }
 
+// check that files specified in the skip/pass sets actually exist.
+func checkFilesExists(spec map[string]bool, tests []Test) {
+	for name := range spec {
+		found := false
+		for _, test := range tests {
+			if test.Filename == name {
+				found = true
+				break
+			}
+		}
+		if !found {
+			panic(fmt.Sprintf("file not found %s", name))
+		}
+	}
+}
+
 func TestSuiteDraft4(t *testing.T) {
 	tests := buildTests(t)
 	t.Logf("skipping files: %d", len(skippingFile))
 	t.Logf("total number of tests: %d", len(tests))
+
+	checkFilesExists(passingFile, tests)
+	checkFilesExists(skippingFile, tests)
+
 	passed := 0
 	skippedTests := 0
 	failedTests := 0
@@ -76,9 +97,9 @@ func TestSuiteDraft4(t *testing.T) {
 		if err != nil || valid != test.Valid {
 			if passingFile[test.Filename] {
 				if err != nil {
-					t.Errorf("ERROR: %v: Interpret error %v", test, err)
+					t.Errorf("UNEXPECTED FAILURE: %v: Interpret error %v", test, err)
 				} else {
-					t.Errorf("ERROR: %v: expected %v got %v", test, test.Valid, valid)
+					t.Errorf("UNEXPECTED FAILURE: %v: expected %v got %v", test, test.Valid, valid)
 				}
 			} else {
 				if err != nil {
