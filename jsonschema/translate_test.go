@@ -20,9 +20,6 @@ import (
 
 	"github.com/katydid/parser-go-json/json"
 	"github.com/katydid/parser-go/parse/debug"
-	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
-	"github.com/katydid/validator-go-jsonschema/jsonschema/translate"
-	"github.com/katydid/validator-go/validator/intern"
 )
 
 var skippingFile = map[string]bool{
@@ -75,7 +72,6 @@ func TestDraft4(t *testing.T) {
 	skippedTests := 0
 	failedTests := 0
 
-	p := json.NewJSONSchemaParser()
 	for _, test := range tests {
 		if skippingFile[test.Filename] {
 			t.Logf("--- SKIP: %v", test)
@@ -88,31 +84,16 @@ func TestDraft4(t *testing.T) {
 			continue
 		}
 		t.Logf("--- RUN: %v", test)
-		schema, err := schema.ParseSchema(test.Schema)
+		valid, err := Validate(test.Schema, test.Data)
 		if err != nil {
-			t.Logf("--- FAIL: %v: Parse error %v", test, err)
+			t.Logf("--- FAIL: %v: Interpret error %v", test, err)
+			failedTests++
+		} else if valid != test.Valid {
+			t.Logf("--- FAIL: %v: expected %v got %v", test, test.Valid, valid)
 			failedTests++
 		} else {
-			g, err := translate.TranslateDraft4(schema)
-			if err != nil {
-				t.Logf("--- FAIL: %v: Translate error %v", test, err)
-				failedTests++
-			} else {
-				p.Init(test.Data)
-				_ = intern.Interpret
-				_ = g
-				valid, err := intern.Interpret(g, true, p)
-				if err != nil {
-					t.Logf("--- FAIL: %v: Interpret error %v", test, err)
-					failedTests++
-				} else if valid != test.Valid {
-					t.Logf("--- FAIL: %v: expected %v got %v", test, test.Valid, valid)
-					failedTests++
-				} else {
-					t.Logf("--- PASS: %v", test)
-					passed++
-				}
-			}
+			t.Logf("--- PASS: %v", test)
+			passed++
 		}
 	}
 	t.Logf("number of tests passing: %d, skippedTests: %d, failedTests: %d", passed, skippedTests, failedTests)
@@ -121,20 +102,8 @@ func TestDraft4(t *testing.T) {
 func testDebug(t *testing.T, test Test) {
 	jsonp := json.NewJSONSchemaParser()
 	p := debug.NewLogger(jsonp, debug.NewLineLogger())
-	t.Logf("Schema = %v", string(test.Schema))
-	schema, err := schema.ParseSchema(test.Schema)
-	if err != nil {
-		t.Fatalf("Parser error %v", err)
-	}
-	t.Logf("Parsed Schema %v", schema.JsonString())
-	g, err := translate.TranslateDraft4(schema)
-	if err != nil {
-		t.Fatalf("Translate error %v", err)
-	}
-	t.Logf("Translated = %v", g)
-	t.Logf("Input = %v", string(test.Data))
-	jsonp.Init(test.Data)
-	valid, err := intern.Interpret(g, true, p)
+	p.Init(test.Data)
+	valid, err := ValidateParser(test.Schema, p)
 	if err != nil {
 		t.Fatalf("Interpret error %v", err)
 	} else if valid != test.Valid {
