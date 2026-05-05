@@ -12,17 +12,18 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-package jsonschema
+package translate
 
 import (
 	"fmt"
 	"sort"
 
+	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/combinator"
 )
 
-func TranslateDraft4(schema *Schema) (*ast.Grammar, error) {
+func TranslateDraft4(schema *schema.Schema) (*ast.Grammar, error) {
 	p, err := translate(schema)
 	if err != nil {
 		return nil, err
@@ -30,7 +31,7 @@ func TranslateDraft4(schema *Schema) (*ast.Grammar, error) {
 	return ast.NewGrammar(ast.RefLookup(map[string]*ast.Pattern{"main": p})), nil
 }
 
-func translate(schema *Schema) (*ast.Pattern, error) {
+func translate(schema *schema.Schema) (*ast.Pattern, error) {
 	pattern, err := translateOne(schema)
 	if err != nil {
 		return nil, err
@@ -59,7 +60,7 @@ func translate(schema *Schema) (*ast.Pattern, error) {
 	return pattern, nil
 }
 
-func translateOne(schema *Schema) (*ast.Pattern, error) {
+func translateOne(schema *schema.Schema) (*ast.Pattern, error) {
 	if len(schema.Id) > 0 {
 		return nil, fmt.Errorf("id not supported")
 	}
@@ -102,7 +103,7 @@ func translateOne(schema *Schema) (*ast.Pattern, error) {
 	return ast.NewZAny(), nil
 }
 
-func translates(schemas []*Schema) ([]*ast.Pattern, error) {
+func translates(schemas []*schema.Schema) ([]*ast.Pattern, error) {
 	ps := make([]*ast.Pattern, len(schemas))
 	for i := range schemas {
 		var err error
@@ -120,7 +121,7 @@ func rest(xs []*ast.Pattern, index int) []*ast.Pattern {
 	return append(ys, xs[index+1:]...)
 }
 
-func translateInstance(schema *Schema) (*ast.Pattern, error) {
+func translateInstance(schema *schema.Schema) (*ast.Pattern, error) {
 	if len(schema.Definitions) > 0 {
 		return nil, fmt.Errorf("definitions not supported")
 	}
@@ -174,16 +175,16 @@ func translateInstance(schema *Schema) (*ast.Pattern, error) {
 	panic("unreachable object")
 }
 
-func translateType(typ SimpleType) (*ast.Pattern, error) {
+func translateType(typ schema.SimpleType) (*ast.Pattern, error) {
 	switch typ {
-	case TypeArray, TypeObject:
+	case schema.TypeArray, schema.TypeObject:
 		//This does not distinguish between arrays and objects
 		return combinator.Many(combinator.InAny(combinator.Any())), nil
-	case TypeBoolean:
+	case schema.TypeBoolean:
 		return combinator.Value(newTypeExpr(combinator.BoolVar())), nil
-	case TypeInteger:
+	case schema.TypeInteger:
 		return combinator.Value(newTypeExpr(newIntegerExpr())), nil
-	case TypeNull:
+	case schema.TypeNull:
 		//TODO null is not being returned by json parser, but is also not empty
 		return combinator.Value(combinator.Not(
 			combinator.Or(
@@ -194,29 +195,29 @@ func translateType(typ SimpleType) (*ast.Pattern, error) {
 				),
 			),
 		)), nil
-	case TypeNumber:
+	case schema.TypeNumber:
 		return combinator.Value(newTypeExpr(newNumberExpr())), nil
-	case TypeString:
+	case schema.TypeString:
 		return combinator.Value(newTypeExpr(combinator.StringVar())), nil
 	}
 	panic(fmt.Sprintf("unknown simpletype: %s", typ))
 }
 
-func translateObject(schema *Schema) (*ast.Pattern, error) {
-	if schema.MaxProperties != nil {
+func translateObject(s *schema.Schema) (*ast.Pattern, error) {
+	if s.MaxProperties != nil {
 		return nil, fmt.Errorf("maxProperties not supported")
 	}
-	if schema.MinProperties > 0 {
+	if s.MinProperties > 0 {
 		return nil, fmt.Errorf("minProperties not supported")
 	}
 	required := make(map[string]struct{})
-	for _, req := range schema.Required {
+	for _, req := range s.Required {
 		required[req] = struct{}{}
 	}
 	requiredIf := make(map[string][]string)
-	moreProperties := make(map[string]*Schema)
-	if schema.Dependencies != nil {
-		deps := *schema.Dependencies
+	moreProperties := make(map[string]*schema.Schema)
+	if s.Dependencies != nil {
+		deps := *s.Dependencies
 		for name, dep := range deps {
 			if len(dep.RequiredProperty) > 0 {
 				requiredIf[name] = deps[name].RequiredProperty
@@ -227,13 +228,13 @@ func translateObject(schema *Schema) (*ast.Pattern, error) {
 	}
 
 	names := []string{}
-	for name := range schema.Properties {
+	for name := range s.Properties {
 		names = append(names, name)
 	}
 	sort.Strings(names)
 
 	patternNames := []string{}
-	for name := range schema.PatternProperties {
+	for name := range s.PatternProperties {
 		patternNames = append(patternNames, name)
 	}
 	sort.Strings(patternNames)
@@ -253,11 +254,11 @@ func translateObject(schema *Schema) (*ast.Pattern, error) {
 			), ast.NewZAny()),
 		)
 	}
-	if schema.AdditionalProperties != nil {
-		if schema.AdditionalProperties.Bool != nil && !(*schema.AdditionalProperties.Bool) {
+	if s.AdditionalProperties != nil {
+		if s.AdditionalProperties.Bool != nil && !(*s.AdditionalProperties.Bool) {
 			additional = ast.NewEmpty()
-		} else if schema.AdditionalProperties.Type != TypeUnknown {
-			typ, err := translateType(schema.AdditionalProperties.Type)
+		} else if s.AdditionalProperties.Type != schema.TypeUnknown {
+			typ, err := translateType(s.AdditionalProperties.Type)
 			if err != nil {
 				return nil, err
 			}
@@ -268,14 +269,14 @@ func translateObject(schema *Schema) (*ast.Pattern, error) {
 	}
 	patterns := make(map[string]*ast.Pattern)
 	for _, name := range names {
-		child, err := translate(schema.Properties[name])
+		child, err := translate(s.Properties[name])
 		if err != nil {
 			return nil, err
 		}
 		patterns[name] = ast.NewTreeNode(ast.NewStringName(name), child)
 	}
 	for _, name := range patternNames {
-		child, err := translate(schema.PatternProperties[name])
+		child, err := translate(s.PatternProperties[name])
 		if err != nil {
 			return nil, err
 		}
@@ -306,7 +307,7 @@ func optional(p *ast.Pattern) *ast.Pattern {
 	return ast.NewOptional(p)
 }
 
-func translateNumeric(schema Numeric) (*ast.Pattern, error) {
+func translateNumeric(schema schema.Numeric) (*ast.Pattern, error) {
 	v := newNumberExpr()
 	list := []*ast.Expr{}
 	notNum := combinator.Not(newTypeExpr(newNumberExpr()))
@@ -344,7 +345,7 @@ func and(list []*ast.Expr) *ast.Expr {
 	return combinator.And(list[0], and(list[1:]))
 }
 
-func translateString(schema String, format string) (*ast.Pattern, error) {
+func translateString(schema schema.String, format string) (*ast.Pattern, error) {
 	v := combinator.StringVar()
 	list := []*ast.Expr{}
 	if schema.MaxLength != nil {
@@ -369,51 +370,51 @@ func translateString(schema String, format string) (*ast.Pattern, error) {
 	return combinator.Value(and(list)), nil
 }
 
-func translateArray(schema *Schema) (*ast.Pattern, error) {
-	if schema.Type != nil {
-		if len(*schema.Type) > 1 {
-			return nil, fmt.Errorf("list of types not supported with array constraints %#v", schema)
+func translateArray(s *schema.Schema) (*ast.Pattern, error) {
+	if s.Type != nil {
+		if len(*s.Type) > 1 {
+			return nil, fmt.Errorf("list of types not supported with array constraints %#v", s)
 		}
-		if schema.GetType()[0] != TypeArray {
-			return nil, fmt.Errorf("%v not supported with array constraints", schema.GetType()[0])
+		if s.GetType()[0] != schema.TypeArray {
+			return nil, fmt.Errorf("%v not supported with array constraints", s.GetType()[0])
 		}
 	}
-	if schema.UniqueItems {
+	if s.UniqueItems {
 		return nil, fmt.Errorf("uniqueItems are not supported")
 	}
-	if schema.MaxItems != nil {
+	if s.MaxItems != nil {
 		return nil, fmt.Errorf("maxItems are not supported")
 	}
-	if schema.MinItems > 0 {
+	if s.MinItems > 0 {
 		return nil, fmt.Errorf("minItems are not supported")
 	}
 	additionalItems := true
-	if schema.AdditionalItems != nil {
-		if schema.Items == nil {
+	if s.AdditionalItems != nil {
+		if s.Items == nil {
 			//any
 		}
-		if schema.AdditionalItems.Bool != nil {
-			additionalItems = *schema.AdditionalItems.Bool
+		if s.AdditionalItems.Bool != nil {
+			additionalItems = *s.AdditionalItems.Bool
 		}
-		if !additionalItems && (schema.MaxLength != nil || schema.MinLength > 0) {
+		if !additionalItems && (s.MaxLength != nil || s.MinLength > 0) {
 			return nil, fmt.Errorf("additionalItems: false and (maxItems|minItems) are not supported together")
 		}
 		return nil, fmt.Errorf("additionalItems are not supported")
 	}
-	if schema.Items != nil {
-		if schema.Items.Object != nil {
-			if schema.Items.Object.Type == nil {
+	if s.Items != nil {
+		if s.Items.Object != nil {
+			if s.Items.Object.Type == nil {
 				//any
 			} else {
-				typ := schema.Items.Object.GetType()[0]
+				typ := s.Items.Object.GetType()[0]
 				_ = typ
 			}
 			//TODO this specifies the type of every item in the list
-		} else if schema.Items.Array != nil {
+		} else if s.Items.Array != nil {
 			if !additionalItems {
 				//TODO this specifies the length of the list as well as each ordered element's type
 				//  if no type is set then any type is accepted
-				maxLength := len(schema.Items.Array)
+				maxLength := len(s.Items.Array)
 				_ = maxLength
 			} else {
 				//TODO this specifies the types of the first few ordered items in the list

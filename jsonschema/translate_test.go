@@ -20,6 +20,8 @@ import (
 
 	"github.com/katydid/parser-go-json/json"
 	"github.com/katydid/parser-go/parse/debug"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/translate"
 	"github.com/katydid/validator-go/validator/intern"
 )
 
@@ -48,7 +50,6 @@ var skippingFile = map[string]bool{
 }
 
 var skippingTest = map[string]bool{
-	"type.json:object type matches objects:an array is not an object":                                                              true, //known issue
 	"type.json:array type matches arrays:an object is not an array":                                                                true, //known issue
 	"ecmascript-regex.json:patterns always use unicode semantics with pattern:ascii character in json string":                      true, // https://github.com/dlclark/regexp2/issues/101
 	"ecmascript-regex.json:patterns always use unicode semantics with patternProperties:ascii character in json string":            true, // https://github.com/dlclark/regexp2/issues/101
@@ -87,12 +88,12 @@ func TestDraft4(t *testing.T) {
 			continue
 		}
 		t.Logf("--- RUN: %v", test)
-		schema, err := ParseSchema(test.Schema)
+		schema, err := schema.ParseSchema(test.Schema)
 		if err != nil {
 			t.Logf("--- FAIL: %v: Parse error %v", test, err)
 			failedTests++
 		} else {
-			g, err := TranslateDraft4(schema)
+			g, err := translate.TranslateDraft4(schema)
 			if err != nil {
 				t.Logf("--- FAIL: %v: Translate error %v", test, err)
 				failedTests++
@@ -121,12 +122,12 @@ func testDebug(t *testing.T, test Test) {
 	jsonp := json.NewJSONSchemaParser()
 	p := debug.NewLogger(jsonp, debug.NewLineLogger())
 	t.Logf("Schema = %v", string(test.Schema))
-	schema, err := ParseSchema(test.Schema)
+	schema, err := schema.ParseSchema(test.Schema)
 	if err != nil {
 		t.Fatalf("Parser error %v", err)
 	}
 	t.Logf("Parsed Schema %v", schema.JsonString())
-	g, err := TranslateDraft4(schema)
+	g, err := translate.TranslateDraft4(schema)
 	if err != nil {
 		t.Fatalf("Translate error %v", err)
 	}
