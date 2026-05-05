@@ -30,10 +30,11 @@ func TestEmail(t *testing.T) {
 	}
 
 	var invalid = map[string]string{
-		"2962":               "an invalid e-mail address",
-		".test@example.com":  "dot before local part is not valid",
-		"test.@example.com":  "dot after local part is not valid",
-		"te..st@example.com": "two subsequent dots inside local part are not valid",
+		"2962":                                 "an invalid e-mail address",
+		".test@example.com":                    "dot before local part is not valid",
+		"test.@example.com":                    "dot after local part is not valid",
+		"te..st@example.com":                   "two subsequent dots inside local part are not valid",
+		"user1@oceania.org, user2@oceania.org": "two email addresses is not valid",
 	}
 	lex := lexer.NewLexer([]byte{})
 	for email, desc := range valid {
