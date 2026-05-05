@@ -18,6 +18,19 @@ import (
 	"testing"
 )
 
+// Files where all the tests must pass or the test actually fails.
+var passingFile = map[string]bool{
+	"minLength.json": true,
+	"maxLength.json": true,
+	"date-time.json": true,
+	"email.json":     true,
+	"hostname.json":  true,
+	"ipv4.json":      true,
+	"ipv6.json":      true,
+	"uri.json":       true,
+	"unknonw.json":   true,
+}
+
 var skippingFile = map[string]bool{
 	"uniqueItems.json": true, // We do not support uniqueItems, see https://github.com/katydid/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
 }
@@ -60,11 +73,20 @@ func TestSuiteDraft4(t *testing.T) {
 		}
 		t.Logf("--- RUN: %v", test)
 		valid, err := Validate(test.Schema, test.Data)
-		if err != nil {
-			t.Logf("--- FAIL: %v: Interpret error %v", test, err)
-			failedTests++
-		} else if valid != test.Valid {
-			t.Logf("--- FAIL: %v: expected %v got %v", test, test.Valid, valid)
+		if err != nil || valid != test.Valid {
+			if passingFile[test.Filename] {
+				if err != nil {
+					t.Errorf("--- FAIL: %v: Interpret error %v", test, err)
+				} else {
+					t.Errorf("--- FAIL: %v: expected %v got %v", test, test.Valid, valid)
+				}
+			} else {
+				if err != nil {
+					t.Logf("--- FAIL: %v: Interpret error %v", test, err)
+				} else {
+					t.Logf("--- FAIL: %v: expected %v got %v", test, test.Valid, valid)
+				}
+			}
 			failedTests++
 		} else {
 			t.Logf("--- PASS: %v", test)

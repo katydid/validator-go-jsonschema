@@ -15,8 +15,6 @@
 package translate
 
 import (
-	"fmt"
-
 	_ "github.com/katydid/validator-go-jsonschema/jsonschema/funcs"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/combinator"
@@ -90,6 +88,10 @@ func semverExpr() *ast.Expr {
 	return ast.NewFunction("semver")
 }
 
+func anyExpr() *ast.Expr {
+	return ast.NewFunction("any")
+}
+
 func formatExpr(format string) (*ast.Expr, error) {
 	switch format {
 	case "date":
@@ -124,8 +126,11 @@ func formatExpr(format string) (*ast.Expr, error) {
 		return periodExpr(), nil
 	case "semver":
 		return semverExpr(), nil
+	default:
+		// A format attribute can generally only validate a given set of instance types.
+		// If the type of the instance to validate is not in this set, validation for this format attribute and instance SHOULD succeed.
+		return anyExpr(), nil
 	}
-	return nil, fmt.Errorf("format %s not supported", format)
 }
 
 func regexExpr(s string) *ast.Expr {
