@@ -19,6 +19,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 )
 
 const testPath = "../../../json-schema-org/JSON-Schema-Test-Suite/tests/draft4/"
@@ -68,7 +70,7 @@ func buildTests(t *testing.T) []Test {
 			panic(err)
 		}
 		var schemaTests []*SchemaTest
-		if err := json.Unmarshal(content, &schemaTests); err != nil {
+		if err := std.UnmarshalJSON(content, &schemaTests); err != nil {
 			panic(filename + ":" + err.Error())
 		}
 		for i := range schemaTests {

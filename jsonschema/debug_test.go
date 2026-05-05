@@ -25,7 +25,7 @@ import (
 func TestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "properties.json:object properties validation:doesn't invalidate other properties") {
+		if !strings.Contains(test.String(), "zeroTerminatedFloats.json:some languages do not distinguish between different types of numeric value:a float is not an integer even without fractional part") {
 			continue
 		}
 		testDebug(t, test)
@@ -37,6 +37,7 @@ func testDebug(t *testing.T, test Test) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Logf("test.Data: %s", test.Data)
 	t.Logf("translated to: %v", g.String())
 
 	jsonp := json.NewJSONSchemaParser()

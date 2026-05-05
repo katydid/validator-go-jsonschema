@@ -21,14 +21,15 @@ import (
 
 // Files where all the tests must pass or the test actually fails.
 var passingFile = map[string]bool{
-	"minLength.json": true,
-	"maxLength.json": true,
-	"date-time.json": true,
-	"email.json":     true,
-	"hostname.json":  true,
-	"ipv4.json":      true,
-	"ipv6.json":      true,
-	"unknown.json":   true,
+	"minLength.json":            true,
+	"maxLength.json":            true,
+	"date-time.json":            true,
+	"email.json":                true,
+	"hostname.json":             true,
+	"ipv4.json":                 true,
+	"ipv6.json":                 true,
+	"unknown.json":              true,
+	"zeroTerminatedFloats.json": true,
 }
 
 var skippingFile = map[string]bool{

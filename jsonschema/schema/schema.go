@@ -19,6 +19,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+
+	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 )
 
 func init() {
@@ -27,7 +29,7 @@ func init() {
 
 func ParseSchema(jsonSchema []byte) (*Schema, error) {
 	schema := &Schema{}
-	if err := json.Unmarshal(jsonSchema, schema); err != nil {
+	if err := std.UnmarshalJSON(jsonSchema, schema); err != nil {
 		return nil, err
 	}
 	return schema, nil
