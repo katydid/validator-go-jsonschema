@@ -194,11 +194,11 @@ func (this *Schema) JsonString() string {
 	}
 */
 type Schema struct {
-	Id          string      `json:"id,omitempty"`
-	Schema      string      `json:"$schema,omitempty"`
-	Title       string      `json:"title,omitempty"`
-	Description string      `json:"description,omitempty"`
-	Default     interface{} `json:"default,omitempty"`
+	Id          string `json:"id,omitempty"`
+	Schema      string `json:"$schema,omitempty"`
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
+	Default     any    `json:"default,omitempty"`
 	Numeric
 	String
 	Array
@@ -299,11 +299,11 @@ type Instance struct {
 	   "minItems": 1,
 	   "uniqueItems": true
 	*/
-	Enum  []interface{} `json:"enum,omitempty"`
-	AllOf []*Schema     `json:"allOf,omitempty"`
-	AnyOf []*Schema     `json:"anyOf,omitempty"`
-	OneOf []*Schema     `json:"oneOf,omitempty"`
-	Not   *Schema       `json:"not,omitempty"`
+	Enum  []any     `json:"enum,omitempty"`
+	AllOf []*Schema `json:"allOf,omitempty"`
+	AnyOf []*Schema `json:"anyOf,omitempty"`
+	OneOf []*Schema `json:"oneOf,omitempty"`
+	Not   *Schema   `json:"not,omitempty"`
 }
 
 func (this Instance) HasInstanceConstraints() bool {

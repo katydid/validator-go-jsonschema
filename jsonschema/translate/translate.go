@@ -19,6 +19,7 @@ import (
 	"sort"
 
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/combinator"
 )
@@ -104,15 +105,7 @@ func translateOne(schema *schema.Schema) (*ast.Pattern, error) {
 }
 
 func translates(schemas []*schema.Schema) ([]*ast.Pattern, error) {
-	ps := make([]*ast.Pattern, len(schemas))
-	for i := range schemas {
-		var err error
-		ps[i], err = translate(schemas[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return ps, nil
+	return std.MapErr(schemas, translate)
 }
 
 func rest(xs []*ast.Pattern, index int) []*ast.Pattern {
@@ -303,71 +296,8 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 	return ast.NewTreeNode(ast.NewStringName("object"), ast.NewInterleave(patternList...)), nil
 }
 
-func optional(p *ast.Pattern) *ast.Pattern {
-	return ast.NewOptional(p)
-}
-
-func translateNumeric(schema schema.Numeric) (*ast.Pattern, error) {
-	v := newNumberExpr()
-	list := []*ast.Expr{}
-	notNum := combinator.Not(newTypeExpr(newNumberExpr()))
-	if schema.MultipleOf != nil {
-		mult := multipleOfExpr(*schema.MultipleOf)
-		list = append(list, mult)
-	}
-	if schema.Maximum != nil {
-		lt := combinator.LE(v, combinator.DoubleConst(*schema.Maximum))
-		if schema.ExclusiveMaximum {
-			lt = combinator.LT(v, combinator.DoubleConst(*schema.Maximum))
-		}
-		list = append(list, combinator.Or(lt, notNum))
-	}
-	if schema.Minimum != nil {
-		lt := combinator.GE(v, combinator.DoubleConst(*schema.Minimum))
-		if schema.ExclusiveMinimum {
-			lt = combinator.GT(v, combinator.DoubleConst(*schema.Minimum))
-		}
-		list = append(list, combinator.Or(lt, notNum))
-	}
-	if len(list) == 0 {
-		return combinator.Value(newTypeExpr(v)), nil
-	}
-	return combinator.Value(and(list)), nil
-}
-
 func and(list []*ast.Expr) *ast.Expr {
-	if len(list) == 0 {
-		panic("unreachable")
-	}
-	if len(list) == 1 {
-		return list[0]
-	}
-	return combinator.And(list[0], and(list[1:]))
-}
-
-func translateString(schema schema.String, format string) (*ast.Pattern, error) {
-	v := combinator.StringVar()
-	list := []*ast.Expr{}
-	if schema.MaxLength != nil {
-		list = append(list, maxLengthExpr(*schema.MaxLength))
-	}
-	if schema.MinLength > 0 {
-		list = append(list, minLengthExpr(schema.MinLength))
-	}
-	if schema.Pattern != nil {
-		list = append(list, regexExpr(*schema.Pattern))
-	}
-	if len(format) > 0 {
-		formatExpr, err := formatExpr(format)
-		if err != nil {
-			return nil, err
-		}
-		list = append(list, formatExpr)
-	}
-	if len(list) == 0 {
-		return combinator.Value(newTypeExpr(v)), nil
-	}
-	return combinator.Value(and(list)), nil
+	return std.MustFoldA(list, combinator.And)
 }
 
 func translateArray(s *schema.Schema) (*ast.Pattern, error) {

@@ -15,11 +15,7 @@
 package jsonschema
 
 import (
-	"strings"
 	"testing"
-
-	"github.com/katydid/parser-go-json/json"
-	"github.com/katydid/parser-go/parse/debug"
 )
 
 var skippingFile = map[string]bool{
@@ -76,32 +72,4 @@ func TestSuiteDraft4(t *testing.T) {
 		}
 	}
 	t.Logf("number of tests passing: %d, skippedTests: %d, failedTests: %d", passed, skippedTests, failedTests)
-}
-
-func testDebug(t *testing.T, test Test) {
-	g, err := newGrammar(test.Schema)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("translated to: %v", g.String())
-
-	jsonp := json.NewJSONSchemaParser()
-	p := debug.NewLogger(jsonp, debug.NewLineLogger())
-	p.Init(test.Data)
-	valid, err := ValidateParser(test.Schema, p)
-	if err != nil {
-		t.Fatalf("Interpret error %v", err)
-	} else if valid != test.Valid {
-		t.Fatalf("expected %v got %v", test.Valid, valid)
-	}
-}
-
-func TestDebug(t *testing.T) {
-	tests := buildTests(t)
-	for _, test := range tests {
-		if !strings.Contains(test.String(), "properties.json:object properties validation:doesn't invalidate other properties") {
-			continue
-		}
-		testDebug(t, test)
-	}
 }
