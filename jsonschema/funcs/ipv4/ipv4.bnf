@@ -1,0 +1,15 @@
+_digit09 : '0'-'9' ;
+
+_digit04 : '0'-'4' ;
+
+_digit19 : '1'-'9' ;
+
+_num: _digit09
+    | _digit19 _digit09
+    | '1' _digit09 _digit09
+    | '2' _digit04 _digit09
+    | '2' '5' _digit04
+    | '2' '5' '5'
+    ;
+
+ipv4: _num '.' _num '.' _num '.' _num ;

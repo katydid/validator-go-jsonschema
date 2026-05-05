@@ -25,9 +25,9 @@ var passingFile = map[string]bool{
 	"maxLength.json": true,
 	"date-time.json": true,
 	"email.json":     true,
-	// "hostname.json":  true,
-	// "ipv4.json":      true,
-	"ipv6.json": true,
+	"hostname.json":  true,
+	"ipv4.json":      true,
+	"ipv6.json":      true,
 	// "uri.json":       true,
 	"unknown.json": true,
 }

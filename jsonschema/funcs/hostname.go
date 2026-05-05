@@ -15,6 +15,8 @@
 package funcs
 
 import (
+	"strings"
+
 	"github.com/katydid/parser-go/cast"
 	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go/validator/ast"
@@ -62,6 +64,10 @@ func (this *hostname) Eval() (bool, error) {
 		return true, nil
 	}
 	str := cast.ToString(v)
+	if strings.HasSuffix(str, ".") {
+		// trailing zeroes are no longer allowed.
+		return false, nil
+	}
 	err = jsonschema.ValidateHostname(str)
 	return err == nil, nil
 }

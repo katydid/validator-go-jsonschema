@@ -1,0 +1,42 @@
+// Copyright 2026 Walter Schulze
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package ipv4
+
+import (
+	"testing"
+
+	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ipv4/lexer"
+)
+
+var testData1 = map[string]bool{
+	"123.123.123.123": true,
+	"023.123.123.123": false,
+}
+
+func TestNext1(t *testing.T) {
+	for input, ok := range testData1 {
+		l := lexer.NewLexer([]byte(input))
+		_, err := l.Next()
+		if ok {
+			if err != nil {
+				t.Errorf("want parsed %s, but got %v", input, err)
+			}
+		} else {
+			if err == nil {
+				t.Errorf("wanted fail %s", input)
+			}
+		}
+	}
+}
