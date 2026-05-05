@@ -49,6 +49,11 @@ func (this *uri) ToExpr() *ast.Expr {
 	return ast.NewFunction("uri")
 }
 
+func isURI(str string) bool {
+	err := jsonschema.ValidateURI(str)
+	return err == nil
+}
+
 func (this *uri) Eval() (bool, error) {
 	if this.Token == nil {
 		return false, errTokenNotSet
@@ -62,8 +67,8 @@ func (this *uri) Eval() (bool, error) {
 		return true, nil
 	}
 	str := cast.ToString(v)
-	err = jsonschema.ValidateURI(str)
-	return err == nil, nil
+	valid := isURI(str)
+	return valid, nil
 }
 
 func (this *uri) Compare(that funcs.Comparable) int {

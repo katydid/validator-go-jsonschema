@@ -55,7 +55,7 @@ func TestRegexECMASuites(t *testing.T) {
 	}
 }
 
-// Copied from draft4/optiona/ecmascript-regex.json
+// Copied from draft4/optional/ecmascript-regex.json
 var emcaSuites []regexSuite = []regexSuite{
 	{
 		description: "ECMA 262 regex $ does not match trailing newline",

@@ -28,8 +28,7 @@ var passingFile = map[string]bool{
 	"hostname.json":  true,
 	"ipv4.json":      true,
 	"ipv6.json":      true,
-	// "uri.json":       true,
-	"unknown.json": true,
+	"unknown.json":   true,
 }
 
 var skippingFile = map[string]bool{
@@ -51,6 +50,15 @@ var skippingTest = map[string]bool{
 	"ecmascript-regex.json:patternProperties with non-ASCII digits:ascii non-digits":                                               true, // https://github.com/dlclark/regexp2/issues/101
 	"ecmascript-regex.json:pattern with non-ASCII digits:non-ascii digits (BENGALI DIGIT FOUR, BENGALI DIGIT TWO)":                 true, // https://github.com/dlclark/regexp2/issues/101
 	"ecmascript-regex.json:patternProperties with non-ASCII digits:non-ascii digits (BENGALI DIGIT FOUR, BENGALI DIGIT TWO)":       true, // https://github.com/dlclark/regexp2/issues/101
+	"uri.json:validation of URIs:unescaped non US-ASCII characters":                                                                true, // need a better URI library
+	"uri.json:validation of URIs:invalid backslash character":                                                                      true, // need a better URI library
+	"uri.json:validation of URIs:invalid \" character":                                                                             true, // need a better URI library
+	"uri.json:validation of URIs:invalid <> characters":                                                                            true, // need a better URI library
+	"uri.json:validation of URIs:invalid {} characters":                                                                            true, // need a better URI library
+	"uri.json:validation of URIs:invalid ^ character":                                                                              true, // need a better URI library
+	"uri.json:validation of URIs:invalid ` character":                                                                              true, // need a better URI library
+	"uri.json:validation of URIs:invalid SPACE character":                                                                          true, // need a better URI library
+	"uri.json:validation of URIs:invalid | character":                                                                              true, // need a better URI library
 }
 
 // check that files specified in the skip/pass sets actually exist.
@@ -69,6 +77,21 @@ func checkFilesExists(spec map[string]bool, tests []Test) {
 	}
 }
 
+func checkTestsExists(spec map[string]bool, tests []Test) {
+	for name := range spec {
+		found := false
+		for _, test := range tests {
+			if test.String() == name {
+				found = true
+				break
+			}
+		}
+		if !found {
+			panic(fmt.Sprintf("test not found %s", name))
+		}
+	}
+}
+
 func TestSuiteDraft4(t *testing.T) {
 	tests := buildTests(t)
 	t.Logf("skipping files: %d", len(skippingFile))
@@ -76,6 +99,7 @@ func TestSuiteDraft4(t *testing.T) {
 
 	checkFilesExists(passingFile, tests)
 	checkFilesExists(skippingFile, tests)
+	checkTestsExists(skippingTest, tests)
 
 	passed := 0
 	skippedTests := 0
