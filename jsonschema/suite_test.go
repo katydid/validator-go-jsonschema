@@ -79,6 +79,12 @@ func TestSuiteDraft4(t *testing.T) {
 }
 
 func testDebug(t *testing.T, test Test) {
+	g, err := newGrammar(test.Schema)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("translated to: %v", g.String())
+
 	jsonp := json.NewJSONSchemaParser()
 	p := debug.NewLogger(jsonp, debug.NewLineLogger())
 	p.Init(test.Data)

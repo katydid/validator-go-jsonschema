@@ -20,6 +20,7 @@ import (
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go-jsonschema/jsonschema/translate"
 	"github.com/katydid/validator-go/validator"
+	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/intern"
 	"github.com/katydid/validator-go/validator/mem"
 )
@@ -31,15 +32,23 @@ func Validate(schemaStr []byte, jsonStr []byte) (bool, error) {
 }
 
 func ValidateParser(schemaStr []byte, p parse.Parser) (bool, error) {
-	schema, err := schema.ParseSchema(schemaStr)
-	if err != nil {
-		return false, err
-	}
-	g, err := translate.TranslateDraft4(schema)
+	g, err := newGrammar(schemaStr)
 	if err != nil {
 		return false, err
 	}
 	return intern.Interpret(g, true, p)
+}
+
+func newGrammar(schemaStr []byte) (*ast.Grammar, error) {
+	schema, err := schema.ParseSchema(schemaStr)
+	if err != nil {
+		return nil, err
+	}
+	g, err := translate.TranslateDraft4(schema)
+	if err != nil {
+		return nil, err
+	}
+	return g, err
 }
 
 type Filter interface {

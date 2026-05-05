@@ -59,7 +59,9 @@ type SchemaTesty struct {
 func buildTests(t *testing.T) []Test {
 	tests := []Test{}
 	filenames := getFileNames()
-	t.Logf("number of test files: %d", len(filenames))
+	if len(filenames) == 0 {
+		t.Fatalf("expected test files, but found none")
+	}
 	for _, filename := range filenames {
 		content, err := os.ReadFile(filename)
 		if err != nil {
@@ -89,6 +91,9 @@ func buildTests(t *testing.T) []Test {
 				})
 			}
 		}
+	}
+	if len(tests) == 0 {
+		t.Fatalf("expected tests, but found none")
 	}
 	return tests
 }
