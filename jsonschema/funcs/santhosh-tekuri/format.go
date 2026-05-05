@@ -166,27 +166,6 @@ func ValidateDuration(s string) error {
 	return nil
 }
 
-// json schema validator for format: ipv4
-func ValidateIPV4(s string) error {
-	groups := strings.Split(s, ".")
-	if len(groups) != 4 {
-		return fmt.Errorf("expected four decimals")
-	}
-	for _, group := range groups {
-		if len(group) > 1 && group[0] == '0' {
-			return fmt.Errorf("leading zeros")
-		}
-		n, err := strconv.Atoi(group)
-		if err != nil {
-			return err
-		}
-		if n < 0 || n > 255 {
-			return fmt.Errorf("decimal must be between 0 and 255")
-		}
-	}
-	return nil
-}
-
 // json schema validator for format: ipv6
 func ValidateIPV6(s string) error {
 	if !strings.Contains(s, ":") {
@@ -239,82 +218,6 @@ func ValidateHostname(s string) error {
 			}
 		}
 	}
-	return nil
-}
-
-// see https://en.wikipedia.org/wiki/Email_address
-// json schema validator for format: email
-func ValidateEmail(s string) error {
-	// entire email address to be no more than 254 characters long
-	if len(s) > 254 {
-		return fmt.Errorf("more than 255 characters long")
-	}
-
-	// email address is generally recognized as having two parts joined with an at-sign
-	at := strings.LastIndexByte(s, '@')
-	if at == -1 {
-		return fmt.Errorf("missing @")
-	}
-	local, domain := s[:at], s[at+1:]
-
-	// local part may be up to 64 characters long
-	if len(local) > 64 {
-		return fmt.Errorf("local part more than 64 characters long")
-	}
-
-	if len(local) > 1 && strings.HasPrefix(local, `"`) && strings.HasSuffix(local, `"`) {
-		// quoted
-		local := local[1 : len(local)-1]
-		if strings.IndexByte(local, '\\') != -1 || strings.IndexByte(local, '"') != -1 {
-			return fmt.Errorf("backslash and quote are not allowed within quoted local part")
-		}
-	} else {
-		// unquoted
-		if strings.HasPrefix(local, ".") {
-			return fmt.Errorf("starts with dot")
-		}
-		if strings.HasSuffix(local, ".") {
-			return fmt.Errorf("ends with dot")
-		}
-
-		// consecutive dots not allowed
-		if strings.Contains(local, "..") {
-			return fmt.Errorf("consecutive dots")
-		}
-
-		// check allowed chars
-		for _, ch := range local {
-			switch {
-			case ch >= 'a' && ch <= 'z':
-			case ch >= 'A' && ch <= 'Z':
-			case ch >= '0' && ch <= '9':
-			case strings.ContainsRune(".!#$%&'*+-/=?^_`{|}~", ch):
-			default:
-				return fmt.Errorf("invalid character %q", ch)
-			}
-		}
-	}
-
-	// domain if enclosed in brackets, must match an IP address
-	if strings.HasPrefix(domain, "[") && strings.HasSuffix(domain, "]") {
-		domain = domain[1 : len(domain)-1]
-		if rem, ok := strings.CutPrefix(domain, "IPv6:"); ok {
-			if err := ValidateIPV6(rem); err != nil {
-				return fmt.Errorf("invalid ipv6 address: %v", err)
-			}
-			return nil
-		}
-		if err := ValidateIPV4(domain); err != nil {
-			return fmt.Errorf("invalid ipv4 address: %v", err)
-		}
-		return nil
-	}
-
-	// domain must match the requirements for a hostname
-	if err := ValidateHostname(domain); err != nil {
-		return fmt.Errorf("invalid domain: %v", err)
-	}
-
 	return nil
 }
 
