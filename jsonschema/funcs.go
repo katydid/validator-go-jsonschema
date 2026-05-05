@@ -128,6 +128,10 @@ func formatExpr(format string) (*ast.Expr, error) {
 	return nil, fmt.Errorf("format %s not supported", format)
 }
 
+func regexExpr(s string) *ast.Expr {
+	return ast.NewFunction("regexp2", combinator.StringConst(s))
+}
+
 func newNumberExpr() *ast.Expr {
 	return ast.NewFunction("number")
 }

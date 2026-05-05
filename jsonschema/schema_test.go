@@ -48,8 +48,15 @@ var skippingFile = map[string]bool{
 }
 
 var skippingTest = map[string]bool{
-	"type.json:object type matches objects:an array is not an object": true, //known issue
-	"type.json:array type matches arrays:an object is not an array":   true, //known issue
+	"type.json:object type matches objects:an array is not an object":                                                    true, //known issue
+	"type.json:array type matches arrays:an object is not an array":                                                      true, //known issue
+	"ecmascript-regex.json:patterns always use unicode semantics with pattern:ascii character in json string":            true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:patterns always use unicode semantics with pattern:literal unicode character in json string":  true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:patterns always use unicode semantics with pattern:unicode character in hex format in string": true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:patterns always use unicode semantics with pattern:unicode matching is case-sensitive":        true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:pattern with non-ASCII digits:ascii digits":                                                   true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:pattern with non-ASCII digits:ascii non-digits":                                               true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:pattern with non-ASCII digits:non-ascii digits (BENGALI DIGIT FOUR, BENGALI DIGIT TWO)":       true, // https://github.com/dlclark/regexp2/issues/101
 }
 
 func TestDraft4(t *testing.T) {

@@ -331,7 +331,6 @@ func and(list []*ast.Expr) *ast.Expr {
 func translateString(schema String, format string) (*ast.Pattern, error) {
 	v := combinator.StringVar()
 	list := []*ast.Expr{}
-	notStr := combinator.Not(newTypeExpr(combinator.StringVar()))
 	if schema.MaxLength != nil {
 		list = append(list, maxLengthExpr(*schema.MaxLength))
 	}
@@ -339,8 +338,7 @@ func translateString(schema String, format string) (*ast.Pattern, error) {
 		list = append(list, minLengthExpr(schema.MinLength))
 	}
 	if schema.Pattern != nil {
-		p := combinator.Regex(combinator.StringConst(*schema.Pattern), v)
-		list = append(list, combinator.Or(p, notStr))
+		list = append(list, regexExpr(*schema.Pattern))
 	}
 	if len(format) > 0 {
 		formatExpr, err := formatExpr(format)

@@ -1,3 +1,5 @@
+github.com/dlclark/regexp2/v2 v2.0.0 h1:87kNbXDIsaWjjN2vtsMwttmUlTQvnxTrWpcJ/pLL1MI=
+github.com/dlclark/regexp2/v2 v2.0.0/go.mod h1:Bz5TMy5d8fPK0ximH0Yi9KvsRHNnvXqUx9XG6a4wB+I=
 github.com/goccmack/gocc v1.0.2 h1:PHv20lcM1Erz+kovS+c07DnDFp6X5cvghndtTXuEyfE=
 github.com/goccmack/gocc v1.0.2/go.mod h1:LXX2tFVUggS/Zgx/ICPOr3MLyusuM7EcbfkPvNsjdO8=
 github.com/katydid/parser-go v0.8.5 h1:nybzT6/bTY0gPYWTMujmrjddX2QEFZgq8mBsBGsngzM=
@@ -6,8 +8,6 @@ github.com/katydid/parser-go-json v0.5.2 h1:3QfhMKC1oRWA9BbS+QA1LjWCbhRI25Wr2QS2
 github.com/katydid/parser-go-json v0.5.2/go.mod h1:t+K8lXmZ3KwDt/Qf1mmcmxnR3hjgfjbWR3x/ypHg0s4=
 github.com/katydid/parser-go-reflect v0.3.0 h1:K0tMs6C56RYGtywtWZgNKel9q8MFUXR+hSC4z0S30gY=
 github.com/katydid/parser-go-reflect v0.3.0/go.mod h1:iyvC2cj+5iwPJrJB2zcT3klHUetRmVni3sV/dw5FtNs=
-github.com/katydid/validator-go v0.6.5-0.20260503154706-35c981ce87ea h1:3WpJAEIXquCqLk5aLi7rjVdg3uJtRMg59WZjHJ6wMaU=
-github.com/katydid/validator-go v0.6.5-0.20260503154706-35c981ce87ea/go.mod h1:n3yOuUQrn4vQtbV+Hq9OjK0xZ2ggQmDtxY8/zEgab8s=
 github.com/katydid/validator-go v0.6.5-0.20260504132729-3b8a9601d682 h1:V++4P/VGxY/5Dgifz2QTDfxIOa6ZvARmbammvjRIymU=
 github.com/katydid/validator-go v0.6.5-0.20260504132729-3b8a9601d682/go.mod h1:n3yOuUQrn4vQtbV+Hq9OjK0xZ2ggQmDtxY8/zEgab8s=
 golang.org/x/mod v0.8.0 h1:LUYupSeNrTNCGzR/hVBk2NHZO4hXcVaW1k4Qx7rjPx8=
