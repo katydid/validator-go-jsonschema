@@ -76,9 +76,9 @@ func TestSuiteDraft4(t *testing.T) {
 		if err != nil || valid != test.Valid {
 			if passingFile[test.Filename] {
 				if err != nil {
-					t.Errorf("--- FAIL: %v: Interpret error %v", test, err)
+					t.Errorf("ERROR: %v: Interpret error %v", test, err)
 				} else {
-					t.Errorf("--- FAIL: %v: expected %v got %v", test, test.Valid, valid)
+					t.Errorf("ERROR: %v: expected %v got %v", test, test.Valid, valid)
 				}
 			} else {
 				if err != nil {
