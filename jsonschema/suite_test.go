@@ -23,31 +23,10 @@ import (
 )
 
 var skippingFile = map[string]bool{
-	"format.json":                  true, //optional
-	"bignum.json":                  true, //optional
-	"zeroTerminatedFloats.json":    true, //optional
-	"uniqueItems.json":             true, //known issue
-	"patternProperties.json":       true, //known issue
-	"minProperties.json":           true, //known issue?
-	"minItems.json":                true, //known issue?
-	"maxProperties.json":           true, //known issue?
-	"maxItems.json":                true, //known issue?
-	"refRemote.json":               true, //known issue?
-	"ref.json":                     true,
-	"properties.json":              true,
-	"items.json":                   true,
-	"enum.json":                    true, //requires properties and type object
-	"dependencies.json":            true,
-	"default.json":                 true,
-	"definitions.json":             true,
-	"allOf.json":                   true,
-	"additionalProperties.json":    true,
-	"additionalItems.json":         true,
-	"infinite-loop-detection.json": true, // TODO: additionalProperties needs better support
+	"uniqueItems.json": true, // We do not support uniqueItems, see https://github.com/katydid/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
 }
 
 var skippingTest = map[string]bool{
-	"type.json:array type matches arrays:an object is not an array":                                                                true, //known issue
 	"ecmascript-regex.json:patterns always use unicode semantics with pattern:ascii character in json string":                      true, // https://github.com/dlclark/regexp2/issues/101
 	"ecmascript-regex.json:patterns always use unicode semantics with patternProperties:ascii character in json string":            true, // https://github.com/dlclark/regexp2/issues/101
 	"ecmascript-regex.json:patterns always use unicode semantics with pattern:literal unicode character in json string":            true, // https://github.com/dlclark/regexp2/issues/101
@@ -64,7 +43,7 @@ var skippingTest = map[string]bool{
 	"ecmascript-regex.json:patternProperties with non-ASCII digits:non-ascii digits (BENGALI DIGIT FOUR, BENGALI DIGIT TWO)":       true, // https://github.com/dlclark/regexp2/issues/101
 }
 
-func TestDraft4(t *testing.T) {
+func TestSuiteDraft4(t *testing.T) {
 	tests := buildTests(t)
 	t.Logf("skipping files: %d", len(skippingFile))
 	t.Logf("total number of tests: %d", len(tests))
