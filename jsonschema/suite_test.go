@@ -21,19 +21,60 @@ import (
 
 // Files where all the tests must pass or the test actually fails.
 var passingFile = map[string]bool{
-	"minLength.json":            true,
-	"maxLength.json":            true,
-	"date-time.json":            true,
-	"email.json":                true,
-	"hostname.json":             true,
-	"ipv4.json":                 true,
-	"ipv6.json":                 true,
-	"unknown.json":              true,
+	// "additionalItems.json": true,
+	// "additionalProperties.json": true,
+	// "allOf.json": true,
+	// "anyOf.json": true,
+	// "default.json": true,
+	// "definitions.json": true,
+	// "dependencies.json": true,
+	// "enum.json": true,
+	"format.json": true,
+	// "infinite-loop-detection.json": true,
+	// "items.json": true,
+	"maximum.json": true,
+	// "maxItems.json": true,
+	"maxLength.json": true,
+	// "maxProperties.json": true,
+	"minimum.json": true,
+	// "minItems.json": true,
+	"minLength.json": true,
+	// "minProperties.json": true,
+	"multipleOf.json": true,
+	// "not.json": true,
+	// "oneOf.json": true,
+	// "optional": true,
+	// "pattern.json": true,
+	// "patternProperties.json": true,
+	// "properties.json": true,
+	// "ref.json": true,
+	// "refRemote.json": true,
+	// "required.json": true,
+	// "type.json": true,
+	// "uniqueItems.json": true,
+
+	// optional/format
+	"date-time.json": true,
+	"email.json":     true,
+	"hostname.json":  true,
+	"ipv4.json":      true,
+	"ipv6.json":      true,
+	"unknown.json":   true,
+	// "uri.json": true,
+
+	// optional
+	// "bignum.json": true,
+	// "ecmascript-regex.json": true,
+	// "float-overflow.json": true,
+	// "id.json": true,
+	// "non-bmp-regex.json": true,
 	"zeroTerminatedFloats.json": true,
 }
 
 var skippingFile = map[string]bool{
-	"uniqueItems.json": true, // We do not support uniqueItems, see https://github.com/katydid/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
+	"uniqueItems.json":    true, // We do not support uniqueItems, see https://github.com/katydid/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
+	"bignum.json":         true, // Need better decimal support in at least maximum, integer, number, minimum
+	"float-overflow.json": true, // Need better checking for float overflow to convert to decimal in the json parser and we need to support decimal in multipleOf
 }
 
 var skippingTest = map[string]bool{
