@@ -15,75 +15,73 @@
 package funcs
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/dlclark/regexp2/v2"
 
-	"github.com/katydid/parser-go/cast"
-	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
 )
-
-type regex struct {
-	Token parse.Token
-	s     string
-	r     *regexp2.Regexp
-	hash  uint64
-}
-
-var _ funcs.Setter = &regex{}
-
-func (this *regex) SetValue(v parse.Token) {
-	this.Token = v
-}
 
 func compileRegex(s string) (*regexp2.Regexp, error) {
 	return regexp2.Compile(s, regexp2.ECMAScript|regexp2.Unicode)
 }
 
-func Regex(S funcs.ConstString) (funcs.Bool, error) {
-	s, err := S.Eval()
+var errRegexVar = errors.New("regex requires a constant expression as its first parameter, but it has a variable parameter")
+
+var errRegexNotVar = errors.New("regex requires a variable expression as its second parameter, but it has a variable parameter")
+
+// Regex returns a new regex function given the first parameter as the expression string that needs to compiled and the second as the regex that should be matched.
+func Regex(pattern funcs.ConstString, input funcs.String) (funcs.Bool, error) {
+	if pattern.HasVariable() {
+		return nil, errRegexVar
+	}
+	if !input.HasVariable() {
+		return nil, errRegexNotVar
+	}
+	p, err := pattern.Eval()
 	if err != nil {
 		return nil, err
 	}
-	r, err := compileRegex(s)
+	r, err := compileRegex(p)
 	if err != nil {
 		return nil, err
 	}
-	return &regex{
-		s:    s,
-		r:    r,
-		hash: funcs.Hash("regex", S),
-	}, nil
+	return funcs.TrimBool(&regex{
+		pattern:     p,
+		r:           r,
+		S:           input,
+		hash:        funcs.Hash("regex", pattern, input),
+		hasVariable: input.HasVariable(),
+	}), nil
 }
 
-func (this *regex) Eval() (bool, error) {
-	if this.Token == nil {
-		return false, errTokenNotSet
-	}
-	kind, v, err := this.Token.Token()
-	if err != nil {
-		return false, err
-	}
-	if kind != parse.StringKind {
-		// ignore non string values.
-		return true, nil
-	}
-	s := cast.ToString(v)
-	return this.r.MatchString(s)
-}
-
-func (this *regex) ToExpr() *ast.Expr {
-	return ast.NewFunction("regex", ast.NewStringConst(this.s))
+type regex struct {
+	pattern     string
+	r           *regexp2.Regexp
+	S           funcs.String
+	hash        uint64
+	hasVariable bool
 }
 
 func (this *regex) HasVariable() bool {
-	return true
+	return this.hasVariable
 }
 
-func (this *regex) Hash() uint64 {
-	return this.hash
+func (this *regex) ToExpr() *ast.Expr {
+	return ast.NewFunction("regex", ast.NewStringConst(this.pattern), this.S.ToExpr())
+}
+
+func (this *regex) Eval() (bool, error) {
+	s, err := this.S.Eval()
+	if err != nil {
+		// this.S is always a varString in the case of jsonschema
+		// This means an error will only be returned if it is not a string type
+		// But json schema says regex has to ignore non string types
+		return true, nil
+	}
+	return this.r.MatchString(s)
 }
 
 func (this *regex) Compare(that funcs.Comparable) int {
@@ -94,11 +92,21 @@ func (this *regex) Compare(that funcs.Comparable) int {
 		return 1
 	}
 	if other, ok := that.(*regex); ok {
-		return strings.Compare(this.s, other.s)
+		if c := strings.Compare(this.pattern, other.pattern); c != 0 {
+			return c
+		}
+		if c := this.S.Compare(other.S); c != 0 {
+			return c
+		}
+		return 0
 	}
 	return this.ToExpr().Compare(that.ToExpr())
 }
 
+func (this *regex) Hash() uint64 {
+	return this.hash
+}
+
 func init() {
-	funcs.Register("regexp2", Regex)
+	funcs.Register("regex", Regex)
 }

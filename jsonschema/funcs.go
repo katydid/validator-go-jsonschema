@@ -129,7 +129,7 @@ func formatExpr(format string) (*ast.Expr, error) {
 }
 
 func regexExpr(s string) *ast.Expr {
-	return ast.NewFunction("regexp2", combinator.StringConst(s))
+	return ast.NewFunction("regex", combinator.StringConst(s), combinator.StringVar())
 }
 
 func newNumberExpr() *ast.Expr {

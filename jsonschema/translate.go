@@ -225,16 +225,27 @@ func translateObject(schema *Schema) (*ast.Pattern, error) {
 			}
 		}
 	}
+
 	names := []string{}
 	for name := range schema.Properties {
 		names = append(names, name)
 	}
 	sort.Strings(names)
+
+	patternNames := []string{}
+	for name := range schema.PatternProperties {
+		patternNames = append(patternNames, name)
+	}
+	sort.Strings(patternNames)
+
 	additional := ast.NewZAny()
-	if len(names) > 0 {
-		nameExprs := make([]*ast.NameExpr, len(names))
+	if len(names) > 0 || len(patternNames) > 0 {
+		nameExprs := make([]*ast.NameExpr, len(names)+len(patternNames))
 		for i, name := range names {
 			nameExprs[i] = ast.NewStringName(name)
+		}
+		for i, name := range patternNames {
+			nameExprs[i+len(names)] = ast.NewRegexName(name)
 		}
 		additional = ast.NewZeroOrMore(
 			ast.NewTreeNode(ast.NewAnyNameExcept(
@@ -263,6 +274,13 @@ func translateObject(schema *Schema) (*ast.Pattern, error) {
 		}
 		patterns[name] = ast.NewTreeNode(ast.NewStringName(name), child)
 	}
+	for _, name := range patternNames {
+		child, err := translate(schema.PatternProperties[name])
+		if err != nil {
+			return nil, err
+		}
+		patterns[name] = ast.NewTreeNode(ast.NewRegexName(name), child)
+	}
 	for _, name := range names {
 		if _, ok := requiredIf[name]; ok {
 			return nil, fmt.Errorf("dependencies are not supported")
@@ -274,9 +292,7 @@ func translateObject(schema *Schema) (*ast.Pattern, error) {
 			patterns[name] = ast.NewOptional(patterns[name])
 		}
 	}
-	if len(schema.PatternProperties) > 0 {
-		return nil, fmt.Errorf("patternProperties not supported")
-	}
+
 	patternList := make([]*ast.Pattern, 0, len(patterns))
 	for _, name := range names {
 		patternList = append(patternList, patterns[name])
@@ -287,7 +303,7 @@ func translateObject(schema *Schema) (*ast.Pattern, error) {
 }
 
 func optional(p *ast.Pattern) *ast.Pattern {
-	return ast.NewOr(ast.NewEmpty(), p)
+	return ast.NewOptional(p)
 }
 
 func translateNumeric(schema Numeric) (*ast.Pattern, error) {
