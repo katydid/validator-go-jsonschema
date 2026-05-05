@@ -136,27 +136,7 @@ func translateInstance(schema *schema.Schema) (*ast.Pattern, error) {
 		return ast.NewOr(ps...), nil
 	}
 	if len(schema.OneOf) > 0 {
-		ps, err := translates(schema.OneOf)
-		if err != nil {
-			return nil, err
-		}
-		if len(ps) == 0 {
-			return nil, fmt.Errorf("oneof of zero schemas not supported")
-		}
-		if len(ps) == 1 {
-			return ps[0], nil
-		}
-		orps := make([]*ast.Pattern, len(ps))
-		for i, _ := range ps {
-			other := rest(ps, i)
-			orps[i] = ast.NewAnd(
-				ps[i],
-				ast.NewNot(
-					ast.NewOr(other...),
-				),
-			)
-		}
-		return ast.NewOr(orps...), nil
+		return translateOneOf(schema.OneOf)
 	}
 	if schema.Not != nil {
 		p, err := translate(schema.Not)
