@@ -158,16 +158,7 @@ func translateType(typ schema.SimpleType) (*ast.Pattern, error) {
 	case schema.TypeInteger:
 		return combinator.Value(newTypeExpr(newIntegerExpr())), nil
 	case schema.TypeNull:
-		//TODO null is not being returned by json parser, but is also not empty
-		return combinator.Value(combinator.Not(
-			combinator.Or(
-				newTypeExpr(newNumberExpr()),
-				combinator.Or(
-					newTypeExpr(combinator.BoolVar()),
-					newTypeExpr(combinator.StringVar()),
-				),
-			),
-		)), nil
+		return combinator.Value(newNullExpr()), nil
 	case schema.TypeNumber:
 		return combinator.Value(newTypeExpr(newNumberExpr())), nil
 	case schema.TypeString:

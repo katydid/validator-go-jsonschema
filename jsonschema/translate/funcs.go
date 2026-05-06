@@ -96,6 +96,10 @@ func regexExpr(s string) *ast.Expr {
 	return ast.NewFunction("regex", combinator.StringConst(s), combinator.StringVar())
 }
 
+func newNullExpr() *ast.Expr {
+	return ast.NewFunction("null")
+}
+
 func newNumberExpr() *ast.Expr {
 	return ast.NewFunction("number")
 }
