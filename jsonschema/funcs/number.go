@@ -15,7 +15,6 @@
 package funcs
 
 import (
-	"github.com/katydid/parser-go/cast"
 	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
@@ -32,27 +31,21 @@ func (this *number) SetValue(v parse.Token) {
 	this.Token = v
 }
 
-func Number() (funcs.Double, error) {
+func Number() (funcs.Bool, error) {
 	return &number{
 		hash: funcs.Hash("number"),
 	}, nil
 }
 
-func (this *number) Eval() (float64, error) {
+func (this *number) Eval() (bool, error) {
 	if this.Token == nil {
-		return 0, errTokenNotSet
+		return false, errTokenNotSet
 	}
-	kind, v, err := this.Token.Token()
+	kind, _, err := this.Token.Token()
 	if err != nil {
-		return 0, err
+		return false, err
 	}
-	switch kind {
-	case parse.Float64Kind:
-		return cast.ToFloat64(v), nil
-	case parse.Int64Kind:
-		return float64(cast.ToInt64(v)), nil
-	}
-	return 0, errNotANumber
+	return kind == parse.Float64Kind || kind == parse.Int64Kind || kind == parse.DecimalKind, nil
 }
 
 func (this *number) ToExpr() *ast.Expr {

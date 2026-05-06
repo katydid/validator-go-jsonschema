@@ -24,6 +24,22 @@ func multipleOfExpr(d float64) *ast.Expr {
 	return ast.NewFunction("multipleOf", combinator.DoubleConst(d))
 }
 
+func minimumExpr(d float64) *ast.Expr {
+	return ast.NewFunction("minimum", combinator.DoubleConst(d))
+}
+
+func exclusiveMinimumExpr(d float64) *ast.Expr {
+	return ast.NewFunction("exclusiveMinimum", combinator.DoubleConst(d))
+}
+
+func maximumExpr(d float64) *ast.Expr {
+	return ast.NewFunction("maximum", combinator.DoubleConst(d))
+}
+
+func exclusiveMaximumExpr(d float64) *ast.Expr {
+	return ast.NewFunction("exclusiveMaximum", combinator.DoubleConst(d))
+}
+
 func emailExpr() *ast.Expr {
 	return ast.NewFunction("email")
 }

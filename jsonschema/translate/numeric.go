@@ -21,29 +21,26 @@ import (
 )
 
 func translateNumeric(schema schema.Numeric) (*ast.Pattern, error) {
-	v := newNumberExpr()
 	list := []*ast.Expr{}
-	notNum := combinator.Not(newTypeExpr(newNumberExpr()))
 	if schema.MultipleOf != nil {
-		mult := multipleOfExpr(*schema.MultipleOf)
-		list = append(list, mult)
+		list = append(list, multipleOfExpr(*schema.MultipleOf))
 	}
 	if schema.Maximum != nil {
-		lt := combinator.LE(v, combinator.DoubleConst(*schema.Maximum))
 		if schema.ExclusiveMaximum {
-			lt = combinator.LT(v, combinator.DoubleConst(*schema.Maximum))
+			list = append(list, exclusiveMaximumExpr(*schema.Maximum))
+		} else {
+			list = append(list, maximumExpr(*schema.Maximum))
 		}
-		list = append(list, combinator.Or(lt, notNum))
 	}
 	if schema.Minimum != nil {
-		lt := combinator.GE(v, combinator.DoubleConst(*schema.Minimum))
 		if schema.ExclusiveMinimum {
-			lt = combinator.GT(v, combinator.DoubleConst(*schema.Minimum))
+			list = append(list, exclusiveMinimumExpr(*schema.Minimum))
+		} else {
+			list = append(list, minimumExpr(*schema.Minimum))
 		}
-		list = append(list, combinator.Or(lt, notNum))
 	}
 	if len(list) == 0 {
-		return combinator.Value(newTypeExpr(v)), nil
+		return combinator.Value(newNumberExpr()), nil
 	}
 	return combinator.Value(and(list)), nil
 }

@@ -160,7 +160,7 @@ func translateType(typ schema.SimpleType) (*ast.Pattern, error) {
 	case schema.TypeNull:
 		return combinator.Value(newNullExpr()), nil
 	case schema.TypeNumber:
-		return combinator.Value(newTypeExpr(newNumberExpr())), nil
+		return combinator.Value(newNumberExpr()), nil
 	case schema.TypeString:
 		return combinator.Value(newTypeExpr(combinator.StringVar())), nil
 	}
