@@ -77,30 +77,27 @@ var skippingFile = map[string]bool{
 	"float-overflow.json": true, // Need better checking for float overflow to convert to decimal in the json parser and we need to support decimal in multipleOf
 }
 
+var passingTest = map[string]bool{
+	"ecmascript-regex.json:patterns always use unicode semantics with pattern:ascii character in json string":               true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:patterns always use unicode semantics with pattern:literal unicode character in json string":     true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:patterns always use unicode semantics with pattern:unicode character in hex format in string":    true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:patterns always use unicode semantics with pattern:unicode matching is case-sensitive":           true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:patterns always use unicode semantics with patternProperties:unicode matching is case-sensitive": true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:pattern with non-ASCII digits:ascii digits":                                                      true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:pattern with non-ASCII digits:ascii non-digits":                                                  true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:pattern with non-ASCII digits:non-ascii digits (BENGALI DIGIT FOUR, BENGALI DIGIT TWO)":          true, // https://github.com/dlclark/regexp2/issues/101
+}
+
 var skippingTest = map[string]bool{
-	"ecmascript-regex.json:patterns always use unicode semantics with pattern:ascii character in json string":                      true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with patternProperties:ascii character in json string":            true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with pattern:literal unicode character in json string":            true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with patternProperties:literal unicode character in json string":  true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with pattern:unicode character in hex format in string":           true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with patternProperties:unicode character in hex format in string": true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with pattern:unicode matching is case-sensitive":                  true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with patternProperties:unicode matching is case-sensitive":        true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:pattern with non-ASCII digits:ascii digits":                                                             true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patternProperties with non-ASCII digits:ascii digits":                                                   true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:pattern with non-ASCII digits:ascii non-digits":                                                         true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patternProperties with non-ASCII digits:ascii non-digits":                                               true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:pattern with non-ASCII digits:non-ascii digits (BENGALI DIGIT FOUR, BENGALI DIGIT TWO)":                 true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patternProperties with non-ASCII digits:non-ascii digits (BENGALI DIGIT FOUR, BENGALI DIGIT TWO)":       true, // https://github.com/dlclark/regexp2/issues/101
-	"uri.json:validation of URIs:unescaped non US-ASCII characters":                                                                true, // need a better URI library
-	"uri.json:validation of URIs:invalid backslash character":                                                                      true, // need a better URI library
-	"uri.json:validation of URIs:invalid \" character":                                                                             true, // need a better URI library
-	"uri.json:validation of URIs:invalid <> characters":                                                                            true, // need a better URI library
-	"uri.json:validation of URIs:invalid {} characters":                                                                            true, // need a better URI library
-	"uri.json:validation of URIs:invalid ^ character":                                                                              true, // need a better URI library
-	"uri.json:validation of URIs:invalid ` character":                                                                              true, // need a better URI library
-	"uri.json:validation of URIs:invalid SPACE character":                                                                          true, // need a better URI library
-	"uri.json:validation of URIs:invalid | character":                                                                              true, // need a better URI library
+	"uri.json:validation of URIs:unescaped non US-ASCII characters": true, // need a better URI library
+	"uri.json:validation of URIs:invalid backslash character":       true, // need a better URI library
+	"uri.json:validation of URIs:invalid \" character":              true, // need a better URI library
+	"uri.json:validation of URIs:invalid <> characters":             true, // need a better URI library
+	"uri.json:validation of URIs:invalid {} characters":             true, // need a better URI library
+	"uri.json:validation of URIs:invalid ^ character":               true, // need a better URI library
+	"uri.json:validation of URIs:invalid ` character":               true, // need a better URI library
+	"uri.json:validation of URIs:invalid SPACE character":           true, // need a better URI library
+	"uri.json:validation of URIs:invalid | character":               true, // need a better URI library
 }
 
 // check that files specified in the skip/pass sets actually exist.
@@ -142,6 +139,7 @@ func TestSuiteDraft4(t *testing.T) {
 	checkFilesExists(passingFile, tests)
 	checkFilesExists(skippingFile, tests)
 	checkTestsExists(skippingTest, tests)
+	checkTestsExists(passingTest, tests)
 
 	passed := 0
 	skippedTests := 0
@@ -161,7 +159,7 @@ func TestSuiteDraft4(t *testing.T) {
 		t.Logf("--- RUN: %v", test)
 		valid, err := Validate(test.Schema, test.Data)
 		if err != nil || valid != test.Valid {
-			if passingFile[test.Filename] {
+			if passingFile[test.Filename] || passingTest[test.String()] {
 				if err != nil {
 					t.Errorf("UNEXPECTED FAILURE: %v: Interpret error %v", test, err)
 				} else {
