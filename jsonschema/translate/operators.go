@@ -22,6 +22,7 @@ import (
 )
 
 func translateOperators(schema *schema.Schema) (*ast.Pattern, error) {
+	var res []*ast.Pattern
 	if len(schema.Definitions) > 0 {
 		return nil, fmt.Errorf("definitions not supported")
 	}
@@ -33,24 +34,28 @@ func translateOperators(schema *schema.Schema) (*ast.Pattern, error) {
 		if err != nil {
 			return nil, err
 		}
-		return ast.NewAnd(ps...), nil
+		res = append(res, ast.NewAnd(ps...))
 	}
 	if len(schema.AnyOf) > 0 {
 		ps, err := translates(schema.AnyOf)
 		if err != nil {
 			return nil, err
 		}
-		return ast.NewOr(ps...), nil
+		res = append(res, ast.NewOr(ps...))
 	}
 	if len(schema.OneOf) > 0 {
-		return translateOneOf(schema.OneOf)
+		p, err := translateOneOf(schema.OneOf)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, p)
 	}
 	if schema.Not != nil {
 		p, err := translate(schema.Not)
 		if err != nil {
 			return nil, err
 		}
-		return ast.NewNot(p), nil
+		res = append(res, ast.NewNot(p))
 	}
-	panic("unreachable object")
+	return ast.NewAnd(res...), nil
 }
