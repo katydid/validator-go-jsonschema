@@ -31,6 +31,10 @@ func TranslateDraft4(schema *schema.Schema) (*ast.Grammar, error) {
 	return ast.NewGrammar(ast.RefLookup(map[string]*ast.Pattern{"main": p})), nil
 }
 
+func translates(schemas []*schema.Schema) ([]*ast.Pattern, error) {
+	return std.MapErr(schemas, translate)
+}
+
 func translate(schema *schema.Schema) (*ast.Pattern, error) {
 	pattern, err := translateOne(schema)
 	if err != nil {
@@ -86,7 +90,7 @@ func translateOne(schema *schema.Schema) (*ast.Pattern, error) {
 		return p, err
 	}
 	if schema.HasOperatorConstraints() {
-		p, err := translateInstance(schema)
+		p, err := translateOperators(schema)
 		return p, err
 	}
 	if len(schema.Format) > 0 {
@@ -101,44 +105,6 @@ func translateOne(schema *schema.Schema) (*ast.Pattern, error) {
 		return nil, fmt.Errorf("ref not supported")
 	}
 	return ast.NewZAny(), nil
-}
-
-func translates(schemas []*schema.Schema) ([]*ast.Pattern, error) {
-	return std.MapErr(schemas, translate)
-}
-
-func translateInstance(schema *schema.Schema) (*ast.Pattern, error) {
-	if len(schema.Definitions) > 0 {
-		return nil, fmt.Errorf("definitions not supported")
-	}
-	if len(schema.Enum) > 0 {
-		return nil, fmt.Errorf("enum not supported")
-	}
-	if len(schema.AllOf) > 0 {
-		ps, err := translates(schema.AllOf)
-		if err != nil {
-			return nil, err
-		}
-		return ast.NewAnd(ps...), nil
-	}
-	if len(schema.AnyOf) > 0 {
-		ps, err := translates(schema.AnyOf)
-		if err != nil {
-			return nil, err
-		}
-		return ast.NewOr(ps...), nil
-	}
-	if len(schema.OneOf) > 0 {
-		return translateOneOf(schema.OneOf)
-	}
-	if schema.Not != nil {
-		p, err := translate(schema.Not)
-		if err != nil {
-			return nil, err
-		}
-		return ast.NewNot(p), nil
-	}
-	panic("unreachable object")
 }
 
 func translateType(typ schema.SimpleType) (*ast.Pattern, error) {
@@ -158,8 +124,4 @@ func translateType(typ schema.SimpleType) (*ast.Pattern, error) {
 		return combinator.Value(stringTypeExpr()), nil
 	}
 	panic(fmt.Sprintf("unknown simpletype: %s", typ))
-}
-
-func and(list []*ast.Expr) *ast.Expr {
-	return std.MustFoldA(list, combinator.And)
 }

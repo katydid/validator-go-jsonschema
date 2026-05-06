@@ -15,29 +15,42 @@
 package translate
 
 import (
+	"fmt"
+
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/combinator"
 )
 
-func translateNumeric(schema schema.Numeric) (*ast.Pattern, error) {
-	list := []*ast.Expr{}
-	if schema.MultipleOf != nil {
-		list = append(list, multipleOfExpr(*schema.MultipleOf))
+func translateOperators(schema *schema.Schema) (*ast.Pattern, error) {
+	if len(schema.Definitions) > 0 {
+		return nil, fmt.Errorf("definitions not supported")
 	}
-	if schema.Maximum != nil {
-		if schema.ExclusiveMaximum {
-			list = append(list, exclusiveMaximumExpr(*schema.Maximum))
-		} else {
-			list = append(list, maximumExpr(*schema.Maximum))
+	if len(schema.Enum) > 0 {
+		return nil, fmt.Errorf("enum not supported")
+	}
+	if len(schema.AllOf) > 0 {
+		ps, err := translates(schema.AllOf)
+		if err != nil {
+			return nil, err
 		}
+		return ast.NewAnd(ps...), nil
 	}
-	if schema.Minimum != nil {
-		if schema.ExclusiveMinimum {
-			list = append(list, exclusiveMinimumExpr(*schema.Minimum))
-		} else {
-			list = append(list, minimumExpr(*schema.Minimum))
+	if len(schema.AnyOf) > 0 {
+		ps, err := translates(schema.AnyOf)
+		if err != nil {
+			return nil, err
 		}
+		return ast.NewOr(ps...), nil
 	}
-	return combinator.Value(andExpr(list)), nil
+	if len(schema.OneOf) > 0 {
+		return translateOneOf(schema.OneOf)
+	}
+	if schema.Not != nil {
+		p, err := translate(schema.Not)
+		if err != nil {
+			return nil, err
+		}
+		return ast.NewNot(p), nil
+	}
+	panic("unreachable object")
 }

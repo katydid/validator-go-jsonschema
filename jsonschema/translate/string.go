@@ -38,8 +38,5 @@ func translateString(schema schema.String, format string) (*ast.Pattern, error) 
 		}
 		list = append(list, formatExpr)
 	}
-	if len(list) == 0 {
-		panic("unreachable")
-	}
 	return combinator.Value(andExpr(list)), nil
 }
