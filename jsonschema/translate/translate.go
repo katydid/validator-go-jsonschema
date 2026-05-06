@@ -108,12 +108,6 @@ func translates(schemas []*schema.Schema) ([]*ast.Pattern, error) {
 	return std.MapErr(schemas, translate)
 }
 
-func rest(xs []*ast.Pattern, index int) []*ast.Pattern {
-	ys := make([]*ast.Pattern, index)
-	copy(ys, xs)
-	return append(ys, xs[index+1:]...)
-}
-
 func translateInstance(schema *schema.Schema) (*ast.Pattern, error) {
 	if len(schema.Definitions) > 0 {
 		return nil, fmt.Errorf("definitions not supported")

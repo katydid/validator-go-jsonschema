@@ -33,15 +33,11 @@ func translateOneOf(schemas []*schema.Schema) (*ast.Pattern, error) {
 	if len(ps) == 1 {
 		return ps[0], nil
 	}
-	orps := make([]*ast.Pattern, len(ps))
-	for i, _ := range ps {
-		other := rest(ps, i)
-		orps[i] = ast.NewAnd(
-			ps[i],
-			ast.NewNot(
-				ast.NewOr(other...),
-			),
-		)
+	combo := make([]*ast.Pattern, len(ps))
+	for i := range ps {
+		this := ps[i]
+		other := ast.NewOr(std.Rest(ps, i)...)
+		combo[i] = ast.NewAnd(this, ast.NewNot(other))
 	}
-	return ast.NewOr(orps...), nil
+	return ast.NewOr(combo...), nil
 }

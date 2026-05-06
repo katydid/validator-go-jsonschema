@@ -12,23 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package testutil
+package std
 
 import (
-	"reflect"
 	"testing"
+
+	"github.com/katydid/validator-go-jsonschema/jsonschema/std/testutil"
 )
 
-func Expect[A any](t *testing.T, desc string, want A, got A) {
-	t.Helper()
-	if !reflect.DeepEqual(want, got) {
-		t.Fatalf("%s want %v got %v", desc, want, got)
-	}
+func TestRest(t *testing.T) {
+	testutil.ExpectErr(t, "", Rest([]int{1, 2, 3}, 1), []int{1, 3})
+	testutil.ExpectErr(t, "", Rest([]int{1, 2, 3, 4}, 1), []int{1, 3, 4})
+	testutil.ExpectErr(t, "", Rest([]int{1, 2, 3, 4}, 0), []int{2, 3, 4})
+	testutil.ExpectErr(t, "", Rest([]int{1, 2, 3, 4}, 3), []int{1, 2, 3})
 }
 
-func ExpectErr[A any](t *testing.T, desc string, want A, got A) {
-	t.Helper()
-	if !reflect.DeepEqual(want, got) {
-		t.Errorf("%s want %v got %v", desc, want, got)
-	}
+func TestRests(t *testing.T) {
+	testutil.ExpectErr(t, "", Rests([]int{1, 2, 3}), [][]int{{2, 3}, {1, 3}, {1, 2}})
 }
