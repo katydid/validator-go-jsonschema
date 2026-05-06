@@ -101,22 +101,3 @@ func translateOne(schema *schema.Schema) (*ast.Pattern, error) {
 	}
 	return ast.NewZAny(), nil
 }
-
-func translateType(typ schema.SimpleType) (*ast.Pattern, error) {
-	switch typ {
-	case schema.TypeArray, schema.TypeObject:
-		//TODO: This does not distinguish between arrays and objects
-		return combinator.Many(combinator.InAny(combinator.Any())), nil
-	case schema.TypeBoolean:
-		return combinator.Value(boolTypeExpr()), nil
-	case schema.TypeInteger:
-		return combinator.Value(integerTypeExpr()), nil
-	case schema.TypeNull:
-		return combinator.Value(nullTypeExpr()), nil
-	case schema.TypeNumber:
-		return combinator.Value(numberTypeExpr()), nil
-	case schema.TypeString:
-		return combinator.Value(stringTypeExpr()), nil
-	}
-	panic(fmt.Sprintf("unknown simpletype: %s", typ))
-}
