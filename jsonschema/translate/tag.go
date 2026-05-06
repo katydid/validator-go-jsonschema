@@ -54,7 +54,7 @@ func GetTags(s *schema.Schema) []TagType {
 		}
 	}
 	if len(tags) > 0 {
-		return std.Keys(tags)
+		return std.SortedKeys(tags)
 	}
 	if guessStringTag(s) {
 		tags[FieldTag] = struct{}{}
@@ -74,7 +74,7 @@ func GetTags(s *schema.Schema) []TagType {
 	if guessFormat(s) {
 		tags[FieldTag] = struct{}{}
 	}
-	return std.Keys(tags)
+	return std.SortedKeys(tags)
 }
 
 func getTag(typ schema.SimpleType) TagType {

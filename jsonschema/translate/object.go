@@ -16,9 +16,9 @@ package translate
 
 import (
 	"fmt"
-	"sort"
 
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
 )
 
@@ -46,17 +46,8 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 		}
 	}
 
-	names := []string{}
-	for name := range s.Properties {
-		names = append(names, name)
-	}
-	sort.Strings(names)
-
-	patternNames := []string{}
-	for name := range s.PatternProperties {
-		patternNames = append(patternNames, name)
-	}
-	sort.Strings(patternNames)
+	names := std.SortedKeys(s.Properties)
+	patternNames := std.SortedKeys(s.PatternProperties)
 
 	additional := ast.NewZAny()
 	if len(names) > 0 || len(patternNames) > 0 {
@@ -81,6 +72,7 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 			if err != nil {
 				return nil, err
 			}
+			// TODO: Investigate whether this is correct.
 			additional = ast.NewZeroOrMore(
 				ast.NewTreeNode(ast.NewAnyName(), typ),
 			)
@@ -94,13 +86,7 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 		}
 		patterns[name] = ast.NewTreeNode(ast.NewStringName(name), child)
 	}
-	for _, name := range patternNames {
-		child, err := translate(s.PatternProperties[name])
-		if err != nil {
-			return nil, err
-		}
-		patterns[name] = ast.NewTreeNode(ast.NewRegexName(name), child)
-	}
+
 	for _, name := range names {
 		if _, ok := requiredIf[name]; ok {
 			return nil, fmt.Errorf("TODO: dependencies are not supported")
@@ -117,7 +103,28 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 	for _, name := range names {
 		patternList = append(patternList, patterns[name])
 	}
+	if len(s.PatternProperties) > 0 {
+		pattern, err := translatePatternProperties(s.PatternProperties)
+		if err != nil {
+			return nil, err
+		}
+		patternList = append(patternList, pattern)
+	}
 	patternList = append(patternList, additional)
+
 	// TODO: Be more specific and create ast.NewTagName for "object"
 	return ast.NewTreeNode(ast.NewStringName("object"), ast.NewInterleave(patternList...)), nil
+}
+
+func translatePatternProperties(patternProperties map[string]*schema.Schema) (*ast.Pattern, error) {
+	patternNames := std.SortedKeys(patternProperties)
+	var res []*ast.Pattern
+	for _, name := range patternNames {
+		child, err := translate(patternProperties[name])
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, ast.NewZeroOrMore(ast.NewTreeNode(ast.NewRegexName(name), child)))
+	}
+	return ast.NewInterleave(res...), nil
 }

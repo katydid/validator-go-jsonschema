@@ -14,10 +14,24 @@
 
 package std
 
+import (
+	"cmp"
+	"slices"
+)
+
 func Keys[Map ~map[K]V, K comparable, V any](m Map) []K {
 	ks := make([]K, 0, len(m))
 	for k := range m {
 		ks = append(ks, k)
 	}
+	return ks
+}
+
+func SortedKeys[Map ~map[K]V, K cmp.Ordered, V any](m Map) []K {
+	ks := make([]K, 0, len(m))
+	for k := range m {
+		ks = append(ks, k)
+	}
+	slices.Sort(ks)
 	return ks
 }

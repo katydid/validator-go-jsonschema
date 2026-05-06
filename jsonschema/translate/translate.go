@@ -72,6 +72,9 @@ func translate(schema *schema.Schema) (*ast.Pattern, error) {
 		if err != nil {
 			return nil, err
 		}
+		if !hasObjectType(schema.Type) {
+			p = ast.NewOr(p, notObjectType())
+		}
 		ps = append(ps, p)
 	}
 	if schema.HasOperatorConstraints() {
