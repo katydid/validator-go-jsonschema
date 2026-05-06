@@ -15,32 +15,11 @@
 package translate
 
 import (
-	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/combinator"
 )
 
-func translateNumeric(schema schema.Numeric) (*ast.Pattern, error) {
-	list := []*ast.Expr{}
-	if schema.MultipleOf != nil {
-		list = append(list, multipleOfExpr(*schema.MultipleOf))
-	}
-	if schema.Maximum != nil {
-		if schema.ExclusiveMaximum {
-			list = append(list, exclusiveMaximumExpr(*schema.Maximum))
-		} else {
-			list = append(list, maximumExpr(*schema.Maximum))
-		}
-	}
-	if schema.Minimum != nil {
-		if schema.ExclusiveMinimum {
-			list = append(list, exclusiveMinimumExpr(*schema.Minimum))
-		} else {
-			list = append(list, minimumExpr(*schema.Minimum))
-		}
-	}
-	if len(list) == 0 {
-		panic("unreachable")
-	}
-	return combinator.Value(andExpr(list)), nil
+func andExpr(list []*ast.Expr) *ast.Expr {
+	return std.MustFoldA(list, combinator.And)
 }

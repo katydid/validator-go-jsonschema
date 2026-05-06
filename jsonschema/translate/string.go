@@ -41,5 +41,5 @@ func translateString(schema schema.String, format string) (*ast.Pattern, error) 
 	if len(list) == 0 {
 		panic("unreachable")
 	}
-	return combinator.Value(and(list)), nil
+	return combinator.Value(andExpr(list)), nil
 }
