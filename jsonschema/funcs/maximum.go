@@ -55,10 +55,12 @@ func (this *maximum) Eval() (bool, error) {
 	var n float64
 	switch kind {
 	case parse.Int64Kind:
-		// TODO: Consider not supporting Int64Kind here
 		n = float64(cast.ToInt64(v))
 	case parse.Float64Kind:
 		n = cast.ToFloat64(v)
+	case parse.DecimalKind:
+		// TODO: add support
+		return false, nil
 	default:
 		// not a number is ignored
 		return true, nil

@@ -64,6 +64,9 @@ func (this *multipleOf) Eval() (bool, error) {
 		n = float64(cast.ToInt64(v))
 	case parse.Float64Kind:
 		n = cast.ToFloat64(v)
+	case parse.DecimalKind:
+		// TODO: add support
+		return false, nil
 	default:
 		// not a number is ignored
 		return true, nil

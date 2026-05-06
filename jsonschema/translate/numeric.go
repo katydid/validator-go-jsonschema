@@ -40,7 +40,7 @@ func translateNumeric(schema schema.Numeric) (*ast.Pattern, error) {
 		}
 	}
 	if len(list) == 0 {
-		return combinator.Value(newNumberExpr()), nil
+		panic("unreachable")
 	}
 	return combinator.Value(and(list)), nil
 }
