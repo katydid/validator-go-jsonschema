@@ -22,6 +22,10 @@ test:
 	# show passing counts at the end of the test run print out
 	go test -run=TestSuite -v ./jsonschema
 
+debug:
+	go clean -testcache
+	go test -run=TestDebug -v ./jsonschema
+
 build:
 	go build ./...
 

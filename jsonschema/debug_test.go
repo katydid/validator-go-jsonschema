@@ -25,7 +25,7 @@ import (
 func TestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "zeroTerminatedFloats.json:some languages do not distinguish between different types of numeric value:a float is not an integer even without fractional part") {
+		if !strings.Contains(test.String(), "type.json:object type matches objects:an object is an object") {
 			continue
 		}
 		testDebug(t, test)
