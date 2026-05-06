@@ -1,0 +1,47 @@
+// Copyright 2026 Walter Schulze
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package schema
+
+// http://json-schema.org/latest/json-schema-validation.html#anchor53
+type Object struct {
+	MaxProperties        *uint64     `json:"maxProperties,omitempty"`
+	MinProperties        uint64      `json:"minProperties,omitempty"`
+	Required             []string    `json:"required,omitempty"`
+	AdditionalProperties *Additional `json:"additionalProperties,omitempty"`
+	/*
+	   "type": "object",
+	   "additionalProperties": { "$ref": "#" },
+	   "default": {}
+	*/
+	//http://json-schema.org/latest/json-schema-validation.html#anchor64
+	//  The value of "properties" MUST be an object. Each value of this object MUST be an object, and each object MUST be a valid JSON Schema.
+	Properties map[string]*Schema `json:"properties,omitempty"`
+	/*
+	   "type": "object",
+	   "additionalProperties": { "$ref": "#" },
+	   "default": {}
+	*/
+	//http://json-schema.org/latest/json-schema-validation.html#anchor64
+	//  The value of "patternProperties" MUST be an object. Each property name of this object SHOULD be a valid regular expression, according to the ECMA 262 regular expression dialect. Each property value of this object MUST be an object, and each object MUST be a valid JSON Schema.
+	PatternProperties map[string]*Schema `json:"patternProperties,omitempty"`
+	Dependencies      *Dependencies      `json:"dependencies,omitempty"`
+}
+
+func (this Object) HasObjectConstraints() bool {
+	return this.MaxProperties != nil || this.MinProperties > 0 ||
+		this.Required != nil || this.AdditionalProperties != nil ||
+		this.Properties != nil || this.PatternProperties != nil ||
+		this.Dependencies != nil
+}

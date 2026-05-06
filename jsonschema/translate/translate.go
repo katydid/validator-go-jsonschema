@@ -86,7 +86,7 @@ func translateOne(schema *schema.Schema) (*ast.Pattern, error) {
 		p, err := translateObject(schema)
 		return p, err
 	}
-	if schema.HasInstanceConstraints() {
+	if schema.HasOperatorConstraints() {
 		p, err := translateInstance(schema)
 		return p, err
 	}

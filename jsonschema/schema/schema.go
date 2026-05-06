@@ -15,17 +15,10 @@
 package schema
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
-	"log"
 
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 )
-
-func init() {
-	log.SetFlags(log.Lshortfile)
-}
 
 func ParseSchema(jsonSchema []byte) (*Schema, error) {
 	schema := &Schema{}
@@ -205,7 +198,7 @@ type Schema struct {
 	String
 	Array
 	Object
-	Instance
+	Operators
 	Type *Type `json:"type,omitempty"`
 
 	Ref    string `json:"$ref,omitempty"`
@@ -213,225 +206,8 @@ type Schema struct {
 }
 
 func (this Schema) GetType() []SimpleType {
-	return *this.Type
-}
-
-// http://json-schema.org/latest/json-schema-validation.html#anchor13
-type Numeric struct {
-	MultipleOf       *float64 `json:"multipleOf,omitempty"`
-	Maximum          *float64 `json:"maximum,omitempty"`
-	ExclusiveMaximum bool     `json:"exclusiveMaximum,omitempty"`
-	Minimum          *float64 `json:"minimum,omitempty"`
-	ExclusiveMinimum bool     `json:"exclusiveMinimum,omitempty"`
-}
-
-func (this Numeric) HasNumericConstraints() bool {
-	return this.MultipleOf != nil || this.Maximum != nil || this.Minimum != nil
-}
-
-// http://json-schema.org/latest/json-schema-validation.html#anchor25
-type String struct {
-	MaxLength *uint64 `json:"maxLength,omitempty"`
-	MinLength uint64  `json:"minLength,omitempty"`
-	Pattern   *string `json:"pattern,omitempty"`
-}
-
-func (this String) HasStringConstraints() bool {
-	return this.MaxLength != nil || this.MinLength > 0 || this.Pattern != nil
-}
-
-// http://json-schema.org/latest/json-schema-validation.html#anchor36
-type Array struct {
-	AdditionalItems *Additional `json:"additionalItems,omitempty"`
-	Items           *Items      `json:"items,omitempty"`
-	MaxItems        *uint64     `json:"maxItems,omitempty"`
-	MinItems        uint64      `json:"minItems,omitempty"`
-	UniqueItems     bool        `json:"uniqueItems,omitempty"`
-}
-
-func (this Array) HasArrayConstraints() bool {
-	return this.AdditionalItems != nil || this.Items != nil ||
-		this.MaxItems != nil || this.MinItems > 0 || this.UniqueItems
-}
-
-// http://json-schema.org/latest/json-schema-validation.html#anchor53
-type Object struct {
-	MaxProperties        *uint64     `json:"maxProperties,omitempty"`
-	MinProperties        uint64      `json:"minProperties,omitempty"`
-	Required             []string    `json:"required,omitempty"`
-	AdditionalProperties *Additional `json:"additionalProperties,omitempty"`
-	/*
-	   "type": "object",
-	   "additionalProperties": { "$ref": "#" },
-	   "default": {}
-	*/
-	//http://json-schema.org/latest/json-schema-validation.html#anchor64
-	//  The value of "properties" MUST be an object. Each value of this object MUST be an object, and each object MUST be a valid JSON Schema.
-	Properties map[string]*Schema `json:"properties,omitempty"`
-	/*
-	   "type": "object",
-	   "additionalProperties": { "$ref": "#" },
-	   "default": {}
-	*/
-	//http://json-schema.org/latest/json-schema-validation.html#anchor64
-	//  The value of "patternProperties" MUST be an object. Each property name of this object SHOULD be a valid regular expression, according to the ECMA 262 regular expression dialect. Each property value of this object MUST be an object, and each object MUST be a valid JSON Schema.
-	PatternProperties map[string]*Schema `json:"patternProperties,omitempty"`
-	Dependencies      *Dependencies      `json:"dependencies,omitempty"`
-}
-
-func (this Object) HasObjectConstraints() bool {
-	return this.MaxProperties != nil || this.MinProperties > 0 ||
-		this.Required != nil || this.AdditionalProperties != nil ||
-		this.Properties != nil || this.PatternProperties != nil ||
-		this.Dependencies != nil
-}
-
-// http://json-schema.org/latest/json-schema-validation.html#anchor75
-type Instance struct {
-	/*
-	   "type": "object",
-	   "additionalProperties": { "$ref": "#" },
-	   "default": {}
-	*/
-	//http://json-schema.org/latest/json-schema-validation.html#anchor94
-	//  This keyword's value MUST be an object. Each member value of this object MUST be a valid JSON Schema.
-	Definitions map[string]*Schema `json:"definitions,omitempty"`
-	/*
-	   "type": "array",
-	   "minItems": 1,
-	   "uniqueItems": true
-	*/
-	Enum  []any     `json:"enum,omitempty"`
-	AllOf []*Schema `json:"allOf,omitempty"`
-	AnyOf []*Schema `json:"anyOf,omitempty"`
-	OneOf []*Schema `json:"oneOf,omitempty"`
-	Not   *Schema   `json:"not,omitempty"`
-}
-
-func (this Instance) HasInstanceConstraints() bool {
-	return this.Definitions != nil || this.Enum != nil ||
-		this.AllOf != nil || this.AnyOf != nil ||
-		this.OneOf != nil || this.Not != nil
-}
-
-/*
-   "anyOf": [
-       { "type": "boolean" },
-       { "$ref": "#" }
-   ],
-   "default": {}
-*/
-//http://json-schema.org/latest/json-schema-validation.html#anchor37
-//  The value of "additionalItems" MUST be either a boolean or an object. If it is an object, this object MUST be a valid JSON Schema.
-//http://json-schema.org/latest/json-schema-validation.html#anchor49
-//  The value of "additionalProperties" MUST be a boolean or an object. If it is an object, it MUST also be a valid JSON Schema.
-type Additional struct {
-	Bool *bool
-	//Typically only the type field of the jsonschema is set.
-	Type SimpleType
-}
-
-type aSchema struct {
-	Type *Type `json:"type"`
-}
-
-func (this *Additional) UnmarshalJSON(buf []byte) error {
-	var b bool
-	dec := json.NewDecoder(bytes.NewBuffer(buf))
-	if err := dec.Decode(&b); err == nil {
-		*this = Additional{Bool: &b}
-		return nil
-	}
-	s := &aSchema{}
-	if err := json.Unmarshal(buf, s); err != nil {
-		log.Printf("%v", err)
-		return err
-	}
-	if s.Type == nil {
-		return fmt.Errorf("the additional(Items|Properties) field is empty")
-	}
-	typ := *s.Type
-	if len(typ) > 1 {
-		return fmt.Errorf("the additional(Items|Properties) field's type field has more than one element")
-	}
-	if len(typ) == 0 {
-		panic(fmt.Errorf("%#v buf = %s", s.Type, string(buf)))
-	}
-	*this = Additional{Type: typ[0]}
-	return nil
-}
-
-/*
-   "anyOf": [
-       { "$ref": "#" },
-       { "$ref": "#/definitions/schemaArray" }
-   ],
-   "default": {}
-*/
-//http://json-schema.org/latest/json-schema-validation.html#anchor37
-//  The value of "items" MUST be either an object or an array. If it is an object, this object MUST be a valid JSON Schema. If it is an array, items of this array MUST be objects, and each of these objects MUST be a valid JSON Schema.
-type Items struct {
-	Object *Schema
-	Array  []*Schema
-}
-
-func (this *Items) UnmarshalJSON(buf []byte) error {
-	var s *Schema
-	if err := json.Unmarshal(buf, &s); err == nil {
-		*this = Items{Object: s}
-		return nil
-	}
-	schemas := []*Schema{}
-	if err := json.Unmarshal(buf, &schemas); err != nil {
-		log.Printf("%v input %s", err, string(buf))
-		return err
-	}
-	*this = Items{Array: schemas}
-	return nil
-}
-
-/*
-   "type": "object",
-   "additionalProperties": {
-       "anyOf": [
-           { "$ref": "#" },
-           { "$ref": "#/definitions/stringArray" }
-       ]
-   }
-*/
-//http://json-schema.org/latest/json-schema-validation.html#anchor70
-//  This keyword's value MUST be an object. Each value of this object MUST be either an object or an array.
-//  If the value is an object, it MUST be a valid JSON Schema. This is called a schema dependency.
-//  If the value is an array, it MUST have at least one element. Each element MUST be a string, and elements in the array MUST be unique. This is called a property dependency.
-//http://spacetelescope.github.io/understanding-json-schema/reference/object.html#dependencies
-type Dependencies map[string]*Dependency
-
-type Dependency struct {
-	Schema           *Schema
-	RequiredProperty []string
-}
-
-func (this *Dependency) UnmarshalJSON(buf []byte) error {
-	var s *Schema
-	if err := json.Unmarshal(buf, &s); err == nil {
-		*this = Dependency{Schema: s}
-		return nil
-	}
-	var ss []string
-	dec := json.NewDecoder(bytes.NewBuffer(buf))
-	if err := dec.Decode(&ss); err != nil {
-		log.Printf("%v input %s", err, string(buf))
-		return err
-	}
-	*this = Dependency{RequiredProperty: ss}
-	checkUnique := make(map[string]struct{})
-	for _, s := range this.RequiredProperty {
-		if _, ok := checkUnique[s]; ok {
-			err := fmt.Errorf("duplicate found in property dependency list %s", s)
-			log.Printf("%v", err)
-			return err
-		}
-		checkUnique[s] = struct{}{}
+	if this.Type != nil {
+		return *this.Type
 	}
 	return nil
 }

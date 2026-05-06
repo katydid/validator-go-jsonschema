@@ -16,7 +16,6 @@ package schema
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 )
@@ -73,30 +72,24 @@ func (this *Type) UnmarshalJSON(buf []byte) error {
 	if err := std.UnmarshalJSON(buf, &s); err == nil {
 		simpleType, err := newSimpleType(s)
 		if err != nil {
-			log.Printf("%v", err)
 			return err
 		}
 		t = append(t, simpleType)
 		*this = t
 		return nil
-	} else {
-		//log.Printf("type decode err = %v input = %s", err, string(buf))
 	}
 	var ss []string
 	if err := std.UnmarshalJSON(buf, &ss); err != nil {
-		log.Printf("%v", err)
 		return err
 	}
 	simpleTypes := make(map[string]struct{})
 	for _, s := range ss {
 		simpleType, err := newSimpleType(s)
 		if err != nil {
-			log.Printf("%v", err)
 			return err
 		}
 		if _, ok := simpleTypes[s]; ok {
 			err := fmt.Errorf("type alternatives are not unique, duplicate %s found", simpleType)
-			log.Printf("%v", err)
 			return err
 		}
 		simpleTypes[s] = struct{}{}
@@ -137,6 +130,5 @@ func newSimpleType(s string) (SimpleType, error) {
 		return TypeString, nil
 	}
 	err := fmt.Errorf("unknown simpletype %s", s)
-	log.Printf("%v", err)
 	return TypeUnknown, err
 }
