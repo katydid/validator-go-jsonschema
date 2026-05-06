@@ -116,15 +116,57 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 	return NewObjectNode(ast.NewInterleave(patternList...)), nil
 }
 
+// patternProperties has a pattern as a name and a child schema, for example:
+//
+//	"patternProperties": {
+//		  "aaa*": {"maximum": 20}
+//	}
+//
+// This is support by a regular expression in the name and the normal schema matching operators for the child schema.
+//
+// Things get more complicated when matching multiple patternProperties.
+// If only one name matches then only that child schema is taken into account and if that schema matches it is match.
+// But if both names matches then both schemas have to match.
+// Take this example from "multiple simultaneous patternProperties are validated" in patternProperties.json in the draft4 testsuite:
+//
+//	"patternProperties": {
+//	    "a*": {"type": "integer"},
+//	    "aaa*": {"maximum": 20}
+//	}
+//
+// {"aaaa": 31} => false, because both names match, so both schemas have to match.
+// {"a": 21} => true, because only one names matches, only that schema has to match.
+//
+// That means we have to take into account all combinations and translate it to:
+// ("a*"&"aaa*"):{"type": "integer"}&{"maximum": 20}
+// | ("a*"&!"aaa*"):{"maximum": 20}
+// | (!"a*"&!"aaa*"):{"type": "integer"}
+// We calculate these combinations as complementary subsets.
 func translatePatternProperties(patternProperties map[string]*schema.Schema) (*ast.Pattern, error) {
-	patternNames := std.SortedKeys(patternProperties)
 	var res []*ast.Pattern
-	for _, name := range patternNames {
-		child, err := translate(patternProperties[name])
-		if err != nil {
-			return nil, err
+
+	patternNames := std.SortedKeys(patternProperties)
+	patternCompSubsets := std.ComplementarySubsets(patternNames)
+	for _, patternCompSubset := range patternCompSubsets {
+		names := make([]*ast.NameExpr, 0, len(patternNames))
+		for _, name := range patternCompSubset.Left {
+			names = append(names, ast.NewRegexName(name))
 		}
-		res = append(res, ast.NewZeroOrMore(ast.NewTreeNode(ast.NewRegexName(name), child)))
+		for _, name := range patternCompSubset.Right {
+			names = append(names, ast.NewAnyNameExcept(ast.NewRegexName(name)))
+		}
+		children := make([]*ast.Pattern, 0, len(patternCompSubset.Left))
+		for _, name := range patternCompSubset.Left {
+			child, err := translate(patternProperties[name])
+			if err != nil {
+				return nil, err
+			}
+			children = append(children, child)
+		}
+		name := ast.NewNameConj(names...)
+		r := ast.NewTreeNode(name, ast.NewAnd(children...))
+		res = append(res, r)
 	}
-	return ast.NewInterleave(res...), nil
+
+	return ast.NewZeroOrMore(ast.NewOr(res...)), nil
 }
