@@ -44,7 +44,7 @@ var passingFile = map[string]bool{
 	// "not.json": true,
 	// "oneOf.json": true,
 	// "optional": true,
-	// "pattern.json": true,
+	"pattern.json": true,
 	// "patternProperties.json": true,
 	// "properties.json": true,
 	// "ref.json": true,

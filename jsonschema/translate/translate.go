@@ -35,64 +35,67 @@ func translates(schemas []*schema.Schema) ([]*ast.Pattern, error) {
 	return std.MapErr(schemas, translate)
 }
 
-func translate(schema *schema.Schema) (*ast.Pattern, error) {
+func translate(s *schema.Schema) (*ast.Pattern, error) {
 	var ps []*ast.Pattern
-	if len(schema.Id) > 0 {
+	if len(s.Id) > 0 {
 		return nil, fmt.Errorf("TODO: id not supported")
 	}
-	if schema.Default != nil {
+	if s.Default != nil {
 		return nil, fmt.Errorf("TODO: default not supported")
 	}
-	if schema.Type != nil {
-		p, err := translateTypes(*schema.Type)
+	if s.Type != nil {
+		p, err := translateTypes(*s.Type)
 		if err != nil {
 			return nil, err
 		}
 		ps = append(ps, p)
 	}
-	if schema.HasNumericConstraints() {
-		p, err := translateNumeric(schema.Numeric)
+	if s.HasNumericConstraints() {
+		p, err := translateNumeric(s.Numeric)
 		if err != nil {
 			return nil, err
 		}
 		ps = append(ps, p)
 	}
-	if schema.HasStringConstraints() {
-		p, err := translateString(schema.String, schema.Format)
+	if s.HasStringConstraints() {
+		p, err := translateString(s.String, s.Format)
 		if err != nil {
 			return nil, err
 		}
+		if !hasType(s.Type, schema.TypeString) {
+			p = ast.NewOr(p, notStringType())
+		}
 		ps = append(ps, p)
 	}
-	if schema.HasArrayConstraints() {
+	if s.HasArrayConstraints() {
 		return nil, fmt.Errorf("TODO: array not supported")
 	}
-	if schema.HasObjectConstraints() {
-		p, err := translateObject(schema)
+	if s.HasObjectConstraints() {
+		p, err := translateObject(s)
 		if err != nil {
 			return nil, err
 		}
-		if !hasObjectType(schema.Type) {
+		if !hasType(s.Type, schema.TypeObject) {
 			p = ast.NewOr(p, notObjectType())
 		}
 		ps = append(ps, p)
 	}
-	if schema.HasOperatorConstraints() {
-		p, err := translateOperators(schema)
+	if s.HasOperatorConstraints() {
+		p, err := translateOperators(s)
 		if err != nil {
 			return nil, err
 		}
 		ps = append(ps, p)
 	}
-	if len(schema.Format) > 0 {
-		expr, err := translateFormat(schema.Format)
+	if len(s.Format) > 0 {
+		expr, err := translateFormat(s.Format)
 		if err != nil {
 			return nil, err
 		}
 		p := combinator.Value(expr)
 		ps = append(ps, p)
 	}
-	if len(schema.Ref) > 0 {
+	if len(s.Ref) > 0 {
 		return nil, fmt.Errorf("TODO: ref not supported")
 	}
 	if len(ps) == 0 {
