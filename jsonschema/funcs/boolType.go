@@ -20,24 +20,24 @@ import (
 	"github.com/katydid/validator-go/validator/funcs"
 )
 
-type integer struct {
+type boolType struct {
 	Token parse.Token
 	hash  uint64
 }
 
-var _ funcs.Setter = &integer{}
+var _ funcs.Setter = &boolType{}
 
-func (this *integer) SetValue(v parse.Token) {
+func (this *boolType) SetValue(v parse.Token) {
 	this.Token = v
 }
 
-func Integer() (funcs.Bool, error) {
-	return &integer{
-		hash: funcs.Hash("integer"),
+func BoolType() (funcs.Bool, error) {
+	return &boolType{
+		hash: funcs.Hash("boolType"),
 	}, nil
 }
 
-func (this *integer) Eval() (bool, error) {
+func (this *boolType) Eval() (bool, error) {
 	if this.Token == nil {
 		return false, errTokenNotSet
 	}
@@ -45,34 +45,34 @@ func (this *integer) Eval() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return kind == parse.Int64Kind, nil
+	return kind == parse.TrueKind || kind == parse.FalseKind, nil
 }
 
-func (this *integer) ToExpr() *ast.Expr {
-	return ast.NewFunction("integer")
+func (this *boolType) ToExpr() *ast.Expr {
+	return ast.NewFunction("boolType")
 }
 
-func (this *integer) HasVariable() bool {
+func (this *boolType) HasVariable() bool {
 	return true
 }
 
-func (this *integer) Hash() uint64 {
+func (this *boolType) Hash() uint64 {
 	return this.hash
 }
 
-func (this *integer) Compare(that funcs.Comparable) int {
+func (this *boolType) Compare(that funcs.Comparable) int {
 	if this.Hash() != that.Hash() {
 		if this.Hash() < that.Hash() {
 			return -1
 		}
 		return 1
 	}
-	if _, ok := that.(*integer); ok {
+	if _, ok := that.(*boolType); ok {
 		return 0
 	}
 	return this.ToExpr().Compare(that.ToExpr())
 }
 
 func init() {
-	funcs.Register("integer", Integer)
+	funcs.Register("boolType", BoolType)
 }

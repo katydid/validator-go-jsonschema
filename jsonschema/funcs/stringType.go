@@ -20,24 +20,24 @@ import (
 	"github.com/katydid/validator-go/validator/funcs"
 )
 
-type integer struct {
+type stringType struct {
 	Token parse.Token
 	hash  uint64
 }
 
-var _ funcs.Setter = &integer{}
+var _ funcs.Setter = &stringType{}
 
-func (this *integer) SetValue(v parse.Token) {
+func (this *stringType) SetValue(v parse.Token) {
 	this.Token = v
 }
 
-func Integer() (funcs.Bool, error) {
-	return &integer{
-		hash: funcs.Hash("integer"),
+func StringType() (funcs.Bool, error) {
+	return &stringType{
+		hash: funcs.Hash("stringType"),
 	}, nil
 }
 
-func (this *integer) Eval() (bool, error) {
+func (this *stringType) Eval() (bool, error) {
 	if this.Token == nil {
 		return false, errTokenNotSet
 	}
@@ -45,34 +45,34 @@ func (this *integer) Eval() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return kind == parse.Int64Kind, nil
+	return kind == parse.StringKind, nil
 }
 
-func (this *integer) ToExpr() *ast.Expr {
-	return ast.NewFunction("integer")
+func (this *stringType) ToExpr() *ast.Expr {
+	return ast.NewFunction("stringType")
 }
 
-func (this *integer) HasVariable() bool {
+func (this *stringType) HasVariable() bool {
 	return true
 }
 
-func (this *integer) Hash() uint64 {
+func (this *stringType) Hash() uint64 {
 	return this.hash
 }
 
-func (this *integer) Compare(that funcs.Comparable) int {
+func (this *stringType) Compare(that funcs.Comparable) int {
 	if this.Hash() != that.Hash() {
 		if this.Hash() < that.Hash() {
 			return -1
 		}
 		return 1
 	}
-	if _, ok := that.(*integer); ok {
+	if _, ok := that.(*stringType); ok {
 		return 0
 	}
 	return this.ToExpr().Compare(that.ToExpr())
 }
 
 func init() {
-	funcs.Register("integer", Integer)
+	funcs.Register("stringType", StringType)
 }

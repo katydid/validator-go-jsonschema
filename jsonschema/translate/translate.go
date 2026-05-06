@@ -154,15 +154,15 @@ func translateType(typ schema.SimpleType) (*ast.Pattern, error) {
 		//This does not distinguish between arrays and objects
 		return combinator.Many(combinator.InAny(combinator.Any())), nil
 	case schema.TypeBoolean:
-		return combinator.Value(newTypeExpr(combinator.BoolVar())), nil
+		return combinator.Value(boolTypeExpr()), nil
 	case schema.TypeInteger:
-		return combinator.Value(newTypeExpr(newIntegerExpr())), nil
+		return combinator.Value(integerTypeExpr()), nil
 	case schema.TypeNull:
-		return combinator.Value(newNullExpr()), nil
+		return combinator.Value(nullTypeExpr()), nil
 	case schema.TypeNumber:
-		return combinator.Value(newNumberExpr()), nil
+		return combinator.Value(numberTypeExpr()), nil
 	case schema.TypeString:
-		return combinator.Value(newTypeExpr(combinator.StringVar())), nil
+		return combinator.Value(stringTypeExpr()), nil
 	}
 	panic(fmt.Sprintf("unknown simpletype: %s", typ))
 }

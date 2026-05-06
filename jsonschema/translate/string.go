@@ -21,7 +21,6 @@ import (
 )
 
 func translateString(schema schema.String, format string) (*ast.Pattern, error) {
-	v := combinator.StringVar()
 	list := []*ast.Expr{}
 	if schema.MaxLength != nil {
 		list = append(list, maxLengthExpr(*schema.MaxLength))
@@ -40,7 +39,7 @@ func translateString(schema schema.String, format string) (*ast.Pattern, error) 
 		list = append(list, formatExpr)
 	}
 	if len(list) == 0 {
-		return combinator.Value(newTypeExpr(v)), nil
+		panic("unreachable")
 	}
 	return combinator.Value(and(list)), nil
 }

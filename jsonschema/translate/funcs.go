@@ -104,6 +104,10 @@ func semverExpr() *ast.Expr {
 	return ast.NewFunction("semver")
 }
 
+func stringTypeExpr() *ast.Expr {
+	return ast.NewFunction("stringType")
+}
+
 func anyExpr() *ast.Expr {
 	return ast.NewFunction("any")
 }
@@ -112,20 +116,20 @@ func regexExpr(s string) *ast.Expr {
 	return ast.NewFunction("regex", combinator.StringConst(s), combinator.StringVar())
 }
 
-func newNullExpr() *ast.Expr {
+func nullTypeExpr() *ast.Expr {
 	return ast.NewFunction("null")
 }
 
-func newNumberExpr() *ast.Expr {
+func numberTypeExpr() *ast.Expr {
 	return ast.NewFunction("number")
 }
 
-func newIntegerExpr() *ast.Expr {
+func integerTypeExpr() *ast.Expr {
 	return ast.NewFunction("integer")
 }
 
-func newTypeExpr(e *ast.Expr) *ast.Expr {
-	return ast.NewFunction("type", e)
+func boolTypeExpr() *ast.Expr {
+	return ast.NewFunction("boolType")
 }
 
 func maxLengthExpr(d uint64) *ast.Expr {
