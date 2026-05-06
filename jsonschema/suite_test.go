@@ -64,10 +64,10 @@ var passingFile = map[string]bool{
 
 	// optional
 	// "bignum.json": true,
-	// "ecmascript-regex.json": true,
+	"ecmascript-regex.json": true,
 	// "float-overflow.json": true,
 	// "id.json": true,
-	// "non-bmp-regex.json": true,
+	"non-bmp-regex.json":        true,
 	"zeroTerminatedFloats.json": true,
 }
 
