@@ -79,6 +79,10 @@ func notObjectType() *ast.Pattern {
 	return ast.NewOr(arrayType(), anyFieldType())
 }
 
+func notArrayType() *ast.Pattern {
+	return ast.NewOr(objectType(), anyFieldType())
+}
+
 func stringType() *ast.Pattern {
 	return combinator.Value(stringTypeExpr())
 }

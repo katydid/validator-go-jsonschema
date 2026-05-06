@@ -22,22 +22,15 @@ import (
 )
 
 func translateArray(s *schema.Schema) (*ast.Pattern, error) {
-	if s.Type != nil {
-		if len(*s.Type) > 1 {
-			return nil, fmt.Errorf("list of types not supported with array constraints %#v", s)
-		}
-		if s.GetType()[0] != schema.TypeArray {
-			return nil, fmt.Errorf("%v not supported with array constraints", s.GetType()[0])
-		}
-	}
+	constraints := []*ast.Pattern{}
 	if s.UniqueItems {
 		return nil, fmt.Errorf("uniqueItems are not supported")
 	}
 	if s.MaxItems != nil {
-		return nil, fmt.Errorf("maxItems are not supported")
+		constraints = append(constraints, maxItems(int(*s.MaxItems)))
 	}
 	if s.MinItems > 0 {
-		return nil, fmt.Errorf("minItems are not supported")
+		constraints = append(constraints, minItems(int(s.MinItems)))
 	}
 	additionalItems := true
 	if s.AdditionalItems != nil {
@@ -75,5 +68,23 @@ func translateArray(s *schema.Schema) (*ast.Pattern, error) {
 		}
 		return nil, fmt.Errorf("items are not supported")
 	}
-	return nil, nil
+	return NewArrayNode(ast.NewAnd(constraints...)), nil
+}
+
+func maxItems(n int) *ast.Pattern {
+	ps := make([]*ast.Pattern, n+1)
+	// one more than the maxItems
+	for i := 0; i < n+1; i++ {
+		ps[i] = ast.NewTreeNode(ast.NewAnyName(), ast.NewZAny())
+	}
+	res := ast.NewConcat(ps...)
+	return ast.NewNot(ast.NewConcat(res, ast.NewZAny()))
+}
+
+func minItems(n int) *ast.Pattern {
+	ps := make([]*ast.Pattern, n)
+	for i := 0; i < n; i++ {
+		ps[i] = ast.NewTreeNode(ast.NewAnyName(), ast.NewZAny())
+	}
+	return ast.NewConcat(ps...)
 }

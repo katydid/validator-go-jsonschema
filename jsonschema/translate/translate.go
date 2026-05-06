@@ -68,7 +68,14 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 		ps = append(ps, p)
 	}
 	if s.HasArrayConstraints() {
-		return nil, fmt.Errorf("TODO: array not supported")
+		p, err := translateArray(s)
+		if err != nil {
+			return nil, err
+		}
+		if !hasType(s.Type, schema.TypeArray) {
+			p = ast.NewOr(p, notArrayType())
+		}
+		ps = append(ps, p)
 	}
 	if s.HasObjectConstraints() {
 		p, err := translateObject(s)
