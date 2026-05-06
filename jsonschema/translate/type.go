@@ -34,9 +34,9 @@ func translateTypes(typs []schema.SimpleType) (*ast.Pattern, error) {
 func translateType(typ schema.SimpleType) (*ast.Pattern, error) {
 	switch typ {
 	case schema.TypeObject:
-		return ast.NewTreeNode(ast.NewStringName("object"), ast.NewZAny()), nil
+		return objectType(), nil
 	case schema.TypeArray:
-		return ast.NewTreeNode(ast.NewStringName("array"), ast.NewZAny()), nil
+		return arrayType(), nil
 	case schema.TypeBoolean:
 		return combinator.Value(boolTypeExpr()), nil
 	case schema.TypeInteger:
@@ -64,11 +64,11 @@ func hasType(typs *schema.Type, typ schema.SimpleType) bool {
 }
 
 func arrayType() *ast.Pattern {
-	return ast.NewTreeNode(ast.NewStringName("array"), ast.NewZAny())
+	return NewArrayNode(ast.NewZAny())
 }
 
 func objectType() *ast.Pattern {
-	return ast.NewTreeNode(ast.NewStringName("object"), ast.NewZAny())
+	return NewObjectNode(ast.NewZAny())
 }
 
 func anyFieldType() *ast.Pattern {

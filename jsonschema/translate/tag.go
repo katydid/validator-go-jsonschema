@@ -19,7 +19,18 @@ import (
 
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
+	"github.com/katydid/validator-go/validator/ast"
 )
+
+// TODO: Be more specific with ast.NewTagName instead of NewStringName once it is available in validator-go
+func NewObjectNode(p *ast.Pattern) *ast.Pattern {
+	return ast.NewTreeNode(ast.NewStringName("object"), p)
+}
+
+// TODO: Be more specific with ast.NewTagName instead of NewStringName once it is available in validator-go
+func NewArrayNode(p *ast.Pattern) *ast.Pattern {
+	return ast.NewTreeNode(ast.NewStringName("array"), p)
+}
 
 type TagType byte
 

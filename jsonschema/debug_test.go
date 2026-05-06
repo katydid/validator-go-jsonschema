@@ -25,7 +25,7 @@ import (
 func TestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "patternProperties.json:patternProperties validates properties matching a regex:a single invalid match is invalid") {
+		if !strings.Contains(test.String(), "type.json:object type matches objects:an object is an object") {
 			continue
 		}
 		testDebug(t, test)
