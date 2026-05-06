@@ -24,10 +24,10 @@ import (
 func translateOperators(schema *schema.Schema) (*ast.Pattern, error) {
 	var res []*ast.Pattern
 	if len(schema.Definitions) > 0 {
-		return nil, fmt.Errorf("definitions not supported")
+		return nil, fmt.Errorf("TODO: definitions not supported")
 	}
 	if len(schema.Enum) > 0 {
-		return nil, fmt.Errorf("enum not supported")
+		return nil, fmt.Errorf("TODO: enum not supported")
 	}
 	if len(schema.AllOf) > 0 {
 		ps, err := translates(schema.AllOf)

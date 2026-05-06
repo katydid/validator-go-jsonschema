@@ -49,13 +49,9 @@ func translate(schema *schema.Schema) (*ast.Pattern, error) {
 			}
 			pattern = ast.NewAnd(p, pattern)
 		} else {
-			ps := make([]*ast.Pattern, len(types))
-			for i := range types {
-				var err error
-				ps[i], err = translateType(types[i])
-				if err != nil {
-					return nil, err
-				}
+			ps, err := std.MapErr(types, translateType)
+			if err != nil {
+				return nil, err
 			}
 			ors := ast.NewOr(ps...)
 			pattern = ast.NewAnd(ors, pattern)
@@ -66,10 +62,10 @@ func translate(schema *schema.Schema) (*ast.Pattern, error) {
 
 func translateOne(schema *schema.Schema) (*ast.Pattern, error) {
 	if len(schema.Id) > 0 {
-		return nil, fmt.Errorf("id not supported")
+		return nil, fmt.Errorf("TODO: id not supported")
 	}
 	if schema.Default != nil {
-		return nil, fmt.Errorf("default not supported")
+		return nil, fmt.Errorf("TODO: default not supported")
 	}
 	if schema.HasNumericConstraints() {
 		p, err := translateNumeric(schema.Numeric)
@@ -83,7 +79,7 @@ func translateOne(schema *schema.Schema) (*ast.Pattern, error) {
 		return p, err
 	}
 	if schema.HasArrayConstraints() {
-		return nil, fmt.Errorf("array not supported")
+		return nil, fmt.Errorf("TODO: array not supported")
 	}
 	if schema.HasObjectConstraints() {
 		p, err := translateObject(schema)
@@ -100,9 +96,8 @@ func translateOne(schema *schema.Schema) (*ast.Pattern, error) {
 		}
 		return combinator.Value(expr), nil
 	}
-
 	if len(schema.Ref) > 0 {
-		return nil, fmt.Errorf("ref not supported")
+		return nil, fmt.Errorf("TODO: ref not supported")
 	}
 	return ast.NewZAny(), nil
 }
@@ -110,7 +105,7 @@ func translateOne(schema *schema.Schema) (*ast.Pattern, error) {
 func translateType(typ schema.SimpleType) (*ast.Pattern, error) {
 	switch typ {
 	case schema.TypeArray, schema.TypeObject:
-		//This does not distinguish between arrays and objects
+		//TODO: This does not distinguish between arrays and objects
 		return combinator.Many(combinator.InAny(combinator.Any())), nil
 	case schema.TypeBoolean:
 		return combinator.Value(boolTypeExpr()), nil

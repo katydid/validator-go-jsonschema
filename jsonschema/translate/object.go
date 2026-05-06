@@ -24,10 +24,10 @@ import (
 
 func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 	if s.MaxProperties != nil {
-		return nil, fmt.Errorf("maxProperties not supported")
+		return nil, fmt.Errorf("TODO: maxProperties not supported")
 	}
 	if s.MinProperties > 0 {
-		return nil, fmt.Errorf("minProperties not supported")
+		return nil, fmt.Errorf("TODO: minProperties not supported")
 	}
 	required := make(map[string]struct{})
 	for _, req := range s.Required {
@@ -103,10 +103,10 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 	}
 	for _, name := range names {
 		if _, ok := requiredIf[name]; ok {
-			return nil, fmt.Errorf("dependencies are not supported")
+			return nil, fmt.Errorf("TODO: dependencies are not supported")
 		}
 		if _, ok := moreProperties[name]; ok {
-			return nil, fmt.Errorf("dependencies are not supported")
+			return nil, fmt.Errorf("TODO: dependencies are not supported")
 		}
 		if _, ok := required[name]; !ok {
 			patterns[name] = ast.NewOptional(patterns[name])
