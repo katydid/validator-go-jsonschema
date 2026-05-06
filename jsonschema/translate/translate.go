@@ -36,68 +36,64 @@ func translates(schemas []*schema.Schema) ([]*ast.Pattern, error) {
 }
 
 func translate(schema *schema.Schema) (*ast.Pattern, error) {
-	pattern, err := translateOne(schema)
-	if err != nil {
-		return nil, err
-	}
-	if schema.Type != nil {
-		types := *schema.Type
-		if len(types) == 1 {
-			p, err := translateType(types[0])
-			if err != nil {
-				return nil, err
-			}
-			pattern = ast.NewAnd(p, pattern)
-		} else {
-			ps, err := std.MapErr(types, translateType)
-			if err != nil {
-				return nil, err
-			}
-			ors := ast.NewOr(ps...)
-			pattern = ast.NewAnd(ors, pattern)
-		}
-	}
-	return pattern, nil
-}
-
-func translateOne(schema *schema.Schema) (*ast.Pattern, error) {
+	var ps []*ast.Pattern
 	if len(schema.Id) > 0 {
 		return nil, fmt.Errorf("TODO: id not supported")
 	}
 	if schema.Default != nil {
 		return nil, fmt.Errorf("TODO: default not supported")
 	}
+	if schema.Type != nil {
+		p, err := translateTypes(*schema.Type)
+		if err != nil {
+			return nil, err
+		}
+		ps = append(ps, p)
+	}
 	if schema.HasNumericConstraints() {
 		p, err := translateNumeric(schema.Numeric)
-		return p, err
+		if err != nil {
+			return nil, err
+		}
+		ps = append(ps, p)
 	}
 	if schema.HasStringConstraints() {
-		if schema.Type != nil && len(*schema.Type) > 1 {
-			return nil, fmt.Errorf("list of types not supported with string constraints %#v", schema)
-		}
 		p, err := translateString(schema.String, schema.Format)
-		return p, err
+		if err != nil {
+			return nil, err
+		}
+		ps = append(ps, p)
 	}
 	if schema.HasArrayConstraints() {
 		return nil, fmt.Errorf("TODO: array not supported")
 	}
 	if schema.HasObjectConstraints() {
 		p, err := translateObject(schema)
-		return p, err
+		if err != nil {
+			return nil, err
+		}
+		ps = append(ps, p)
 	}
 	if schema.HasOperatorConstraints() {
 		p, err := translateOperators(schema)
-		return p, err
+		if err != nil {
+			return nil, err
+		}
+		ps = append(ps, p)
 	}
 	if len(schema.Format) > 0 {
 		expr, err := translateFormat(schema.Format)
 		if err != nil {
 			return nil, err
 		}
-		return combinator.Value(expr), nil
+		p := combinator.Value(expr)
+		ps = append(ps, p)
 	}
 	if len(schema.Ref) > 0 {
 		return nil, fmt.Errorf("TODO: ref not supported")
 	}
-	return ast.NewZAny(), nil
+	if len(ps) == 0 {
+		return ast.NewZAny(), nil
+	}
+	return ast.NewAnd(ps...), nil
 }

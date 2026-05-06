@@ -18,15 +18,25 @@ import (
 	"fmt"
 
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/combinator"
 )
 
+func translateTypes(typs []schema.SimpleType) (*ast.Pattern, error) {
+	ps, err := std.MapErr(typs, translateType)
+	if err != nil {
+		return nil, err
+	}
+	return ast.NewOr(ps...), nil
+}
+
 func translateType(typ schema.SimpleType) (*ast.Pattern, error) {
 	switch typ {
-	case schema.TypeArray, schema.TypeObject:
-		//TODO: This does not distinguish between arrays and objects
-		return combinator.Many(combinator.InAny(combinator.Any())), nil
+	case schema.TypeObject:
+		return ast.NewTreeNode(ast.NewStringName("object"), ast.NewZAny()), nil
+	case schema.TypeArray:
+		return ast.NewTreeNode(ast.NewStringName("array"), ast.NewZAny()), nil
 	case schema.TypeBoolean:
 		return combinator.Value(boolTypeExpr()), nil
 	case schema.TypeInteger:

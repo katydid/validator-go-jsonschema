@@ -25,7 +25,7 @@ import (
 func TestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "type.json:null type matches only the null object:an integer is not null") {
+		if !strings.Contains(test.String(), "type.json:object type matches objects:an object is an object") {
 			continue
 		}
 		testDebug(t, test)

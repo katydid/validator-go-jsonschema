@@ -50,7 +50,7 @@ var passingFile = map[string]bool{
 	// "ref.json": true,
 	// "refRemote.json": true,
 	// "required.json": true,
-	// "type.json": true,
+	"type.json": true,
 	// "uniqueItems.json": true,
 
 	// optional/format
@@ -78,14 +78,13 @@ var skippingFile = map[string]bool{
 }
 
 var passingTest = map[string]bool{
-	"ecmascript-regex.json:patterns always use unicode semantics with pattern:ascii character in json string":               true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with pattern:literal unicode character in json string":     true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with pattern:unicode character in hex format in string":    true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with pattern:unicode matching is case-sensitive":           true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with patternProperties:unicode matching is case-sensitive": true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:pattern with non-ASCII digits:ascii digits":                                                      true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:pattern with non-ASCII digits:ascii non-digits":                                                  true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:pattern with non-ASCII digits:non-ascii digits (BENGALI DIGIT FOUR, BENGALI DIGIT TWO)":          true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:patterns always use unicode semantics with pattern:ascii character in json string":            true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:patterns always use unicode semantics with pattern:literal unicode character in json string":  true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:patterns always use unicode semantics with pattern:unicode character in hex format in string": true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:patterns always use unicode semantics with pattern:unicode matching is case-sensitive":        true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:pattern with non-ASCII digits:ascii digits":                                                   true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:pattern with non-ASCII digits:ascii non-digits":                                               true, // https://github.com/dlclark/regexp2/issues/101
+	"ecmascript-regex.json:pattern with non-ASCII digits:non-ascii digits (BENGALI DIGIT FOUR, BENGALI DIGIT TWO)":       true, // https://github.com/dlclark/regexp2/issues/101
 }
 
 var skippingTest = map[string]bool{
