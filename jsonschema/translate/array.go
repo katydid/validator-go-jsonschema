@@ -68,7 +68,7 @@ func translateArray(s *schema.Schema) (*ast.Pattern, error) {
 		}
 		return nil, fmt.Errorf("items are not supported")
 	}
-	return NewArrayNode(ast.NewAnd(constraints...)), nil
+	return ast.NewAnd(constraints...), nil
 }
 
 func maxItems(n int) *ast.Pattern {

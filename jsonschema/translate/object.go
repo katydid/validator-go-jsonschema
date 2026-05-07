@@ -64,7 +64,7 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 		constraints = append(constraints, ast.NewInterleave(p, additional))
 	}
 
-	return NewObjectNode(ast.NewAnd(constraints...)), nil
+	return ast.NewAnd(constraints...), nil
 }
 
 type property struct {
