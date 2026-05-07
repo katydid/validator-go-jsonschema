@@ -23,6 +23,13 @@ type Array struct {
 	UniqueItems     bool        `json:"uniqueItems,omitempty"`
 }
 
+func (this Array) GetItems() *Items {
+	if this.Items == nil {
+		return nil
+	}
+	return this.Items
+}
+
 func (this Array) HasArrayConstraints() bool {
 	return this.AdditionalItems != nil || this.Items != nil ||
 		this.MaxItems != nil || this.MinItems > 0 || this.UniqueItems

@@ -16,32 +16,106 @@ package translate
 
 import (
 	"fmt"
-	"maps"
 
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func findDefinitions(s *schema.Schema) (map[string]*schema.Schema, error) {
+func findMainDefinitions(s *schema.Schema) (map[string]*schema.Schema, error) {
 	defs := make(map[string]*schema.Schema)
-	maps.Copy(defs, s.Definitions)
+	err := findSchemaDefinitions(s, defs)
+	if err != nil {
+		return nil, err
+	}
+
 	if _, ok := defs["main"]; ok {
 		return nil, fmt.Errorf("main is a reserved definition name for katydid")
 	}
 	// katydid starts with the main pattern
 	if len(s.Id) > 0 {
-		defs[s.Id] = s
 		defs["main"] = &schema.Schema{Ref: s.Id}
+		defs[s.Id] = s
 	} else {
 		defs["main"] = s
 	}
 	return defs, nil
 }
 
+func findSchemaDefinitions(s *schema.Schema, res map[string]*schema.Schema) error {
+	for name, sch := range s.Definitions {
+		realname := name
+		if len(sch.Id) > 0 {
+			realname = sch.Id
+		}
+		if _, ok := res[realname]; ok {
+			return fmt.Errorf("duplicate definition name: %s", realname)
+		}
+		res[realname] = sch
+	}
+	for _, sch := range s.Definitions {
+		if err := findSchemaDefinitions(sch, res); err != nil {
+			return err
+		}
+	}
+	// TODO: s.Array.Additional. Right now it does not a Schema inside, but it will probably in future.
+	if sch := s.Array.GetItems().GetObject(); sch != nil {
+		if err := findSchemaDefinitions(sch, res); err != nil {
+			return err
+		}
+	}
+	for _, sch := range s.Array.GetItems().GetArray() {
+		if err := findSchemaDefinitions(sch, res); err != nil {
+			return err
+		}
+	}
+	// TODO s.Object.AdditionalProperties. Right now it does not a Schema inside, but it will probably in future.
+	for _, sch := range s.Object.Properties {
+		if err := findSchemaDefinitions(sch, res); err != nil {
+			return err
+		}
+	}
+	for _, sch := range s.Object.PatternProperties {
+		if err := findSchemaDefinitions(sch, res); err != nil {
+			return err
+		}
+	}
+	if s.Object.Dependencies != nil {
+		for _, dep := range *s.Object.Dependencies {
+			if sch := dep.Schema; sch != nil {
+				if err := findSchemaDefinitions(sch, res); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	for _, sch := range s.AllOf {
+		if err := findSchemaDefinitions(sch, res); err != nil {
+			return err
+		}
+	}
+	for _, sch := range s.AnyOf {
+		if err := findSchemaDefinitions(sch, res); err != nil {
+			return err
+		}
+	}
+	for _, sch := range s.OneOf {
+		if err := findSchemaDefinitions(sch, res); err != nil {
+			return err
+		}
+	}
+	if sch := s.Not; sch != nil {
+		if err := findSchemaDefinitions(sch, res); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func translateDefinitions(s *schema.Schema) (map[string]*ast.Pattern, error) {
 	refs := make(map[string]*ast.Pattern)
-	defs, err := findDefinitions(s)
+	defs, err := findMainDefinitions(s)
 	if err != nil {
 		return nil, err
 	}

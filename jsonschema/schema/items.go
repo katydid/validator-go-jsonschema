@@ -34,6 +34,20 @@ type Items struct {
 	Array  []*Schema
 }
 
+func (this *Items) GetObject() *Schema {
+	if this == nil {
+		return nil
+	}
+	return this.Object
+}
+
+func (this *Items) GetArray() []*Schema {
+	if this == nil {
+		return nil
+	}
+	return this.Array
+}
+
 func (this *Items) UnmarshalJSON(buf []byte) error {
 	var s *Schema
 	if err := std.UnmarshalJSON(buf, &s); err == nil {
