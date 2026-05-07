@@ -25,7 +25,7 @@ var passingFile = map[string]bool{
 	// "additionalProperties.json": true,
 	// "allOf.json": true,
 	// "anyOf.json": true,
-	// "default.json": true,
+	"default.json": true,
 	// "definitions.json": true,
 	// "dependencies.json": true,
 	// "enum.json": true,

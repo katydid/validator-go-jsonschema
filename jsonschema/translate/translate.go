@@ -41,7 +41,7 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 		return nil, fmt.Errorf("TODO: id not supported")
 	}
 	if s.Default != nil {
-		return nil, fmt.Errorf("TODO: default not supported")
+		// default works if we do nothing
 	}
 	if s.Type != nil {
 		p, err := translateTypes(*s.Type)
