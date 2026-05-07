@@ -56,11 +56,10 @@ var passingFile = map[string]bool{
 	"ipv4.json":      true,
 	"ipv6.json":      true,
 	"unknown.json":   true,
-	// "uri.json": true,
+	"uri.json":       true,
 
 	// optional
-	"ecmascript-regex.json": true,
-	// "id.json":                   true,
+	"ecmascript-regex.json":     true,
 	"non-bmp-regex.json":        true,
 	"zeroTerminatedFloats.json": true,
 }
@@ -70,6 +69,7 @@ var skippingFile = map[string]bool{
 	"refRemote.json":   true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
 	"definitions.json": true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
 	// optional
+	"id.json":             true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
 	"bignum.json":         true, // Need better decimal support in at least maximum, integer, number, minimum
 	"float-overflow.json": true, // Need better checking for float overflow to convert to decimal in the json parser and we need to support decimal in multipleOf
 }
