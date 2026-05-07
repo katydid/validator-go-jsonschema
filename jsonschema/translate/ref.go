@@ -21,16 +21,18 @@ import (
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func translateRef(refName string) (*ast.Pattern, error) {
-	ref := "main"
-	if refName != "#" {
-		ref = refName
+func translateRef(name string) (*ast.Pattern, error) {
+	if name == "#" {
+		return ast.NewReference("main"), nil
 	}
-	if strings.HasPrefix(ref, "http") {
+	if strings.HasPrefix(name, "#/") {
+		return ast.NewReference(name[2:]), nil
+	}
+	if strings.HasPrefix(name, "http") {
 		return nil, fmt.Errorf("remoteRef is not supported")
 	}
-	if strings.HasPrefix(ref, "file:/") {
+	if strings.HasPrefix(name, "file:/") {
 		return nil, fmt.Errorf("remoteRef file is not supported")
 	}
-	return ast.NewReference(ref), nil
+	return nil, fmt.Errorf("unsupported reference type %s", name)
 }

@@ -23,10 +23,10 @@ import (
 	"github.com/katydid/validator-go/validator/intern"
 )
 
-func DTestDebug(t *testing.T) {
+func TestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "definitions.json:validate definition against metaschema:valid definition schema") {
+		if !strings.Contains(test.String(), "ref.json:escaped pointer ref:slash invalid") {
 			continue
 		}
 		testDebug(t, test)

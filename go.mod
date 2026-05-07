@@ -8,7 +8,7 @@ require (
 	github.com/dlclark/regexp2/v2 v2.0.1
 	github.com/katydid/parser-go v0.8.5
 	github.com/katydid/parser-go-json v0.5.2
-	github.com/katydid/validator-go v0.6.5-0.20260507072313-f01a583f31d9
+	github.com/katydid/validator-go v0.6.5-0.20260507174033-9abe986865a4
 )
 
 require (

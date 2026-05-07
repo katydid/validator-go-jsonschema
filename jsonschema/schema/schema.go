@@ -189,12 +189,21 @@ func (this *Schema) JsonString() string {
 	}
 */
 type Schema struct {
-	Id          string             `json:"id,omitempty"`
-	Schema      string             `json:"$schema,omitempty"`
-	Title       string             `json:"title,omitempty"`
-	Description string             `json:"description,omitempty"`
-	Default     any                `json:"default,omitempty"`
+	Id          string `json:"id,omitempty"`
+	Schema      string `json:"$schema,omitempty"`
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
+	Default     any    `json:"default,omitempty"`
+
+	/*
+	   "type": "object",
+	   "additionalProperties": { "$ref": "#" },
+	   "default": {}
+	*/
+	//http://json-schema.org/latest/json-schema-validation.html#anchor94
+	//  This keyword's value MUST be an object. Each member value of this object MUST be a valid JSON Schema.
 	Definitions map[string]*Schema `json:"definitions,omitempty"`
+
 	Numeric
 	String
 	Array

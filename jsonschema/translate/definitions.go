@@ -46,7 +46,7 @@ func findMainDefinitions(s *schema.Schema) (map[string]*schema.Schema, error) {
 
 func findSchemaDefinitions(root *schema.Schema, s *schema.Schema, res map[string]*schema.Schema) error {
 	for name, sch := range s.Definitions {
-		realname := name
+		realname := "definitions/" + name
 		if len(sch.Id) > 0 {
 			realname = sch.Id
 		}
@@ -122,7 +122,7 @@ func findSchemaDefinitions(root *schema.Schema, s *schema.Schema, res map[string
 			if sch == nil {
 				return fmt.Errorf("could not find schema for %s", s.Ref)
 			}
-			res[s.Ref] = sch
+			res[s.Ref[2:]] = sch
 		} else if strings.HasPrefix(s.Ref, "http") {
 			return fmt.Errorf("remote ref not supported")
 		} else if strings.HasPrefix(s.Ref, "file") {

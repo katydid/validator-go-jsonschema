@@ -17,14 +17,6 @@ package schema
 // http://json-schema.org/latest/json-schema-validation.html#anchor75
 type Operators struct {
 	/*
-	   "type": "object",
-	   "additionalProperties": { "$ref": "#" },
-	   "default": {}
-	*/
-	//http://json-schema.org/latest/json-schema-validation.html#anchor94
-	//  This keyword's value MUST be an object. Each member value of this object MUST be a valid JSON Schema.
-	Definitions map[string]*Schema `json:"definitions,omitempty"`
-	/*
 	   "type": "array",
 	   "minItems": 1,
 	   "uniqueItems": true
@@ -37,7 +29,7 @@ type Operators struct {
 }
 
 func (this Operators) HasOperatorConstraints() bool {
-	return this.Definitions != nil || this.Enum != nil ||
+	return this.Enum != nil ||
 		this.AllOf != nil || this.AnyOf != nil ||
 		this.OneOf != nil || this.Not != nil
 }
