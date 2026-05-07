@@ -74,6 +74,7 @@ var skippingFile = map[string]bool{
 	"uniqueItems.json":    true, // We do not support uniqueItems, see https://github.com/katydid/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
 	"bignum.json":         true, // Need better decimal support in at least maximum, integer, number, minimum
 	"float-overflow.json": true, // Need better checking for float overflow to convert to decimal in the json parser and we need to support decimal in multipleOf
+	"refRemote.json":      true, // Should be relatively easy to add, but is just not of theoretical importance at this stage.
 }
 
 var passingTest = map[string]bool{
