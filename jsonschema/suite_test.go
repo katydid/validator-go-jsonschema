@@ -77,15 +77,7 @@ var skippingFile = map[string]bool{
 	"refRemote.json":      true, // Should be relatively easy to add, but is just not of theoretical importance at this stage.
 }
 
-var passingTest = map[string]bool{
-	"ecmascript-regex.json:patterns always use unicode semantics with pattern:ascii character in json string":            true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with pattern:literal unicode character in json string":  true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with pattern:unicode character in hex format in string": true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:patterns always use unicode semantics with pattern:unicode matching is case-sensitive":        true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:pattern with non-ASCII digits:ascii digits":                                                   true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:pattern with non-ASCII digits:ascii non-digits":                                               true, // https://github.com/dlclark/regexp2/issues/101
-	"ecmascript-regex.json:pattern with non-ASCII digits:non-ascii digits (BENGALI DIGIT FOUR, BENGALI DIGIT TWO)":       true, // https://github.com/dlclark/regexp2/issues/101
-}
+var passingTest = map[string]bool{}
 
 var skippingTest = map[string]bool{
 	"uri.json:validation of URIs:unescaped non US-ASCII characters": true, // need a better URI library
