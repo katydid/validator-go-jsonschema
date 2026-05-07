@@ -23,10 +23,10 @@ import (
 	"github.com/katydid/validator-go/validator/intern"
 )
 
-func DTestDebug(t *testing.T) {
+func TestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "dependencies.json:multiple dependencies subschema:valid") {
+		if !strings.Contains(test.String(), "items.json:a schema given for items:valid items") {
 			continue
 		}
 		testDebug(t, test)

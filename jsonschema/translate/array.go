@@ -18,6 +18,7 @@ import (
 	"fmt"
 
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
 )
 
@@ -46,29 +47,33 @@ func translateArray(s *schema.Schema) (*ast.Pattern, error) {
 		return nil, fmt.Errorf("additionalItems are not supported")
 	}
 	if s.Items != nil {
-		if s.Items.Object != nil {
-			if s.Items.Object.Type == nil {
-				//any
-			} else {
-				typ := s.Items.Object.GetType()[0]
-				_ = typ
-			}
-			//TODO this specifies the type of every item in the list
-		} else if s.Items.Array != nil {
-			if !additionalItems {
-				//TODO this specifies the length of the list as well as each ordered element's type
-				//  if no type is set then any type is accepted
-				maxLength := len(s.Items.Array)
-				_ = maxLength
-			} else {
-				//TODO this specifies the types of the first few ordered items in the list
-				//  if no type is set then any type is accepted
-			}
-
+		// TODO: There is a problem here when items are arrays or objects.
+		schemas, err := getSchemas(s.Items)
+		if err != nil {
+			return nil, err
 		}
-		return nil, fmt.Errorf("items are not supported")
+		patterns, err := std.MapErr(schemas, translate)
+		if err != nil {
+			return nil, err
+		}
+		patterns = std.Map(patterns, eachItem)
+		constraints = append(constraints, ast.NewOr(patterns...))
 	}
 	return ast.NewAnd(constraints...), nil
+}
+
+func eachItem(p *ast.Pattern) *ast.Pattern {
+	return ast.NewZeroOrMore(ast.NewTreeNode(ast.NewAnyName(), p))
+}
+
+func getSchemas(items *schema.Items) ([]*schema.Schema, error) {
+	if items.Object != nil {
+		return []*schema.Schema{items.Object}, nil
+	}
+	if items.Array != nil {
+		return items.Array, nil
+	}
+	return nil, fmt.Errorf("invalid schema with no items specified")
 }
 
 func maxItems(n int) *ast.Pattern {
