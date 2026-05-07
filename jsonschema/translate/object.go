@@ -81,32 +81,28 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(props) == 0 {
-		return NewObjectNode(additional), nil
-	}
 
 	p, err := translateProps(props)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewObjectNode(ast.NewInterleave(p, additional)), nil
+	required, err := translateRequired(s.Required)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) == 0 {
+		return NewObjectNode(ast.NewAnd(additional, required)), nil
+	}
+
+	return NewObjectNode(ast.NewAnd(ast.NewInterleave(p, additional), required)), nil
 }
 
 type property struct {
-	key      string
-	name     *ast.NameExpr
-	child    *ast.Pattern
-	required bool // TODO do some with required
-}
-
-func isRequired(s *schema.Schema, name string) bool {
-	for _, required := range s.Required {
-		if name == required {
-			return true
-		}
-	}
-	return false
+	key   string
+	name  *ast.NameExpr
+	child *ast.Pattern
 }
 
 func newProperties(s *schema.Schema) ([]*property, error) {
@@ -114,7 +110,7 @@ func newProperties(s *schema.Schema) ([]*property, error) {
 	patternNames := std.SortedKeys(s.PatternProperties)
 	props := make([]*property, 0, len(names)+len(patternNames))
 	for _, name := range names {
-		p, err := newProperty(name, s.Properties[name], isRequired(s, name))
+		p, err := newProperty(name, s.Properties[name])
 		if err != nil {
 			return nil, err
 		}
@@ -130,16 +126,15 @@ func newProperties(s *schema.Schema) ([]*property, error) {
 	return props, nil
 }
 
-func newProperty(name string, s *schema.Schema, required bool) (*property, error) {
+func newProperty(name string, s *schema.Schema) (*property, error) {
 	child, err := translate(s)
 	if err != nil {
 		return nil, err
 	}
 	return &property{
-		key:      name,
-		name:     ast.NewStringName(name),
-		child:    child,
-		required: required,
+		key:   name,
+		name:  ast.NewStringName(name),
+		child: child,
 	}, nil
 }
 
@@ -205,4 +200,15 @@ func translateProps(props []*property) (*ast.Pattern, error) {
 	}
 
 	return ast.NewZeroOrMore(ast.NewOr(res...)), nil
+}
+
+func translateRequired(required []string) (*ast.Pattern, error) {
+	res := []*ast.Pattern{}
+	for _, req := range required {
+		res = append(res, ast.NewTreeNode(ast.NewStringName(req), ast.NewZAny()))
+	}
+	if len(res) == 0 {
+		return ast.NewZAny(), nil
+	}
+	return ast.NewInterleave(res...), nil
 }

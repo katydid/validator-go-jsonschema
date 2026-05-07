@@ -49,8 +49,8 @@ var passingFile = map[string]bool{
 	"properties.json":        true,
 	// "ref.json": true,
 	// "refRemote.json": true,
-	// "required.json": true,
-	"type.json": true,
+	"required.json": true,
+	"type.json":     true,
 	// "uniqueItems.json": true,
 
 	// optional/format

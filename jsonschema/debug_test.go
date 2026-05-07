@@ -25,11 +25,13 @@ import (
 func TestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "minItems.json:minItems validation:too short is invalid") {
+		if !strings.Contains(test.String(), "required.json:required with escaped characters:object with all properties present is valid") {
 			continue
 		}
 		testDebug(t, test)
+		return
 	}
+	t.Fatal("test not found")
 }
 
 func testDebug(t *testing.T, test Test) {
