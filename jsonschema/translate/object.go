@@ -35,23 +35,17 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 		}
 		constraints = append(constraints, required)
 	}
+	if s.Dependencies != nil {
+		deps, err := translateDependencies(s.Dependencies)
+		if err != nil {
+			return nil, err
+		}
+		constraints = append(constraints, deps)
+	}
+
 	additional, err := translateAdditionalProperties(s)
 	if err != nil {
 		return nil, err
-	}
-
-	// TODO: Do some with dependencies
-	requiredIf := make(map[string][]string)
-	moreProperties := make(map[string]*schema.Schema)
-	if s.Dependencies != nil {
-		deps := *s.Dependencies
-		for name, dep := range deps {
-			if len(dep.RequiredProperty) > 0 {
-				requiredIf[name] = deps[name].RequiredProperty
-			} else {
-				moreProperties[name] = deps[name].Schema
-			}
-		}
 	}
 
 	props, err := newProperties(s)
@@ -239,4 +233,30 @@ func translateAdditionalProperties(s *schema.Schema) (*ast.Pattern, error) {
 		}
 	}
 	return additional, nil
+}
+
+func translateDependencies(deps *schema.Dependencies) (*ast.Pattern, error) {
+	d := *deps
+	res := []*ast.Pattern{}
+	names := std.SortedKeys(d)
+	for _, name := range names {
+		if len(d[name].RequiredProperty) > 0 {
+			for _, reqName := range d[name].RequiredProperty {
+				ifName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(name), ast.NewZAny()))
+				thenName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(reqName), ast.NewZAny()))
+				elseName := ast.NewZeroOrMore(ast.NewTreeNode(ast.NewAnyNameExcept(ast.NewStringName(name)), ast.NewZAny()))
+				res = append(res, ast.NewOr(ast.NewAnd(ifName, thenName), elseName))
+			}
+		} else if d[name].Schema != nil {
+			// TODO: There is a problem there that the object and array tags are added, but then they nest object and arrays too deeply.
+			thenPattern, err := translate(d[name].Schema)
+			if err != nil {
+				return nil, err
+			}
+			ifName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(name), ast.NewZAny()))
+			elseName := ast.NewZeroOrMore(ast.NewTreeNode(ast.NewAnyNameExcept(ast.NewStringName(name)), ast.NewZAny()))
+			res = append(res, ast.NewOr(ast.NewAnd(ifName, thenPattern), elseName))
+		}
+	}
+	return ast.NewAnd(res...), nil
 }

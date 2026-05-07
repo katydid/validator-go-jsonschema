@@ -21,13 +21,12 @@ import (
 	"github.com/katydid/parser-go-json/json"
 	"github.com/katydid/parser-go/parse/debug"
 	"github.com/katydid/validator-go/validator/intern"
-	"github.com/katydid/validator-go/validator/parser"
 )
 
 func TestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "dependencies.json:dependencies:missing dependency") {
+		if !strings.Contains(test.String(), "dependencies.json:multiple dependencies subschema:valid") {
 			continue
 		}
 		testDebug(t, test)
@@ -43,15 +42,15 @@ func testDebug(t *testing.T, test Test) {
 	}
 	t.Logf("test.Data: %s", test.Data)
 	t.Logf("translated to: %v", g.String())
-	gStr := `
-		tag(object):{
-			(bar:*&{(bar:->integer())*;(!(bar):*)*})
-			;(foo:*&{(foo:->stringType())*;(!(foo):*)*})
-		}`
-	g, err = parser.NewParser().ParseGrammar(gStr)
-	if err != nil {
-		t.Fatal(err)
-	}
+	// gStr := `
+	// 	tag(object):{
+	// 		(bar:*&{(bar:->integer())*;(!(bar):*)*})
+	// 		;(foo:*&{(foo:->stringType())*;(!(foo):*)*})
+	// 	}`
+	// g, err = parser.NewParser().ParseGrammar(gStr)
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
 
 	jsonp := json.NewJSONSchemaParser()
 	p := debug.NewLogger(jsonp, debug.NewLineLogger())
