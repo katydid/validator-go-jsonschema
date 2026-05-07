@@ -18,6 +18,7 @@ import (
 	"fmt"
 
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
 )
 
@@ -30,14 +31,14 @@ func translateOperators(schema *schema.Schema) (*ast.Pattern, error) {
 		return nil, fmt.Errorf("TODO: enum not supported")
 	}
 	if len(schema.AllOf) > 0 {
-		ps, err := translates(schema.AllOf)
+		ps, err := std.MapErr(schema.AllOf, translate)
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, ast.NewAnd(ps...))
 	}
 	if len(schema.AnyOf) > 0 {
-		ps, err := translates(schema.AnyOf)
+		ps, err := std.MapErr(schema.AnyOf, translate)
 		if err != nil {
 			return nil, err
 		}

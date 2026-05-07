@@ -189,11 +189,12 @@ func (this *Schema) JsonString() string {
 	}
 */
 type Schema struct {
-	Id          string `json:"id,omitempty"`
-	Schema      string `json:"$schema,omitempty"`
-	Title       string `json:"title,omitempty"`
-	Description string `json:"description,omitempty"`
-	Default     any    `json:"default,omitempty"`
+	Id          string             `json:"id,omitempty"`
+	Schema      string             `json:"$schema,omitempty"`
+	Title       string             `json:"title,omitempty"`
+	Description string             `json:"description,omitempty"`
+	Default     any                `json:"default,omitempty"`
+	Definitions map[string]*Schema `json:"definitions,omitempty"`
 	Numeric
 	String
 	Array

@@ -18,28 +18,30 @@ import (
 	"fmt"
 
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
-	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/combinator"
 )
 
-func TranslateDraft4(schema *schema.Schema) (*ast.Grammar, error) {
-	p, err := translate(schema)
+func TranslateDraft4(s *schema.Schema) (*ast.Grammar, error) {
+	p, err := translate(s)
 	if err != nil {
 		return nil, err
 	}
-	return ast.NewGrammar(ast.RefLookup(map[string]*ast.Pattern{"main": p})), nil
-}
-
-func translates(schemas []*schema.Schema) ([]*ast.Pattern, error) {
-	return std.MapErr(schemas, translate)
+	g := map[string]*ast.Pattern{"main": p}
+	if len(s.Id) > 0 {
+		g = map[string]*ast.Pattern{
+			"main": ast.NewReference(s.Id),
+			s.Id:   p,
+		}
+	}
+	if s.Definitions != nil {
+		return nil, fmt.Errorf("definitions not supported")
+	}
+	return ast.NewGrammar(ast.RefLookup(g)), nil
 }
 
 func translate(s *schema.Schema) (*ast.Pattern, error) {
 	var ps []*ast.Pattern
-	if len(s.Id) > 0 {
-		return nil, fmt.Errorf("TODO: id not supported")
-	}
 	if s.Default != nil {
 		// default works if we do nothing
 	}
@@ -105,7 +107,11 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 		ps = append(ps, p)
 	}
 	if len(s.Ref) > 0 {
-		return nil, fmt.Errorf("TODO: ref not supported")
+		p, err := translateRef(s.Ref)
+		if err != nil {
+			return nil, err
+		}
+		ps = append(ps, p)
 	}
 	if len(ps) == 0 {
 		return ast.NewZAny(), nil

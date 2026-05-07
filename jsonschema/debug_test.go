@@ -23,10 +23,10 @@ import (
 	"github.com/katydid/validator-go/validator/intern"
 )
 
-func TestDebug(t *testing.T) {
+func DTestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "items.json:a schema given for items:valid items") {
+		if !strings.Contains(test.String(), "definitions.json:validate definition against metaschema:valid definition schema") {
 			continue
 		}
 		testDebug(t, test)
