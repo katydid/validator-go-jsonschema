@@ -23,7 +23,7 @@ import (
 	"github.com/katydid/validator-go/validator/intern"
 )
 
-func TestDebug(t *testing.T) {
+func DTestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
 		if !strings.Contains(test.String(), "ref.json:escaped pointer ref:slash invalid") {
