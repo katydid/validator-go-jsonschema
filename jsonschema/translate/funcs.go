@@ -114,6 +114,10 @@ func anyExpr() *ast.Expr {
 	return ast.NewFunction("any")
 }
 
+func anyValueExpr() *ast.Expr {
+	return ast.NewFunction("anyValue")
+}
+
 func regexExpr(s string) *ast.Expr {
 	return ast.NewFunction("regex", combinator.StringConst(s), combinator.StringVar())
 }

@@ -22,14 +22,12 @@ import (
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-// TODO: Be more specific with ast.NewTagName instead of NewStringName once it is available in validator-go
 func NewObjectNode(p *ast.Pattern) *ast.Pattern {
-	return ast.NewTreeNode(ast.NewStringName("object"), p)
+	return ast.NewTreeNode(ast.NewTagName("object"), p)
 }
 
-// TODO: Be more specific with ast.NewTagName instead of NewStringName once it is available in validator-go
 func NewArrayNode(p *ast.Pattern) *ast.Pattern {
-	return ast.NewTreeNode(ast.NewStringName("array"), p)
+	return ast.NewTreeNode(ast.NewTagName("array"), p)
 }
 
 type TagType byte

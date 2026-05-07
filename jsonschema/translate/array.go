@@ -86,5 +86,5 @@ func minItems(n int) *ast.Pattern {
 	for i := 0; i < n; i++ {
 		ps[i] = ast.NewTreeNode(ast.NewAnyName(), ast.NewZAny())
 	}
-	return ast.NewConcat(ps...)
+	return ast.NewConcat(ast.NewConcat(ps...), ast.NewZAny())
 }

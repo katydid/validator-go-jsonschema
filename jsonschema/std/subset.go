@@ -21,6 +21,9 @@ func ComplementarySubsets[A any](xs []A) []struct {
 	Right []A
 } {
 	size := len(xs)
+	if size == 0 {
+		return nil
+	}
 	max := sets.NewBits(size)
 	for i := 0; i < size; i++ {
 		max.Set(i, true)
@@ -61,6 +64,9 @@ func ComplementarySubsets[A any](xs []A) []struct {
 
 func Subsets[A any](xs []A) [][]A {
 	size := len(xs)
+	if size == 0 {
+		return nil
+	}
 	max := sets.NewBits(size)
 	for i := 0; i < size; i++ {
 		max.Set(i, true)

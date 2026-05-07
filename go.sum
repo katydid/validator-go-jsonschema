@@ -12,5 +12,7 @@ github.com/katydid/validator-go v0.6.5-0.20260505091559-a2361ad2f1d6 h1:85Z4eoV7
 github.com/katydid/validator-go v0.6.5-0.20260505091559-a2361ad2f1d6/go.mod h1:n3yOuUQrn4vQtbV+Hq9OjK0xZ2ggQmDtxY8/zEgab8s=
 github.com/katydid/validator-go v0.6.5-0.20260506123921-2b9e65ac1356 h1:x0duwqQRD0UIO8tlWQ+qGv0RENeLRDOHzcZ9Hvp3SBQ=
 github.com/katydid/validator-go v0.6.5-0.20260506123921-2b9e65ac1356/go.mod h1:n3yOuUQrn4vQtbV+Hq9OjK0xZ2ggQmDtxY8/zEgab8s=
+github.com/katydid/validator-go v0.6.5-0.20260507072313-f01a583f31d9 h1:P5qU86f4nGHtR6yMYIwIoA2S0AAS/OPvoIxC9VKpulw=
+github.com/katydid/validator-go v0.6.5-0.20260507072313-f01a583f31d9/go.mod h1:04OOMFNCoUTNgdxxTPaeUNL6FBd6EmPkmVSgqSGGa70=
 golang.org/x/mod v0.8.0 h1:LUYupSeNrTNCGzR/hVBk2NHZO4hXcVaW1k4Qx7rjPx8=
 golang.org/x/mod v0.8.0/go.mod h1:iBbtSCu2XBx23ZKBPSOrRkjjQPZFPuis4dIYUhu/chs=

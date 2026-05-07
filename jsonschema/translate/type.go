@@ -51,12 +51,12 @@ func translateType(typ schema.SimpleType) (*ast.Pattern, error) {
 	panic(fmt.Sprintf("unknown simpletype: %s", typ))
 }
 
-func hasType(typs *schema.Type, typ schema.SimpleType) bool {
+func hasType(typs *schema.Type, theType schema.SimpleType) bool {
 	if typs == nil {
 		return false
 	}
 	for _, typ := range *typs {
-		if typ == schema.TypeObject {
+		if typ == theType {
 			return true
 		}
 	}
@@ -72,7 +72,7 @@ func objectType() *ast.Pattern {
 }
 
 func anyFieldType() *ast.Pattern {
-	return combinator.Value(anyExpr())
+	return combinator.Value(anyValueExpr())
 }
 
 func notObjectType() *ast.Pattern {

@@ -29,10 +29,8 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 	if s.MinProperties > 0 {
 		return nil, fmt.Errorf("TODO: minProperties not supported")
 	}
-	required := make(map[string]struct{})
-	for _, req := range s.Required {
-		required[req] = struct{}{}
-	}
+
+	// TODO: Do some with dependencies
 	requiredIf := make(map[string][]string)
 	moreProperties := make(map[string]*schema.Schema)
 	if s.Dependencies != nil {
@@ -78,42 +76,83 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 			)
 		}
 	}
-	patterns := make(map[string]*ast.Pattern)
+
+	props, err := newProperties(s)
+	if err != nil {
+		return nil, err
+	}
+	if len(props) == 0 {
+		return NewObjectNode(additional), nil
+	}
+
+	p, err := translateProps(props)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewObjectNode(ast.NewInterleave(p, additional)), nil
+}
+
+type property struct {
+	key      string
+	name     *ast.NameExpr
+	child    *ast.Pattern
+	required bool // TODO do some with required
+}
+
+func isRequired(s *schema.Schema, name string) bool {
+	for _, required := range s.Required {
+		if name == required {
+			return true
+		}
+	}
+	return false
+}
+
+func newProperties(s *schema.Schema) ([]*property, error) {
+	names := std.SortedKeys(s.Properties)
+	patternNames := std.SortedKeys(s.PatternProperties)
+	props := make([]*property, 0, len(names)+len(patternNames))
 	for _, name := range names {
-		child, err := translate(s.Properties[name])
+		p, err := newProperty(name, s.Properties[name], isRequired(s, name))
 		if err != nil {
 			return nil, err
 		}
-		patterns[name] = ast.NewTreeNode(ast.NewStringName(name), child)
+		props = append(props, p)
 	}
-
-	for _, name := range names {
-		if _, ok := requiredIf[name]; ok {
-			return nil, fmt.Errorf("TODO: dependencies are not supported")
-		}
-		if _, ok := moreProperties[name]; ok {
-			return nil, fmt.Errorf("TODO: dependencies are not supported")
-		}
-		if _, ok := required[name]; !ok {
-			patterns[name] = ast.NewOptional(patterns[name])
-		}
-	}
-
-	patternList := make([]*ast.Pattern, 0, len(patterns))
-	for _, name := range names {
-		patternList = append(patternList, patterns[name])
-	}
-	if len(s.PatternProperties) > 0 {
-		pattern, err := translatePatternProperties(s.PatternProperties)
+	for _, name := range patternNames {
+		p, err := newPatternProperty(name, s.PatternProperties[name])
 		if err != nil {
 			return nil, err
 		}
-		patternList = append(patternList, pattern)
+		props = append(props, p)
 	}
-	patternList = append(patternList, additional)
+	return props, nil
+}
 
-	// TODO: Be more specific and create ast.NewTagName for "object"
-	return NewObjectNode(ast.NewInterleave(patternList...)), nil
+func newProperty(name string, s *schema.Schema, required bool) (*property, error) {
+	child, err := translate(s)
+	if err != nil {
+		return nil, err
+	}
+	return &property{
+		key:      name,
+		name:     ast.NewStringName(name),
+		child:    child,
+		required: required,
+	}, nil
+}
+
+func newPatternProperty(name string, s *schema.Schema) (*property, error) {
+	child, err := translate(s)
+	if err != nil {
+		return nil, err
+	}
+	return &property{
+		key:   name,
+		name:  ast.NewRegexName(name),
+		child: child,
+	}, nil
 }
 
 // patternProperties has a pattern as a name and a child schema, for example:
@@ -142,28 +181,25 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 // | ("a*"&!"aaa*"):{"maximum": 20}
 // | (!"a*"&!"aaa*"):{"type": "integer"}
 // We calculate these combinations as complementary subsets.
-func translatePatternProperties(patternProperties map[string]*schema.Schema) (*ast.Pattern, error) {
+func translateProps(props []*property) (*ast.Pattern, error) {
 	var res []*ast.Pattern
 
-	patternNames := std.SortedKeys(patternProperties)
-	patternCompSubsets := std.ComplementarySubsets(patternNames)
-	for _, patternCompSubset := range patternCompSubsets {
-		names := make([]*ast.NameExpr, 0, len(patternNames))
-		for _, name := range patternCompSubset.Left {
-			names = append(names, ast.NewRegexName(name))
+	propCompSubsets := std.ComplementarySubsets(props)
+	for _, propCompSubset := range propCompSubsets {
+		names := make([]*ast.NameExpr, 0, len(propCompSubset.Left)+len(propCompSubset.Right))
+		for _, prop := range propCompSubset.Left {
+			names = append(names, prop.name)
 		}
-		for _, name := range patternCompSubset.Right {
-			names = append(names, ast.NewAnyNameExcept(ast.NewRegexName(name)))
-		}
-		children := make([]*ast.Pattern, 0, len(patternCompSubset.Left))
-		for _, name := range patternCompSubset.Left {
-			child, err := translate(patternProperties[name])
-			if err != nil {
-				return nil, err
-			}
-			children = append(children, child)
+		for _, prop := range propCompSubset.Right {
+			names = append(names, ast.NewAnyNameExcept(prop.name))
 		}
 		name := ast.NewNameConj(names...)
+
+		children := make([]*ast.Pattern, 0, len(propCompSubset.Left))
+		for _, prop := range propCompSubset.Left {
+			children = append(children, prop.child.Clone())
+		}
+
 		r := ast.NewTreeNode(name, ast.NewAnd(children...))
 		res = append(res, r)
 	}
