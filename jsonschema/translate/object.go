@@ -15,19 +15,25 @@
 package translate
 
 import (
-	"fmt"
-
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
 )
 
 func translateObject(s *schema.Schema) (*ast.Pattern, error) {
+	var constraints []*ast.Pattern
 	if s.MaxProperties != nil {
-		return nil, fmt.Errorf("TODO: maxProperties not supported")
+		constraints = append(constraints, maxProperties(int(*s.MaxProperties)))
 	}
 	if s.MinProperties > 0 {
-		return nil, fmt.Errorf("TODO: minProperties not supported")
+		constraints = append(constraints, minProperties(int(s.MinProperties)))
+	}
+	if len(s.Required) > 0 {
+		required, err := translateRequired(s.Required)
+		if err != nil {
+			return nil, err
+		}
+		constraints = append(constraints, required)
 	}
 
 	// TODO: Do some with dependencies
@@ -87,16 +93,13 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 		return nil, err
 	}
 
-	required, err := translateRequired(s.Required)
-	if err != nil {
-		return nil, err
-	}
-
 	if len(props) == 0 {
-		return NewObjectNode(ast.NewAnd(additional, required)), nil
+		constraints = append(constraints, additional)
+	} else {
+		constraints = append(constraints, ast.NewInterleave(p, additional))
 	}
 
-	return NewObjectNode(ast.NewAnd(ast.NewInterleave(p, additional), required)), nil
+	return NewObjectNode(ast.NewAnd(constraints...)), nil
 }
 
 type property struct {
@@ -211,4 +214,22 @@ func translateRequired(required []string) (*ast.Pattern, error) {
 		return ast.NewZAny(), nil
 	}
 	return ast.NewInterleave(res...), nil
+}
+
+func maxProperties(n int) *ast.Pattern {
+	ps := make([]*ast.Pattern, n+1)
+	// one more than the maxProperties
+	for i := 0; i < n+1; i++ {
+		ps[i] = ast.NewTreeNode(ast.NewAnyName(), ast.NewZAny())
+	}
+	res := ast.NewConcat(ps...)
+	return ast.NewNot(ast.NewConcat(res, ast.NewZAny()))
+}
+
+func minProperties(n int) *ast.Pattern {
+	ps := make([]*ast.Pattern, n)
+	for i := 0; i < n; i++ {
+		ps[i] = ast.NewTreeNode(ast.NewAnyName(), ast.NewZAny())
+	}
+	return ast.NewConcat(ast.NewConcat(ps...), ast.NewZAny())
 }
