@@ -15,29 +15,17 @@
 package translate
 
 import (
-	"fmt"
-
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/combinator"
 )
 
 func TranslateDraft4(s *schema.Schema) (*ast.Grammar, error) {
-	p, err := translate(s)
+	defs, err := translateDefinitions(s)
 	if err != nil {
 		return nil, err
 	}
-	g := map[string]*ast.Pattern{"main": p}
-	if len(s.Id) > 0 {
-		g = map[string]*ast.Pattern{
-			"main": ast.NewReference(s.Id),
-			s.Id:   p,
-		}
-	}
-	if s.Definitions != nil {
-		return nil, fmt.Errorf("definitions not supported")
-	}
-	return ast.NewGrammar(ast.RefLookup(g)), nil
+	return ast.NewGrammar(ast.RefLookup(defs)), nil
 }
 
 func translate(s *schema.Schema) (*ast.Pattern, error) {
