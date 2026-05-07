@@ -26,7 +26,6 @@ var passingFile = map[string]bool{
 	// "allOf.json": true,
 	// "anyOf.json":   true,
 	"default.json": true,
-	// "definitions.json": true,
 	// "dependencies.json": true,
 	// "enum.json": true,
 	"format.json": true,
@@ -47,10 +46,8 @@ var passingFile = map[string]bool{
 	"patternProperties.json": true,
 	"properties.json":        true,
 	// "ref.json": true,
-	// "refRemote.json": true,
 	"required.json": true,
 	"type.json":     true,
-	// "uniqueItems.json": true,
 
 	// optional/format
 	"date-time.json": true,
@@ -62,24 +59,25 @@ var passingFile = map[string]bool{
 	// "uri.json": true,
 
 	// optional
-	// "bignum.json": true,
 	"ecmascript-regex.json": true,
-	// "float-overflow.json": true,
-	// "id.json": true,
+	// "id.json":                   true,
 	"non-bmp-regex.json":        true,
 	"zeroTerminatedFloats.json": true,
 }
 
 var skippingFile = map[string]bool{
-	"uniqueItems.json":    true, // We do not support uniqueItems, see https://github.com/katydid/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
+	"uniqueItems.json": true, // We do not support uniqueItems, see https://github.com/katydid/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
+	"refRemote.json":   true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
+	"definitions.json": true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
+	// optional
 	"bignum.json":         true, // Need better decimal support in at least maximum, integer, number, minimum
 	"float-overflow.json": true, // Need better checking for float overflow to convert to decimal in the json parser and we need to support decimal in multipleOf
-	"refRemote.json":      true, // Should be relatively easy to add, but is just not of theoretical importance at this stage.
 }
 
 var passingTest = map[string]bool{}
 
 var skippingTest = map[string]bool{
+	// optional/format
 	"uri.json:validation of URIs:unescaped non US-ASCII characters": true, // need a better URI library
 	"uri.json:validation of URIs:invalid backslash character":       true, // need a better URI library
 	"uri.json:validation of URIs:invalid \" character":              true, // need a better URI library
