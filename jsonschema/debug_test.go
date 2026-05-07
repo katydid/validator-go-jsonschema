@@ -20,12 +20,14 @@ import (
 
 	"github.com/katydid/parser-go-json/json"
 	"github.com/katydid/parser-go/parse/debug"
+	"github.com/katydid/validator-go/validator/intern"
+	"github.com/katydid/validator-go/validator/parser"
 )
 
 func TestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "required.json:required with escaped characters:object with all properties present is valid") {
+		if !strings.Contains(test.String(), "dependencies.json:dependencies:missing dependency") {
 			continue
 		}
 		testDebug(t, test)
@@ -41,12 +43,21 @@ func testDebug(t *testing.T, test Test) {
 	}
 	t.Logf("test.Data: %s", test.Data)
 	t.Logf("translated to: %v", g.String())
+	gStr := `
+		tag(object):{
+			(bar:*&{(bar:->integer())*;(!(bar):*)*})
+			;(foo:*&{(foo:->stringType())*;(!(foo):*)*})
+		}`
+	g, err = parser.NewParser().ParseGrammar(gStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	jsonp := json.NewJSONSchemaParser()
 	p := debug.NewLogger(jsonp, debug.NewLineLogger())
 	p.Init(test.Data)
 
-	valid, err := ValidateParser(test.Schema, p)
+	valid, err := intern.Interpret(g, true, p)
 	if err != nil {
 		t.Fatalf("Interpret error %v", err)
 	} else if valid != test.Valid {

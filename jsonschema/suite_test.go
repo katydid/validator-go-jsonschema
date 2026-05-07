@@ -22,9 +22,9 @@ import (
 // Files where all the tests must pass or the test actually fails.
 var passingFile = map[string]bool{
 	// "additionalItems.json": true,
-	// "additionalProperties.json": true,
+	"additionalProperties.json": true,
 	// "allOf.json": true,
-	// "anyOf.json": true,
+	// "anyOf.json":   true,
 	"default.json": true,
 	// "definitions.json": true,
 	// "dependencies.json": true,

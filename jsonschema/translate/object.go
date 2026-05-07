@@ -35,6 +35,10 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 		}
 		constraints = append(constraints, required)
 	}
+	additional, err := translateAdditionalProperties(s)
+	if err != nil {
+		return nil, err
+	}
 
 	// TODO: Do some with dependencies
 	requiredIf := make(map[string][]string)
@@ -47,39 +51,6 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 			} else {
 				moreProperties[name] = deps[name].Schema
 			}
-		}
-	}
-
-	names := std.SortedKeys(s.Properties)
-	patternNames := std.SortedKeys(s.PatternProperties)
-
-	additional := ast.NewZAny()
-	if len(names) > 0 || len(patternNames) > 0 {
-		nameExprs := make([]*ast.NameExpr, len(names)+len(patternNames))
-		for i, name := range names {
-			nameExprs[i] = ast.NewStringName(name)
-		}
-		for i, name := range patternNames {
-			nameExprs[i+len(names)] = ast.NewRegexName(name)
-		}
-		additional = ast.NewZeroOrMore(
-			ast.NewTreeNode(ast.NewAnyNameExcept(
-				ast.NewNameChoice(nameExprs...),
-			), ast.NewZAny()),
-		)
-	}
-	if s.AdditionalProperties != nil {
-		if s.AdditionalProperties.Bool != nil && !(*s.AdditionalProperties.Bool) {
-			additional = ast.NewEmpty()
-		} else if s.AdditionalProperties.Type != schema.TypeUnknown {
-			typ, err := translateType(s.AdditionalProperties.Type)
-			if err != nil {
-				return nil, err
-			}
-			// TODO: Investigate whether this is correct.
-			additional = ast.NewZeroOrMore(
-				ast.NewTreeNode(ast.NewAnyName(), typ),
-			)
 		}
 	}
 
@@ -232,4 +203,40 @@ func minProperties(n int) *ast.Pattern {
 		ps[i] = ast.NewTreeNode(ast.NewAnyName(), ast.NewZAny())
 	}
 	return ast.NewConcat(ast.NewConcat(ps...), ast.NewZAny())
+}
+
+func translateAdditionalProperties(s *schema.Schema) (*ast.Pattern, error) {
+	additional := ast.NewZAny()
+
+	names := std.SortedKeys(s.Properties)
+	patternNames := std.SortedKeys(s.PatternProperties)
+
+	if len(names) > 0 || len(patternNames) > 0 {
+		nameExprs := make([]*ast.NameExpr, len(names)+len(patternNames))
+		for i, name := range names {
+			nameExprs[i] = ast.NewStringName(name)
+		}
+		for i, name := range patternNames {
+			nameExprs[i+len(names)] = ast.NewRegexName(name)
+		}
+		additional = ast.NewZeroOrMore(
+			ast.NewTreeNode(ast.NewAnyNameExcept(
+				ast.NewNameChoice(nameExprs...),
+			), ast.NewZAny()),
+		)
+	}
+	if s.AdditionalProperties != nil {
+		if s.AdditionalProperties.Bool != nil && !(*s.AdditionalProperties.Bool) {
+			additional = ast.NewEmpty()
+		} else if s.AdditionalProperties.Type != schema.TypeUnknown {
+			typ, err := translateType(s.AdditionalProperties.Type)
+			if err != nil {
+				return nil, err
+			}
+			additional = ast.NewZeroOrMore(
+				ast.NewTreeNode(ast.NewAnyName(), typ),
+			)
+		}
+	}
+	return additional, nil
 }
