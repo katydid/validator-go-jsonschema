@@ -26,7 +26,7 @@ import (
 func TestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "ref.json:escaped pointer ref:slash invalid") {
+		if !strings.Contains(test.String(), "enum.json:enums in properties:both properties are valid") {
 			continue
 		}
 		testDebug(t, test)

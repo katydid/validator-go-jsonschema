@@ -15,8 +15,6 @@
 package translate
 
 import (
-	"fmt"
-
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
@@ -25,7 +23,11 @@ import (
 func translateOperators(schema *schema.Schema) (*ast.Pattern, error) {
 	var res []*ast.Pattern
 	if len(schema.Enum) > 0 {
-		return nil, fmt.Errorf("TODO: enum not supported")
+		p, err := translateEnum(schema.Enum)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, p)
 	}
 	if len(schema.AllOf) > 0 {
 		ps, err := std.MapErr(schema.AllOf, translate)

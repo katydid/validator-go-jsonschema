@@ -173,12 +173,12 @@ func translateProps(props []*property) (*ast.Pattern, error) {
 func translateRequired(required []string) (*ast.Pattern, error) {
 	res := []*ast.Pattern{}
 	for _, req := range required {
-		res = append(res, ast.NewTreeNode(ast.NewStringName(req), ast.NewZAny()))
+		res = append(res, ast.NewContains(ast.NewTreeNode(ast.NewStringName(req), ast.NewZAny())))
 	}
 	if len(res) == 0 {
 		return ast.NewZAny(), nil
 	}
-	return ast.NewInterleave(res...), nil
+	return ast.NewAnd(res...), nil
 }
 
 func maxProperties(n int) *ast.Pattern {

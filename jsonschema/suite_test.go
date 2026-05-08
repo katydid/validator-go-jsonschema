@@ -27,7 +27,7 @@ var passingFile = map[string]bool{
 	// "anyOf.json":   true,
 	"default.json": true,
 	// "dependencies.json": true,
-	// "enum.json": true,
+	"enum.json":   true,
 	"format.json": true,
 	// "infinite-loop-detection.json": true,
 	// "items.json": true,
