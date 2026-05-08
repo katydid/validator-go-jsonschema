@@ -26,7 +26,7 @@ import (
 func TestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "additionalItems.json:additionalItems as schema:additional items match schema") {
+		if !strings.Contains(test.String(), "ref.json:empty tokens in $ref json-pointer:number is valid") {
 			continue
 		}
 		testDebug(t, test)

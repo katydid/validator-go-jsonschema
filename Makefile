@@ -19,7 +19,9 @@ all: nuke regenerate build test
 test:
 	go clean -testcache
 	TESTSUITE=MUST go test -v ./...
-	# show passing counts at the end of the test run print out
+
+suite:
+	go clean -testcache
 	go test -run=TestSuite -v ./jsonschema
 
 debug:

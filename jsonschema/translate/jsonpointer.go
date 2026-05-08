@@ -21,6 +21,8 @@ import (
 	"github.com/qri-io/jsonpointer"
 )
 
+const reservedWordForEmpty = "reserved word for empty definition path"
+
 func parsePointer(s string) ([]string, error) {
 	// sometimes we forget to strip the hash from the front.
 	if strings.HasPrefix(s, "#") {
@@ -36,6 +38,11 @@ func parsePointer(s string) ([]string, error) {
 		if err == nil {
 			// We ignore errors for paths that are already escaped.
 			path[i] = u
+		}
+	}
+	for i, p := range path {
+		if p == "" {
+			path[i] = reservedWordForEmpty
 		}
 	}
 	return path, nil

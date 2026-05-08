@@ -26,7 +26,7 @@ import (
 
 func findMainDefinitions(s *schema.Schema) (map[string]*schema.Schema, error) {
 	defs := make(map[string]*schema.Schema)
-	err := findSchemaDefinitions(s, s, defs)
+	err := findSchemaDefinitions(s, "", s, defs)
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +44,19 @@ func findMainDefinitions(s *schema.Schema) (map[string]*schema.Schema, error) {
 	return defs, nil
 }
 
-func findSchemaDefinitions(root *schema.Schema, s *schema.Schema, res map[string]*schema.Schema) error {
-	for name, sch := range s.Definitions {
-		realname := "/definitions/" + name
-		if len(sch.Id) > 0 {
-			realname = sch.Id
-		}
+func defName(prefix string, name string, sch *schema.Schema) string {
+	name = "/definitions/" + name
+	if len(sch.Id) > 0 {
+		return sch.Id
+	}
+	name = prefix + name
+	return name
+}
+
+func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema, res map[string]*schema.Schema) error {
+	for _, name := range std.SortedKeys(s.Definitions) {
+		sch := s.Definitions[name]
+		realname := defName(prefix, name, sch)
 		var err error
 		realname, err = newRefName(realname)
 		if err != nil {
@@ -60,67 +67,69 @@ func findSchemaDefinitions(root *schema.Schema, s *schema.Schema, res map[string
 		}
 		res[realname] = sch
 	}
-	for _, sch := range s.Definitions {
-		if err := findSchemaDefinitions(root, sch, res); err != nil {
+	for _, name := range std.SortedKeys(s.Definitions) {
+		sch := s.Definitions[name]
+		realname := defName(prefix, name, sch)
+		if err := findSchemaDefinitions(root, realname, sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.Array.AdditionalItems.GetSchema(); sch != nil {
-		if err := findSchemaDefinitions(root, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.Array.GetItems().GetObject(); sch != nil {
-		if err := findSchemaDefinitions(root, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
 			return err
 		}
 	}
 	for _, sch := range s.Array.GetItems().GetArray() {
-		if err := findSchemaDefinitions(root, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.Object.AdditionalProperties.GetSchema(); sch != nil {
-		if err := findSchemaDefinitions(root, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
 			return err
 		}
 	}
 	for _, sch := range s.Object.Properties {
-		if err := findSchemaDefinitions(root, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
 			return err
 		}
 	}
 	for _, sch := range s.Object.PatternProperties {
-		if err := findSchemaDefinitions(root, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
 			return err
 		}
 	}
 	if s.Object.Dependencies != nil {
 		for _, dep := range *s.Object.Dependencies {
 			if sch := dep.Schema; sch != nil {
-				if err := findSchemaDefinitions(root, sch, res); err != nil {
+				if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
 					return err
 				}
 			}
 		}
 	}
 	for _, sch := range s.AllOf {
-		if err := findSchemaDefinitions(root, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
 			return err
 		}
 	}
 	for _, sch := range s.AnyOf {
-		if err := findSchemaDefinitions(root, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
 			return err
 		}
 	}
 	for _, sch := range s.OneOf {
-		if err := findSchemaDefinitions(root, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.Not; sch != nil {
-		if err := findSchemaDefinitions(root, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
 			return err
 		}
 	}
