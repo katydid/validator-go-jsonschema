@@ -46,9 +46,14 @@ func findMainDefinitions(s *schema.Schema) (map[string]*schema.Schema, error) {
 
 func findSchemaDefinitions(root *schema.Schema, s *schema.Schema, res map[string]*schema.Schema) error {
 	for name, sch := range s.Definitions {
-		realname := "definitions/" + name
+		realname := "/definitions/" + name
 		if len(sch.Id) > 0 {
 			realname = sch.Id
+		}
+		var err error
+		realname, err = newRefName(realname)
+		if err != nil {
+			return err
 		}
 		if _, ok := res[realname]; ok {
 			return fmt.Errorf("duplicate definition name: %s", realname)
@@ -117,12 +122,19 @@ func findSchemaDefinitions(root *schema.Schema, s *schema.Schema, res map[string
 		} else if strings.HasPrefix(s.Ref, "#/definitions/") {
 			// other definitions are already added, so nothing to do there.
 		} else if strings.HasPrefix(s.Ref, "#/") {
-			pointer := strings.Split(s.Ref[2:], "/")
+			pointer, err := parsePointer(s.Ref)
+			if err != nil {
+				return err
+			}
 			sch := findSchema(pointer, root)
 			if sch == nil {
 				return fmt.Errorf("could not find schema for %s", s.Ref)
 			}
-			res[s.Ref[2:]] = sch
+			refName, err := newRefName(s.Ref)
+			if err != nil {
+				return err
+			}
+			res[refName] = sch
 		} else if strings.HasPrefix(s.Ref, "http") {
 			return fmt.Errorf("remote ref not supported")
 		} else if strings.HasPrefix(s.Ref, "file") {

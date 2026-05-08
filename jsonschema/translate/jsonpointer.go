@@ -12,23 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package testutil
+package translate
 
 import (
-	"reflect"
-	"testing"
+	"net/url"
+	"strings"
+
+	"github.com/qri-io/jsonpointer"
 )
 
-func Expect[A any](t *testing.T, desc string, want A, got A) {
-	t.Helper()
-	if !reflect.DeepEqual(want, got) {
-		t.Fatalf("%s want %#v got %#v", desc, want, got)
+func parsePointer(s string) ([]string, error) {
+	// sometimes we forget to strip the hash from the front.
+	if strings.HasPrefix(s, "#") {
+		s = s[1:]
 	}
-}
-
-func ExpectErr[A any](t *testing.T, desc string, want A, got A) {
-	t.Helper()
-	if !reflect.DeepEqual(want, got) {
-		t.Errorf("%s want %#v got %#v", desc, want, got)
+	path, err := jsonpointer.Parse(s)
+	if err != nil {
+		return nil, err
 	}
+	// This decodes the percent encoding, changing %25 to %
+	for i, p := range path {
+		u, err := url.PathUnescape(p)
+		if err == nil {
+			// We ignore errors for paths that are already escaped.
+			path[i] = u
+		}
+	}
+	return path, nil
 }

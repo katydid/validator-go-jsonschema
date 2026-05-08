@@ -26,7 +26,11 @@ func translateRef(name string) (*ast.Pattern, error) {
 		return ast.NewReference("main"), nil
 	}
 	if strings.HasPrefix(name, "#/") {
-		return ast.NewReference(name[2:]), nil
+		refName, err := newRefName(name)
+		if err != nil {
+			return nil, err
+		}
+		return ast.NewReference(refName), nil
 	}
 	if strings.HasPrefix(name, "http") {
 		return nil, fmt.Errorf("remoteRef is not supported")
@@ -35,4 +39,12 @@ func translateRef(name string) (*ast.Pattern, error) {
 		return nil, fmt.Errorf("remoteRef file is not supported")
 	}
 	return nil, fmt.Errorf("unsupported reference type %s", name)
+}
+
+func newRefName(s string) (string, error) {
+	path, err := parsePointer(s)
+	if err != nil {
+		return "", err
+	}
+	return strings.Join(path, "/"), nil
 }
