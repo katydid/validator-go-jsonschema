@@ -33,18 +33,20 @@ func translateArray(s *schema.Schema) (*ast.Pattern, error) {
 	if s.MinItems > 0 {
 		constraints = append(constraints, minItems(int(s.MinItems)))
 	}
-	additionalItems := true
+	additionalItems := ast.NewZAny()
 	if s.AdditionalItems != nil {
-		if s.Items == nil {
-			//any
-		}
 		if s.AdditionalItems.Bool != nil {
-			additionalItems = *s.AdditionalItems.Bool
+			if !*s.AdditionalItems.Bool {
+				additionalItems = ast.NewEmpty()
+			}
 		}
-		if !additionalItems && (s.MaxLength != nil || s.MinLength > 0) {
-			return nil, fmt.Errorf("additionalItems: false and (maxItems|minItems) are not supported together")
+		if s.AdditionalItems.Schema != nil {
+			p, err := translate(s.AdditionalItems.Schema)
+			if err != nil {
+				return nil, err
+			}
+			additionalItems = ast.NewZeroOrMore(anyIndex(p))
 		}
-		return nil, fmt.Errorf("additionalItems are not supported")
 	}
 	if s.Items != nil {
 		// TODO: There is a problem here when items are arrays or objects.
@@ -62,14 +64,17 @@ func translateArray(s *schema.Schema) (*ast.Pattern, error) {
 				return nil, err
 			}
 			patterns = std.Map(patterns, anyIndex)
-			patterns = concatCombos(patterns)
+			patterns = concatCombos(patterns, additionalItems)
 			constraints = append(constraints, ast.NewOr(patterns...))
 		}
+	}
+	if len(constraints) == 0 {
+		return ast.NewZAny(), nil
 	}
 	return ast.NewAnd(constraints...), nil
 }
 
-func concatCombos(ps []*ast.Pattern) []*ast.Pattern {
+func concatCombos(ps []*ast.Pattern, additionalItems *ast.Pattern) []*ast.Pattern {
 	if len(ps) == 0 {
 		return []*ast.Pattern{ast.NewEmpty()}
 	}
@@ -81,7 +86,7 @@ func concatCombos(ps []*ast.Pattern) []*ast.Pattern {
 		}
 		combos = append(combos, ast.NewConcat(ps[:i]...))
 	}
-	psz := append(ps, ast.NewZAny())
+	psz := append(ps, additionalItems)
 	combos = append(combos, ast.NewConcat(psz...))
 	return combos
 }

@@ -65,7 +65,11 @@ func findSchemaDefinitions(root *schema.Schema, s *schema.Schema, res map[string
 			return err
 		}
 	}
-	// TODO: s.Array.Additional. Right now it does not a Schema inside, but it will probably in future.
+	if sch := s.Array.AdditionalItems.GetSchema(); sch != nil {
+		if err := findSchemaDefinitions(root, sch, res); err != nil {
+			return err
+		}
+	}
 	if sch := s.Array.GetItems().GetObject(); sch != nil {
 		if err := findSchemaDefinitions(root, sch, res); err != nil {
 			return err
@@ -76,7 +80,11 @@ func findSchemaDefinitions(root *schema.Schema, s *schema.Schema, res map[string
 			return err
 		}
 	}
-	// TODO s.Object.AdditionalProperties. Right now it does not a Schema inside, but it will probably in future.
+	if sch := s.Object.AdditionalProperties.GetSchema(); sch != nil {
+		if err := findSchemaDefinitions(root, sch, res); err != nil {
+			return err
+		}
+	}
 	for _, sch := range s.Object.Properties {
 		if err := findSchemaDefinitions(root, sch, res); err != nil {
 			return err

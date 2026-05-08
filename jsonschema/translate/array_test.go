@@ -24,7 +24,7 @@ import (
 func TestConcatCombos(t *testing.T) {
 	expect := func(input []*ast.Pattern, want []*ast.Pattern) {
 		t.Helper()
-		got := concatCombos(input)
+		got := concatCombos(input, ast.NewZAny())
 		if !reflect.DeepEqual(want, got) {
 			t.Errorf("want %v got %v", want, got)
 		}

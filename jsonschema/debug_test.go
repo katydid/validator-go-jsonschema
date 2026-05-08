@@ -26,7 +26,7 @@ import (
 func TestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "items.json:an array of schemas for items:wrong types") {
+		if !strings.Contains(test.String(), "additionalItems.json:additionalItems as schema:additional items match schema") {
 			continue
 		}
 		testDebug(t, test)

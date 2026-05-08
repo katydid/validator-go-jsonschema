@@ -15,8 +15,6 @@
 package schema
 
 import (
-	"fmt"
-
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 )
 
@@ -50,11 +48,7 @@ import (
 type Additional struct {
 	Bool *bool
 	//Typically only the type field of the jsonschema is set.
-	Type SimpleType
-}
-
-type aSchema struct {
-	Type *Type `json:"type"`
+	Schema *Schema
 }
 
 func (this *Additional) UnmarshalJSON(buf []byte) error {
@@ -63,20 +57,17 @@ func (this *Additional) UnmarshalJSON(buf []byte) error {
 		*this = Additional{Bool: &b}
 		return nil
 	}
-	s := &aSchema{}
+	s := &Schema{}
 	if err := std.UnmarshalJSON(buf, s); err != nil {
 		return err
 	}
-	if s.Type == nil {
-		return fmt.Errorf("the additional(Items|Properties) field is empty")
-	}
-	typ := *s.Type
-	if len(typ) > 1 {
-		return fmt.Errorf("the additional(Items|Properties) field's type field has more than one element")
-	}
-	if len(typ) == 0 {
-		panic(fmt.Errorf("%#v buf = %s", s.Type, string(buf)))
-	}
-	*this = Additional{Type: typ[0]}
+	*this = Additional{Schema: s}
 	return nil
+}
+
+func (this *Additional) GetSchema() *Schema {
+	if this == nil {
+		return nil
+	}
+	return this.Schema
 }

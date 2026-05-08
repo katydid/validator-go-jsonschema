@@ -222,13 +222,13 @@ func translateAdditionalProperties(s *schema.Schema) (*ast.Pattern, error) {
 	if s.AdditionalProperties != nil {
 		if s.AdditionalProperties.Bool != nil && !(*s.AdditionalProperties.Bool) {
 			additional = ast.NewEmpty()
-		} else if s.AdditionalProperties.Type != schema.TypeUnknown {
-			typ, err := translateType(s.AdditionalProperties.Type)
+		} else if s.AdditionalProperties.Schema != nil {
+			p, err := translate(s.AdditionalProperties.Schema)
 			if err != nil {
 				return nil, err
 			}
 			additional = ast.NewZeroOrMore(
-				ast.NewTreeNode(ast.NewAnyName(), typ),
+				ast.NewTreeNode(ast.NewAnyName(), p),
 			)
 		}
 	}
