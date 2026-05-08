@@ -26,7 +26,7 @@ import (
 func TestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "enum.json:enums in properties:both properties are valid") {
+		if !strings.Contains(test.String(), "items.json:an array of schemas for items:wrong types") {
 			continue
 		}
 		testDebug(t, test)

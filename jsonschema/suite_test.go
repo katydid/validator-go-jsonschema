@@ -30,7 +30,7 @@ var passingFile = map[string]bool{
 	"enum.json":   true,
 	"format.json": true,
 	// "infinite-loop-detection.json": true,
-	// "items.json": true,
+	// "items.json":             true,
 	"maximum.json":           true,
 	"maxItems.json":          true,
 	"maxLength.json":         true,

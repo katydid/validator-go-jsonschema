@@ -48,32 +48,46 @@ func translateArray(s *schema.Schema) (*ast.Pattern, error) {
 	}
 	if s.Items != nil {
 		// TODO: There is a problem here when items are arrays or objects.
-		schemas, err := getSchemas(s.Items)
-		if err != nil {
-			return nil, err
+		if s.Items.Object != nil {
+			sch := s.Items.Object
+			pattern, err := translate(sch)
+			if err != nil {
+				return nil, err
+			}
+			constraints = append(constraints, ast.NewZeroOrMore(anyIndex(pattern)))
+		} else if s.Items.Array != nil {
+			schs := s.Items.Array
+			patterns, err := std.MapErr(schs, translate)
+			if err != nil {
+				return nil, err
+			}
+			patterns = std.Map(patterns, anyIndex)
+			patterns = concatCombos(patterns)
+			constraints = append(constraints, ast.NewOr(patterns...))
 		}
-		patterns, err := std.MapErr(schemas, translate)
-		if err != nil {
-			return nil, err
-		}
-		patterns = std.Map(patterns, eachItem)
-		constraints = append(constraints, ast.NewOr(patterns...))
 	}
 	return ast.NewAnd(constraints...), nil
 }
 
-func eachItem(p *ast.Pattern) *ast.Pattern {
-	return ast.NewZeroOrMore(ast.NewTreeNode(ast.NewAnyName(), p))
+func concatCombos(ps []*ast.Pattern) []*ast.Pattern {
+	if len(ps) == 0 {
+		return []*ast.Pattern{ast.NewEmpty()}
+	}
+	combos := make([]*ast.Pattern, 0, len(ps)+2)
+	combos = append(combos, ast.NewEmpty())
+	for i := range ps {
+		if i == 0 {
+			continue
+		}
+		combos = append(combos, ast.NewConcat(ps[:i]...))
+	}
+	psz := append(ps, ast.NewZAny())
+	combos = append(combos, ast.NewConcat(psz...))
+	return combos
 }
 
-func getSchemas(items *schema.Items) ([]*schema.Schema, error) {
-	if items.Object != nil {
-		return []*schema.Schema{items.Object}, nil
-	}
-	if items.Array != nil {
-		return items.Array, nil
-	}
-	return nil, fmt.Errorf("invalid schema with no items specified")
+func anyIndex(p *ast.Pattern) *ast.Pattern {
+	return ast.NewTreeNode(ast.NewAnyName(), p)
 }
 
 func maxItems(n int) *ast.Pattern {
