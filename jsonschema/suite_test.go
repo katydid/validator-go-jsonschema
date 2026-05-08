@@ -23,9 +23,9 @@ import (
 var passingFile = map[string]bool{
 	"additionalItems.json":      true,
 	"additionalProperties.json": true,
-	// "allOf.json": true,
-	// "anyOf.json":   true,
-	"default.json": true,
+	"allOf.json":                true,
+	"anyOf.json":                true,
+	"default.json":              true,
 	// "dependencies.json": true,
 	"enum.json":   true,
 	"format.json": true,
