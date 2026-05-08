@@ -153,11 +153,11 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 			}
 			res[refName] = sch
 		} else if strings.HasPrefix(s.Ref, "http") {
-			return fmt.Errorf("remote ref not supported")
+			// TODO if it has a local part that goes deeper into the schema and does not just reference it, then there is more work to do here.
 		} else if strings.HasPrefix(s.Ref, "file") {
 			return fmt.Errorf("file ref not supported")
 		} else {
-			return fmt.Errorf("unknonw ref type not supported")
+			// TODO if it has a local part that goes deeper into the schema and does not just reference it, then there is more work to do here.
 		}
 	}
 

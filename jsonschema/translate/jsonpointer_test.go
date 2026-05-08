@@ -37,6 +37,6 @@ func TestJSONPointer(t *testing.T) {
 	expect(`#/definitions/percent%field`, []string{"definitions", "percent%field"})
 	expect(`#/definitions//definitions/`, []string{"definitions", reservedWordForEmpty, "definitions", reservedWordForEmpty})
 	expect(`#`, []string{})
-	// not really what we want, but it is what we get
-	expect("http://json-schema.org/draft-04/schema#", []string{})
+	expect("http://json-schema.org/draft-04/schema#", []string{"http://json-schema.org/draft-04/schema"})
+	expect("http://json-schema.org/draft-04/schema#abc", []string{"http://json-schema.org/draft-04/schema", "abc"})
 }

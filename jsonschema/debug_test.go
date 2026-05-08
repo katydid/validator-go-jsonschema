@@ -20,13 +20,14 @@ import (
 
 	"github.com/katydid/parser-go-json/json"
 	"github.com/katydid/parser-go/parse/debug"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/translate"
 	"github.com/katydid/validator-go/validator/intern"
 )
 
-func TestDebug(t *testing.T) {
+func DTestDebug(t *testing.T) {
 	tests := buildTests(t)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "ref.json:empty tokens in $ref json-pointer:number is valid") {
+		if !strings.Contains(test.String(), "ref.json:$ref prevents a sibling id from changing the base uri:$ref resolves to /definitions/base_foo, data does not validate") {
 			continue
 		}
 		testDebug(t, test)
@@ -38,6 +39,9 @@ func TestDebug(t *testing.T) {
 func testDebug(t *testing.T, test Test) {
 	g, err := newGrammar(test.Schema)
 	if err != nil {
+		t.Fatal(err)
+	}
+	if err := translate.CheckRefs(g); err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("test.Data: %s", test.Data)

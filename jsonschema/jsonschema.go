@@ -36,6 +36,9 @@ func ValidateParser(schemaStr []byte, p parse.Parser) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	if err := translate.CheckRefs(g); err != nil {
+		return false, err
+	}
 	return intern.Interpret(g, true, p)
 }
 

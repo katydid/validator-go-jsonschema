@@ -16,33 +16,35 @@ package translate
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func translateRef(prefix string, name string) (*ast.Pattern, error) {
-	if name == "#" {
-		return ast.NewReference("main"), nil
-	}
-	if strings.HasPrefix(name, "#/") || strings.HasPrefix(name, "http://") || strings.HasPrefix(name, "https://") {
-		refName, err := newRefName(name)
-		if err != nil {
-			return nil, err
-		}
-		return ast.NewReference(prefix + refName), nil
-	}
-	if strings.HasPrefix(name, "file:/") {
-		return nil, fmt.Errorf("remoteRef file is not supported")
-	}
-	// hope for the best
-	return ast.NewReference(name), nil
+type visitor struct {
+	refs []string
 }
 
-func newRefName(s string) (string, error) {
-	path, err := parsePointer(s)
-	if err != nil {
-		return "", err
+func (v *visitor) Visit(node interface{}) interface{} {
+	p, ok := node.(*ast.Pattern)
+	if !ok {
+		return v
 	}
-	return strings.Join(path, "/"), nil
+	if p.Reference != nil {
+		v.refs = append(v.refs, p.Reference.GetName())
+	}
+	return v
+}
+
+func CheckRefs(g *ast.Grammar) error {
+	v := &visitor{refs: []string{}}
+	refLookup := ast.NewRefLookup(g)
+	for _, p := range refLookup {
+		p.Walk(v)
+	}
+	for _, refName := range v.refs {
+		if _, ok := refLookup[refName]; !ok {
+			return fmt.Errorf("reference to unknown definition %s", refName)
+		}
+	}
+	return nil
 }
