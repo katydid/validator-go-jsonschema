@@ -103,8 +103,11 @@ func buildTests(t *testing.T, testPath string) []Test {
 				if err != nil {
 					panic(err)
 				}
+				if len(filename) > len(testPath) {
+					filename = filename[len(testPath):]
+				}
 				tests = append(tests, Test{
-					Filename:    filepath.Base(filename),
+					Filename:    filename,
 					Description: schemaDesc + ":" + schemaTests[i].Tests[j].Description,
 					Schema:      schemaStr,
 					Data:        dataStr,
@@ -179,7 +182,7 @@ func checkFilesExists(spec map[string]bool, tests []Test) {
 			}
 		}
 		if !found {
-			panic(fmt.Sprintf("file not found %s", name))
+			panic(fmt.Sprintf("given %v file not found %s", tests, name))
 		}
 	}
 }

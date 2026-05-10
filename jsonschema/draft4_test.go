@@ -50,41 +50,41 @@ var supportedDraft4 = &Supported{
 		"required.json": true,
 		"type.json":     true,
 
-		// optional/format
-		"date-time.json": true,
-		"email.json":     true,
-		"hostname.json":  true,
-		"ipv4.json":      true,
-		"ipv6.json":      true,
-		"unknown.json":   true,
-		"uri.json":       true,
-
 		// optional
-		"ecmascript-regex.json":     true,
-		"non-bmp-regex.json":        true,
-		"zeroTerminatedFloats.json": true,
+		"optional/ecmascript-regex.json":     true,
+		"optional/non-bmp-regex.json":        true,
+		"optional/zeroTerminatedFloats.json": true,
+
+		// optional/format
+		"optional/format/date-time.json": true,
+		"optional/format/email.json":     true,
+		"optional/format/hostname.json":  true,
+		"optional/format/ipv4.json":      true,
+		"optional/format/ipv6.json":      true,
+		"optional/format/unknown.json":   true,
+		"optional/format/uri.json":       true,
 	},
 	skippingFiles: map[string]bool{
 		"uniqueItems.json": true, // We do not support uniqueItems, see https://github.com/katydid/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
 		"refRemote.json":   true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
 		"definitions.json": true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
 		// optional
-		"id.json":             true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
-		"bignum.json":         true, // Need better decimal support in at least maximum, integer, number, minimum
-		"float-overflow.json": true, // Need better checking for float overflow to convert to decimal in the json parser and we need to support decimal in multipleOf
+		"optional/id.json":             true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
+		"optional/bignum.json":         true, // Need better decimal support in at least maximum, integer, number, minimum
+		"optional/float-overflow.json": true, // Need better checking for float overflow to convert to decimal in the json parser and we need to support decimal in multipleOf
 	},
 	passingTests: map[string]bool{},
 	skippingTests: map[string]bool{
 		// optional/format
-		"uri.json:validation of URIs:unescaped non US-ASCII characters": true, // need a better URI library
-		"uri.json:validation of URIs:invalid backslash character":       true, // need a better URI library
-		"uri.json:validation of URIs:invalid \" character":              true, // need a better URI library
-		"uri.json:validation of URIs:invalid <> characters":             true, // need a better URI library
-		"uri.json:validation of URIs:invalid {} characters":             true, // need a better URI library
-		"uri.json:validation of URIs:invalid ^ character":               true, // need a better URI library
-		"uri.json:validation of URIs:invalid ` character":               true, // need a better URI library
-		"uri.json:validation of URIs:invalid SPACE character":           true, // need a better URI library
-		"uri.json:validation of URIs:invalid | character":               true, // need a better URI library
+		"optional/format/uri.json:validation of URIs:unescaped non US-ASCII characters": true, // need a better URI library
+		"optional/format/uri.json:validation of URIs:invalid backslash character":       true, // need a better URI library
+		"optional/format/uri.json:validation of URIs:invalid \" character":              true, // need a better URI library
+		"optional/format/uri.json:validation of URIs:invalid <> characters":             true, // need a better URI library
+		"optional/format/uri.json:validation of URIs:invalid {} characters":             true, // need a better URI library
+		"optional/format/uri.json:validation of URIs:invalid ^ character":               true, // need a better URI library
+		"optional/format/uri.json:validation of URIs:invalid ` character":               true, // need a better URI library
+		"optional/format/uri.json:validation of URIs:invalid SPACE character":           true, // need a better URI library
+		"optional/format/uri.json:validation of URIs:invalid | character":               true, // need a better URI library
 	},
 }
 
