@@ -15,6 +15,8 @@
 package translate
 
 import (
+	"regexp"
+
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
@@ -82,9 +84,10 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 }
 
 type property struct {
-	key   string
-	name  *ast.NameExpr
-	child *ast.Pattern
+	key     string
+	pattern bool
+	name    *ast.NameExpr
+	child   *ast.Pattern
 }
 
 func newProperties(s *schema.Schema) ([]*property, error) {
@@ -126,9 +129,10 @@ func newPatternProperty(name string, s *schema.Schema) (*property, error) {
 		return nil, err
 	}
 	return &property{
-		key:   name,
-		name:  ast.NewRegexName(name),
-		child: child,
+		key:     name,
+		pattern: true,
+		name:    ast.NewRegexName(name),
+		child:   child,
 	}, nil
 }
 
@@ -160,8 +164,17 @@ func newPatternProperty(name string, s *schema.Schema) (*property, error) {
 // We calculate these combinations as complementary subsets.
 func translateProps(props []*property) (*ast.Pattern, error) {
 	var res []*ast.Pattern
+	overlapping, nonOverlapping, err := findOverlapping(props)
+	if err != nil {
+		return nil, err
+	}
 
-	propCompSubsets := std.ComplementarySubsets(props)
+	for _, prop := range nonOverlapping {
+		r := ast.NewTreeNode(prop.name, prop.child)
+		res = append(res, r)
+	}
+
+	propCompSubsets := std.ComplementarySubsets(overlapping)
 	for _, propCompSubset := range propCompSubsets {
 		names := make([]*ast.NameExpr, 0, len(propCompSubset.Left)+len(propCompSubset.Right))
 		for _, prop := range propCompSubset.Left {
@@ -182,6 +195,37 @@ func translateProps(props []*property) (*ast.Pattern, error) {
 	}
 
 	return ast.NewZeroOrMore(ast.NewOr(res...)), nil
+}
+
+func findOverlapping(props []*property) ([]*property, []*property, error) {
+	patternProps := []*property{}
+	for _, prop := range props {
+		if prop.pattern {
+			patternProps = append(patternProps, prop)
+		}
+	}
+	overlapping := patternProps
+	others := []*property{}
+	for i, prop := range props {
+		if !prop.pattern {
+			overlaps := false
+			for _, patternProp := range patternProps {
+				m, err := regexp.MatchString(patternProp.key, prop.key)
+				if err != nil {
+					return nil, nil, err
+				}
+				if m {
+					overlaps = true
+				}
+			}
+			if overlaps {
+				overlapping = append(overlapping, props[i])
+			} else {
+				others = append(others, props[i])
+			}
+		}
+	}
+	return overlapping, others, nil
 }
 
 func translateRequired(required []string) (*ast.Pattern, error) {

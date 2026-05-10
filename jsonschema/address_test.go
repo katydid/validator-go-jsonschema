@@ -58,13 +58,13 @@ var addressFails = []string{
 }
 
 func TestAddress(t *testing.T) {
-	for _, addressFail := range addressFails {
-		m, err := MatchBytes([]byte(SchemaJSONSchemaExampleAddress), []byte(addressFail))
+	for _, input := range addressFails {
+		m, err := MatchBytes([]byte(SchemaJSONSchemaExampleAddress), []byte(input))
 		if err != nil {
 			t.Fatal(err)
 		}
 		if m {
-			t.Errorf("expected false, but got match for %s", addressFail)
+			t.Errorf("expected false, but got match for %s", input)
 		}
 	}
 }
