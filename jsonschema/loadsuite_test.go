@@ -23,9 +23,7 @@ import (
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 )
 
-const testPath = "../../../json-schema-org/JSON-Schema-Test-Suite/tests/draft4/"
-
-func getFileNames() []string {
+func getFileNames(testPath string) []string {
 	files := []string{}
 	filepath.Walk(testPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -58,9 +56,9 @@ type SchemaTesty struct {
 	Valid       bool
 }
 
-func buildTests(t *testing.T) []Test {
+func buildTests(t *testing.T, testPath string) []Test {
 	tests := []Test{}
-	filenames := getFileNames()
+	filenames := getFileNames(testPath)
 	if len(filenames) == 0 {
 		t.Fatalf("expected test files, but found none")
 	}

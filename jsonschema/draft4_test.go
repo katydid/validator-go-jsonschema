@@ -19,6 +19,8 @@ import (
 	"testing"
 )
 
+const draft4Path = "../../../json-schema-org/JSON-Schema-Test-Suite/tests/draft4/"
+
 // Files where all the tests must pass or the test actually fails.
 var passingFile = map[string]bool{
 	"additionalItems.json":      true,
@@ -121,7 +123,7 @@ func checkTestsExists(spec map[string]bool, tests []Test) {
 }
 
 func TestSuiteDraft4(t *testing.T) {
-	tests := buildTests(t)
+	tests := buildTests(t, draft4Path)
 	t.Logf("skipping files: %d", len(skippingFile))
 	t.Logf("total number of tests: %d", len(tests))
 

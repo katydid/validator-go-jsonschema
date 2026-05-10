@@ -25,7 +25,7 @@ import (
 )
 
 func DTestDebug(t *testing.T) {
-	tests := buildTests(t)
+	tests := buildTests(t, draft4Path)
 	for _, test := range tests {
 		if !strings.Contains(test.String(), "ref.json:$ref prevents a sibling id from changing the base uri:$ref resolves to /definitions/base_foo, data does not validate") {
 			continue
