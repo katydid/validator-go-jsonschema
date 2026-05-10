@@ -56,6 +56,18 @@ type SchemaTesty struct {
 	Valid       bool
 }
 
+type Test struct {
+	Filename    string
+	Description string
+	Schema      []byte
+	Data        []byte
+	Valid       bool
+}
+
+func (this Test) String() string {
+	return this.Filename + ":" + this.Description
+}
+
 func buildTests(t *testing.T, testPath string) []Test {
 	tests := []Test{}
 	filenames := getFileNames(testPath)
@@ -98,14 +110,52 @@ func buildTests(t *testing.T, testPath string) []Test {
 	return tests
 }
 
-type Test struct {
-	Filename    string
-	Description string
-	Schema      []byte
-	Data        []byte
-	Valid       bool
-}
+func runTests(t *testing.T, testPath string) {
+	tests := buildTests(t, testPath)
+	t.Logf("skipping files: %d", len(skippingFile))
+	t.Logf("total number of tests: %d", len(tests))
 
-func (this Test) String() string {
-	return this.Filename + ":" + this.Description
+	checkFilesExists(passingFile, tests)
+	checkFilesExists(skippingFile, tests)
+	checkTestsExists(skippingTest, tests)
+	checkTestsExists(passingTest, tests)
+
+	passed := 0
+	skippedTests := 0
+	failedTests := 0
+
+	for _, test := range tests {
+		if skippingFile[test.Filename] {
+			t.Logf("--- SKIP: %v", test)
+			skippedTests++
+			continue
+		}
+		if skippingTest[test.String()] {
+			t.Logf("--- SKIP: %v", test)
+			skippedTests++
+			continue
+		}
+		t.Logf("--- RUN: %v", test)
+		valid, err := Validate(test.Schema, test.Data)
+		if err != nil || valid != test.Valid {
+			if passingFile[test.Filename] || passingTest[test.String()] {
+				if err != nil {
+					t.Errorf("UNEXPECTED FAILURE: %v: Interpret error %v", test, err)
+				} else {
+					t.Errorf("UNEXPECTED FAILURE: %v: expected %v got %v", test, test.Valid, valid)
+				}
+			} else {
+				if err != nil {
+					t.Logf("--- FAIL: %v: Interpret error %v", test, err)
+				} else {
+					t.Logf("--- FAIL: %v: expected %v got %v", test, test.Valid, valid)
+				}
+			}
+			failedTests++
+		} else {
+			t.Logf("--- PASS: %v", test)
+			passed++
+		}
+	}
+	t.Logf("number of tests passing: %d, skippedTests: %d, failedTests: %d", passed, skippedTests, failedTests)
 }
