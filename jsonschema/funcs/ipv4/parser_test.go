@@ -23,6 +23,7 @@ import (
 var testData1 = map[string]bool{
 	"123.123.123.123": true,
 	"023.123.123.123": false,
+	"127.0.0.1":       true,
 }
 
 func TestNext1(t *testing.T) {
