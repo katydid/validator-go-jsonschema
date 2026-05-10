@@ -42,6 +42,20 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 		}
 		constraints = append(constraints, deps)
 	}
+	if s.DependentRequired != nil {
+		deps, err := translateDependentRequired(s.DependentRequired)
+		if err != nil {
+			return nil, err
+		}
+		constraints = append(constraints, deps)
+	}
+	if s.DependentSchemas != nil {
+		deps, err := translateDependentSchemas(s.DependentSchemas)
+		if err != nil {
+			return nil, err
+		}
+		constraints = append(constraints, deps)
+	}
 
 	additional, err := translateAdditionalProperties(s)
 	if err != nil {
@@ -237,26 +251,58 @@ func translateAdditionalProperties(s *schema.Schema) (*ast.Pattern, error) {
 
 func translateDependencies(deps *schema.Dependencies) (*ast.Pattern, error) {
 	d := *deps
-	res := []*ast.Pattern{}
-	names := std.SortedKeys(d)
-	for _, name := range names {
+	dependentRequired := make(map[string][]string)
+	dependentSchemas := make(map[string]*schema.Schema)
+	for name := range d {
 		if len(d[name].RequiredProperty) > 0 {
-			for _, reqName := range d[name].RequiredProperty {
-				ifName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(name), ast.NewZAny()))
-				thenName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(reqName), ast.NewZAny()))
-				elseName := ast.NewZeroOrMore(ast.NewTreeNode(ast.NewAnyNameExcept(ast.NewStringName(name)), ast.NewZAny()))
-				res = append(res, ast.NewOr(ast.NewAnd(ifName, thenName), elseName))
-			}
+			dependentRequired[name] = d[name].RequiredProperty
 		} else if d[name].Schema != nil {
-			// TODO: There is a problem there that the object and array tags are added, but then they nest object and arrays too deeply.
-			thenPattern, err := translate(d[name].Schema)
-			if err != nil {
-				return nil, err
-			}
-			ifName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(name), ast.NewZAny()))
-			elseName := ast.NewZeroOrMore(ast.NewTreeNode(ast.NewAnyNameExcept(ast.NewStringName(name)), ast.NewZAny()))
-			res = append(res, ast.NewOr(ast.NewAnd(ifName, thenPattern), elseName))
+			dependentSchemas[name] = d[name].Schema
 		}
+	}
+	p1, err := translateDependentRequired(dependentRequired)
+	if err != nil {
+		return nil, err
+	}
+	p2, err := translateDependentSchemas(dependentSchemas)
+	if err != nil {
+		return nil, err
+	}
+	return ast.NewAnd(p1, p2), nil
+}
+
+func translateDependentRequired(deps map[string][]string) (*ast.Pattern, error) {
+	res := []*ast.Pattern{}
+	names := std.SortedKeys(deps)
+	for _, name := range names {
+		for _, reqName := range deps[name] {
+			ifName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(name), ast.NewZAny()))
+			thenName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(reqName), ast.NewZAny()))
+			elseName := ast.NewZeroOrMore(ast.NewTreeNode(ast.NewAnyNameExcept(ast.NewStringName(name)), ast.NewZAny()))
+			res = append(res, ast.NewOr(ast.NewAnd(ifName, thenName), elseName))
+		}
+	}
+	if len(res) == 0 {
+		return ast.NewZAny(), nil
+	}
+	return ast.NewAnd(res...), nil
+}
+
+// TODO: There is a problem there that the object and array tags are added, but then they nest object and arrays too deeply.
+func translateDependentSchemas(deps map[string]*schema.Schema) (*ast.Pattern, error) {
+	res := []*ast.Pattern{}
+	names := std.SortedKeys(deps)
+	for _, name := range names {
+		thenPattern, err := translate(deps[name])
+		if err != nil {
+			return nil, err
+		}
+		ifName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(name), ast.NewZAny()))
+		elseName := ast.NewZeroOrMore(ast.NewTreeNode(ast.NewAnyNameExcept(ast.NewStringName(name)), ast.NewZAny()))
+		res = append(res, ast.NewOr(ast.NewAnd(ifName, thenPattern), elseName))
+	}
+	if len(res) == 0 {
+		return ast.NewZAny(), nil
 	}
 	return ast.NewAnd(res...), nil
 }

@@ -137,34 +137,34 @@ func runTests(t *testing.T, testPath string, supported *Supported) {
 
 	for _, test := range tests {
 		if supported.skippingFiles[test.Filename] {
-			t.Logf("--- SKIP: %v", test)
+			t.Logf("skip: %v", test)
 			skippedTests++
 			continue
 		}
 		if supported.skippingTests[test.String()] {
-			t.Logf("--- SKIP: %v", test)
+			t.Logf("skip: %v", test)
 			skippedTests++
 			continue
 		}
-		t.Logf("--- RUN: %v", test)
+		t.Logf("## RUN: %v", test)
 		valid, err := MatchBytes(test.Schema, test.Data)
 		if err != nil || valid != test.Valid {
 			if supported.passingFiles[test.Filename] || supported.passingTests[test.String()] {
 				if err != nil {
-					t.Errorf("UNEXPECTED FAILURE: %v: Interpret error %v", test, err)
+					t.Errorf("UNEXPECTED ERROR: %v: Interpret error %v", test, err)
 				} else {
 					t.Errorf("UNEXPECTED FAILURE: %v: expected %v got %v", test, test.Valid, valid)
 				}
 			} else {
 				if err != nil {
-					t.Logf("--- FAIL: %v: Interpret error %v", test, err)
+					t.Logf("ERROR: %v: Interpret error %v", test, err)
 				} else {
-					t.Logf("--- FAIL: %v: expected %v got %v", test, test.Valid, valid)
+					t.Logf("TODO: %v: expected %v got %v", test, test.Valid, valid)
 				}
 			}
 			failedTests++
 		} else {
-			t.Logf("--- PASS: %v", test)
+			t.Logf("PASSED: %v", test)
 			passed++
 		}
 	}

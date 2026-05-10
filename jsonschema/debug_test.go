@@ -24,10 +24,10 @@ import (
 	"github.com/katydid/validator-go/validator/intern"
 )
 
-func DTestDebug(t *testing.T) {
-	tests := buildTests(t, pathDraft4)
+func TestDebug(t *testing.T) {
+	tests := buildTests(t, path202012)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "ref.json:$ref prevents a sibling id from changing the base uri:$ref resolves to /definitions/base_foo, data does not validate") {
+		if !strings.Contains(test.String(), "dependentRequired.json:empty dependents:empty object") {
 			continue
 		}
 		testDebug(t, test)
