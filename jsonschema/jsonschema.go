@@ -42,7 +42,7 @@ func MatchParser(schemaStr []byte, p parse.Parser) (bool, error) {
 	return i.MatchParser(p)
 }
 
-type Compiled interface {
+type Matcher interface {
 	MatchBytes([]byte) (bool, error)
 	MatchParser(p parse.Parser) (bool, error)
 }
@@ -52,7 +52,7 @@ type interpret struct {
 	g      *ast.Grammar
 }
 
-func NewInterpreter(schemaStr []byte) (Compiled, error) {
+func NewInterpreter(schemaStr []byte) (Matcher, error) {
 	g, err := newGrammar(schemaStr)
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ type memoize struct {
 	mem    *mem.Mem
 }
 
-func NewMemoizer(schemaStr []byte) (Compiled, error) {
+func NewMemoizer(schemaStr []byte) (Matcher, error) {
 	g, err := newGrammar(schemaStr)
 	if err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ type compiled struct {
 	auto   *auto.Auto
 }
 
-func Compile(schemaStr []byte) (Compiled, error) {
+func Compile(schemaStr []byte) (Matcher, error) {
 	g, err := newGrammar(schemaStr)
 	if err != nil {
 		return nil, err
