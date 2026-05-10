@@ -147,7 +147,7 @@ func runTests(t *testing.T, testPath string, supported *Supported) {
 			continue
 		}
 		t.Logf("--- RUN: %v", test)
-		valid, err := Validate(test.Schema, test.Data)
+		valid, err := MatchBytes(test.Schema, test.Data)
 		if err != nil || valid != test.Valid {
 			if supported.passingFiles[test.Filename] || supported.passingTests[test.String()] {
 				if err != nil {

@@ -21,25 +21,116 @@ import (
 	"github.com/katydid/validator-go-jsonschema/jsonschema/translate"
 	"github.com/katydid/validator-go/validator"
 	"github.com/katydid/validator-go/validator/ast"
+	"github.com/katydid/validator-go/validator/auto"
 	"github.com/katydid/validator-go/validator/intern"
 	"github.com/katydid/validator-go/validator/mem"
 )
 
-func Validate(schemaStr []byte, jsonStr []byte) (bool, error) {
-	p := json.NewJSONSchemaParser()
-	p.Init(jsonStr)
-	return ValidateParser(schemaStr, p)
-}
-
-func ValidateParser(schemaStr []byte, p parse.Parser) (bool, error) {
-	g, err := newGrammar(schemaStr)
+func MatchBytes(schemaStr []byte, jsonStr []byte) (bool, error) {
+	i, err := NewInterpreter(schemaStr)
 	if err != nil {
 		return false, err
 	}
-	if err := translate.CheckRefs(g); err != nil {
+	return i.MatchBytes(jsonStr)
+}
+
+func MatchParser(schemaStr []byte, p parse.Parser) (bool, error) {
+	i, err := NewInterpreter(schemaStr)
+	if err != nil {
 		return false, err
 	}
-	return intern.Interpret(g, true, p)
+	return i.MatchParser(p)
+}
+
+type Compiled interface {
+	MatchBytes([]byte) (bool, error)
+	MatchParser(p parse.Parser) (bool, error)
+}
+
+type interpret struct {
+	parser json.Parser
+	g      *ast.Grammar
+}
+
+func NewInterpreter(schemaStr []byte) (Compiled, error) {
+	g, err := newGrammar(schemaStr)
+	if err != nil {
+		return nil, err
+	}
+	p := json.NewJSONSchemaParser()
+	return &interpret{
+		parser: p,
+		g:      g,
+	}, nil
+}
+
+func (i *interpret) MatchBytes(jsonStr []byte) (bool, error) {
+	i.parser.Init(jsonStr)
+	return i.MatchParser(i.parser)
+}
+
+func (i *interpret) MatchParser(p parse.Parser) (bool, error) {
+	return intern.Interpret(i.g, true, p)
+}
+
+type memoize struct {
+	parser json.Parser
+	mem    *mem.Mem
+}
+
+func NewMemoizer(schemaStr []byte) (Compiled, error) {
+	g, err := newGrammar(schemaStr)
+	if err != nil {
+		return nil, err
+	}
+	m, err := mem.NewRecord(g)
+	if err != nil {
+		return nil, err
+	}
+	p := json.NewJSONSchemaParser()
+	return &memoize{
+		parser: p,
+		mem:    m,
+	}, nil
+}
+
+func (m *memoize) MatchBytes(jsonStr []byte) (bool, error) {
+	m.parser.Init(jsonStr)
+	return m.MatchParser(m.parser)
+}
+
+func (m *memoize) MatchParser(p parse.Parser) (bool, error) {
+	return validator.Validate(m.mem, p)
+}
+
+type compiled struct {
+	parser json.Parser
+	auto   *auto.Auto
+}
+
+func Compile(schemaStr []byte) (Compiled, error) {
+	g, err := newGrammar(schemaStr)
+	if err != nil {
+		return nil, err
+	}
+	a, err := auto.CompileRecord(g)
+	if err != nil {
+		return nil, err
+	}
+	p := json.NewJSONSchemaParser()
+	return &compiled{
+		parser: p,
+		auto:   a,
+	}, nil
+}
+
+func (c *compiled) MatchBytes(jsonStr []byte) (bool, error) {
+	c.parser.Init(jsonStr)
+	return c.MatchParser(c.parser)
+}
+
+func (c *compiled) MatchParser(p parse.Parser) (bool, error) {
+	return c.auto.Validate(p)
 }
 
 func newGrammar(schemaStr []byte) (*ast.Grammar, error) {
@@ -51,39 +142,8 @@ func newGrammar(schemaStr []byte) (*ast.Grammar, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := translate.CheckRefs(g); err != nil {
+		return nil, err
+	}
 	return g, err
-}
-
-type Filter interface {
-	Validate([]byte) (bool, error)
-}
-
-type filter struct {
-	parser json.Parser
-	mem    *mem.Mem
-}
-
-func NewFilter(schemaStr []byte) (Filter, error) {
-	schema, err := schema.ParseSchema(schemaStr)
-	if err != nil {
-		return nil, err
-	}
-	g, err := translate.TranslateDraft4(schema)
-	if err != nil {
-		return nil, err
-	}
-	m, err := mem.NewRecord(g)
-	if err != nil {
-		return nil, err
-	}
-	p := json.NewJSONSchemaParser()
-	return &filter{
-		parser: p,
-		mem:    m,
-	}, nil
-}
-
-func (f *filter) Validate(jsonStr []byte) (bool, error) {
-	f.parser.Init(jsonStr)
-	return validator.Validate(f.mem, f.parser)
 }
