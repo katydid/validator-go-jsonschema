@@ -64,7 +64,6 @@ var supported202012 = &Supported{
 		// "type.json":                    true,
 		// "unevaluatedItems.json":        true,
 		// "unevaluatedProperties.json":   true,
-		// "uniqueItems.json":             true,
 		// "vocabulary.json":              true,
 
 		// optional
@@ -106,7 +105,8 @@ var supported202012 = &Supported{
 		// "optional/format/uuid.json":                  true,
 	},
 	skippingFiles: map[string]bool{
-		"optional/dependencies-compatibility.json": true,
+		"optional/dependencies-compatibility.json": true, // TODO: just skipping because this is throwing a null pointer exception at the time, we need to fix this.
+		"uniqueItems.json":                         true, // not supported
 	},
 	passingTests: map[string]bool{},
 	skippingTests: map[string]bool{
