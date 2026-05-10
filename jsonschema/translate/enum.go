@@ -73,6 +73,9 @@ func exactMatch(a any) (*ast.Pattern, error) {
 }
 
 func translateEnum(enum []any) (*ast.Pattern, error) {
+	if len(enum) == 0 {
+		return ast.NewNot(ast.NewZAny()), nil
+	}
 	exacts, err := std.MapErr(enum, exactMatch)
 	if err != nil {
 		return nil, err

@@ -16,6 +16,7 @@ package jsonschema
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -68,6 +69,14 @@ func (this Test) String() string {
 	return this.Filename + ":" + this.Description
 }
 
+type Supported struct {
+	// Files where all the tests must pass or the test actually fails.
+	passingFiles  map[string]bool
+	skippingFiles map[string]bool
+	passingTests  map[string]bool
+	skippingTests map[string]bool
+}
+
 func buildTests(t *testing.T, testPath string) []Test {
 	tests := []Test{}
 	filenames := getFileNames(testPath)
@@ -110,27 +119,26 @@ func buildTests(t *testing.T, testPath string) []Test {
 	return tests
 }
 
-func runTests(t *testing.T, testPath string) {
+func runTests(t *testing.T, testPath string, supported *Supported) {
 	tests := buildTests(t, testPath)
-	t.Logf("skipping files: %d", len(skippingFile))
 	t.Logf("total number of tests: %d", len(tests))
 
-	checkFilesExists(passingFile, tests)
-	checkFilesExists(skippingFile, tests)
-	checkTestsExists(skippingTest, tests)
-	checkTestsExists(passingTest, tests)
+	checkFilesExists(supported.passingFiles, tests)
+	checkFilesExists(supported.skippingFiles, tests)
+	checkTestsExists(supported.passingTests, tests)
+	checkTestsExists(supported.skippingTests, tests)
 
 	passed := 0
 	skippedTests := 0
 	failedTests := 0
 
 	for _, test := range tests {
-		if skippingFile[test.Filename] {
+		if supported.skippingFiles[test.Filename] {
 			t.Logf("--- SKIP: %v", test)
 			skippedTests++
 			continue
 		}
-		if skippingTest[test.String()] {
+		if supported.skippingTests[test.String()] {
 			t.Logf("--- SKIP: %v", test)
 			skippedTests++
 			continue
@@ -138,7 +146,7 @@ func runTests(t *testing.T, testPath string) {
 		t.Logf("--- RUN: %v", test)
 		valid, err := Validate(test.Schema, test.Data)
 		if err != nil || valid != test.Valid {
-			if passingFile[test.Filename] || passingTest[test.String()] {
+			if supported.passingFiles[test.Filename] || supported.passingTests[test.String()] {
 				if err != nil {
 					t.Errorf("UNEXPECTED FAILURE: %v: Interpret error %v", test, err)
 				} else {
@@ -158,4 +166,35 @@ func runTests(t *testing.T, testPath string) {
 		}
 	}
 	t.Logf("number of tests passing: %d, skippedTests: %d, failedTests: %d", passed, skippedTests, failedTests)
+}
+
+// check that files specified in the skip/pass sets actually exist.
+func checkFilesExists(spec map[string]bool, tests []Test) {
+	for name := range spec {
+		found := false
+		for _, test := range tests {
+			if test.Filename == name {
+				found = true
+				break
+			}
+		}
+		if !found {
+			panic(fmt.Sprintf("file not found %s", name))
+		}
+	}
+}
+
+func checkTestsExists(spec map[string]bool, tests []Test) {
+	for name := range spec {
+		found := false
+		for _, test := range tests {
+			if test.String() == name {
+				found = true
+				break
+			}
+		}
+		if !found {
+			panic(fmt.Sprintf("test not found %s", name))
+		}
+	}
 }

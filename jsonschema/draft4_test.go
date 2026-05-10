@@ -15,113 +15,79 @@
 package jsonschema
 
 import (
-	"fmt"
 	"testing"
 )
 
-const draft4Path = "../../../json-schema-org/JSON-Schema-Test-Suite/tests/draft4/"
+const pathDraft4 = "../../../json-schema-org/JSON-Schema-Test-Suite/tests/draft4/"
 
-// Files where all the tests must pass or the test actually fails.
-var passingFile = map[string]bool{
-	"additionalItems.json":      true,
-	"additionalProperties.json": true,
-	"allOf.json":                true,
-	"anyOf.json":                true,
-	"default.json":              true,
-	// "dependencies.json": true,
-	"enum.json":                    true,
-	"format.json":                  true,
-	"infinite-loop-detection.json": true,
-	"items.json":                   true,
-	"maximum.json":                 true,
-	"maxItems.json":                true,
-	"maxLength.json":               true,
-	"maxProperties.json":           true,
-	"minimum.json":                 true,
-	"minItems.json":                true,
-	"minLength.json":               true,
-	"minProperties.json":           true,
-	"multipleOf.json":              true,
-	"not.json":                     true,
-	"oneOf.json":                   true,
-	"pattern.json":                 true,
-	"patternProperties.json":       true,
-	"properties.json":              true,
-	// "ref.json": true,
-	"required.json": true,
-	"type.json":     true,
+var supportedDraft4 = &Supported{
+	passingFiles: map[string]bool{
+		"additionalItems.json":      true,
+		"additionalProperties.json": true,
+		"allOf.json":                true,
+		"anyOf.json":                true,
+		"default.json":              true,
+		// "dependencies.json": true,
+		"enum.json":                    true,
+		"format.json":                  true,
+		"infinite-loop-detection.json": true,
+		"items.json":                   true,
+		"maximum.json":                 true,
+		"maxItems.json":                true,
+		"maxLength.json":               true,
+		"maxProperties.json":           true,
+		"minimum.json":                 true,
+		"minItems.json":                true,
+		"minLength.json":               true,
+		"minProperties.json":           true,
+		"multipleOf.json":              true,
+		"not.json":                     true,
+		"oneOf.json":                   true,
+		"pattern.json":                 true,
+		"patternProperties.json":       true,
+		"properties.json":              true,
+		// "ref.json": true,
+		"required.json": true,
+		"type.json":     true,
 
-	// optional/format
-	"date-time.json": true,
-	"email.json":     true,
-	"hostname.json":  true,
-	"ipv4.json":      true,
-	"ipv6.json":      true,
-	"unknown.json":   true,
-	"uri.json":       true,
+		// optional/format
+		"date-time.json": true,
+		"email.json":     true,
+		"hostname.json":  true,
+		"ipv4.json":      true,
+		"ipv6.json":      true,
+		"unknown.json":   true,
+		"uri.json":       true,
 
-	// optional
-	"ecmascript-regex.json":     true,
-	"non-bmp-regex.json":        true,
-	"zeroTerminatedFloats.json": true,
-}
-
-var skippingFile = map[string]bool{
-	"uniqueItems.json": true, // We do not support uniqueItems, see https://github.com/katydid/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
-	"refRemote.json":   true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
-	"definitions.json": true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
-	// optional
-	"id.json":             true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
-	"bignum.json":         true, // Need better decimal support in at least maximum, integer, number, minimum
-	"float-overflow.json": true, // Need better checking for float overflow to convert to decimal in the json parser and we need to support decimal in multipleOf
-}
-
-var passingTest = map[string]bool{}
-
-var skippingTest = map[string]bool{
-	// optional/format
-	"uri.json:validation of URIs:unescaped non US-ASCII characters": true, // need a better URI library
-	"uri.json:validation of URIs:invalid backslash character":       true, // need a better URI library
-	"uri.json:validation of URIs:invalid \" character":              true, // need a better URI library
-	"uri.json:validation of URIs:invalid <> characters":             true, // need a better URI library
-	"uri.json:validation of URIs:invalid {} characters":             true, // need a better URI library
-	"uri.json:validation of URIs:invalid ^ character":               true, // need a better URI library
-	"uri.json:validation of URIs:invalid ` character":               true, // need a better URI library
-	"uri.json:validation of URIs:invalid SPACE character":           true, // need a better URI library
-	"uri.json:validation of URIs:invalid | character":               true, // need a better URI library
-}
-
-// check that files specified in the skip/pass sets actually exist.
-func checkFilesExists(spec map[string]bool, tests []Test) {
-	for name := range spec {
-		found := false
-		for _, test := range tests {
-			if test.Filename == name {
-				found = true
-				break
-			}
-		}
-		if !found {
-			panic(fmt.Sprintf("file not found %s", name))
-		}
-	}
-}
-
-func checkTestsExists(spec map[string]bool, tests []Test) {
-	for name := range spec {
-		found := false
-		for _, test := range tests {
-			if test.String() == name {
-				found = true
-				break
-			}
-		}
-		if !found {
-			panic(fmt.Sprintf("test not found %s", name))
-		}
-	}
+		// optional
+		"ecmascript-regex.json":     true,
+		"non-bmp-regex.json":        true,
+		"zeroTerminatedFloats.json": true,
+	},
+	skippingFiles: map[string]bool{
+		"uniqueItems.json": true, // We do not support uniqueItems, see https://github.com/katydid/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
+		"refRemote.json":   true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
+		"definitions.json": true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
+		// optional
+		"id.json":             true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
+		"bignum.json":         true, // Need better decimal support in at least maximum, integer, number, minimum
+		"float-overflow.json": true, // Need better checking for float overflow to convert to decimal in the json parser and we need to support decimal in multipleOf
+	},
+	passingTests: map[string]bool{},
+	skippingTests: map[string]bool{
+		// optional/format
+		"uri.json:validation of URIs:unescaped non US-ASCII characters": true, // need a better URI library
+		"uri.json:validation of URIs:invalid backslash character":       true, // need a better URI library
+		"uri.json:validation of URIs:invalid \" character":              true, // need a better URI library
+		"uri.json:validation of URIs:invalid <> characters":             true, // need a better URI library
+		"uri.json:validation of URIs:invalid {} characters":             true, // need a better URI library
+		"uri.json:validation of URIs:invalid ^ character":               true, // need a better URI library
+		"uri.json:validation of URIs:invalid ` character":               true, // need a better URI library
+		"uri.json:validation of URIs:invalid SPACE character":           true, // need a better URI library
+		"uri.json:validation of URIs:invalid | character":               true, // need a better URI library
+	},
 }
 
 func TestSuiteDraft4(t *testing.T) {
-	runTests(t, draft4Path)
+	runTests(t, pathDraft4, supportedDraft4)
 }

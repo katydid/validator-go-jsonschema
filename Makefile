@@ -20,9 +20,13 @@ test:
 	go clean -testcache
 	TESTSUITE=MUST go test -v ./...
 
-suite:
+suite_draft4:
 	go clean -testcache
-	go test -run=TestSuite -v ./jsonschema
+	go test -run=TestSuiteDraft4 -v ./jsonschema
+
+suite_202012:
+	go clean -testcache
+	go test -run=TestSuite202012 -v ./jsonschema
 
 debug:
 	go clean -testcache

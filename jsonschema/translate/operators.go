@@ -22,7 +22,7 @@ import (
 
 func translateOperators(schema *schema.Schema) (*ast.Pattern, error) {
 	var res []*ast.Pattern
-	if len(schema.Enum) > 0 {
+	if schema.Enum != nil {
 		p, err := translateEnum(schema.Enum)
 		if err != nil {
 			return nil, err
