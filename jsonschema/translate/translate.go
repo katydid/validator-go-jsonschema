@@ -20,7 +20,7 @@ import (
 	"github.com/katydid/validator-go/validator/combinator"
 )
 
-func TranslateDraft4(s *schema.Schema) (*ast.Grammar, error) {
+func Translate(s *schema.Schema) (*ast.Grammar, error) {
 	defs, err := translateDefinitions(s)
 	if err != nil {
 		return nil, err
@@ -92,6 +92,13 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 			return nil, err
 		}
 		p := combinator.Value(expr)
+		ps = append(ps, p)
+	}
+	if s.Const != nil {
+		p, err := translateConst(*s.Const)
+		if err != nil {
+			return nil, err
+		}
 		ps = append(ps, p)
 	}
 	if len(s.Ref) > 0 {

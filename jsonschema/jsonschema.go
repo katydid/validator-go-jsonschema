@@ -138,7 +138,7 @@ func newGrammar(schemaStr []byte) (*ast.Grammar, error) {
 	if err != nil {
 		return nil, err
 	}
-	g, err := translate.TranslateDraft4(schema)
+	g, err := translate.Translate(schema)
 	if err != nil {
 		return nil, err
 	}
