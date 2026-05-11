@@ -14,7 +14,12 @@
 
 package jsonschema
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/katydid/parser-go-json/json"
+	"github.com/katydid/parser-go/parse"
+)
 
 const SchemaJSONSchemaExampleUserProfile = `{
   "$id": "https://example.com/user-profile.schema.json",
@@ -53,14 +58,41 @@ var userProfilePasses = []string{
 	`{"Username":"OeLib","Email":"tzgwsgm@hotmail.com","FullName":"LSn3Er3","Age":3454797380135547817,"Location":"aSOafQQ"}`,
 }
 
-func TestUserProfile(t *testing.T) {
-	g, err := newGrammar([]byte(SchemaJSONSchemaExampleUserProfile))
+func TestUserProfileJSON(t *testing.T) {
+	sch := SchemaJSONSchemaExampleUserProfile
+	passes := userProfilePasses
+	var p parse.ParserWithInit = json.NewJSONSchemaParser()
+
+	g, err := newGrammar([]byte(sch))
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("translated to: %v", g.String())
-	for _, input := range userProfilePasses {
-		m, err := MatchBytes([]byte(SchemaJSONSchemaExampleUserProfile), []byte(input))
+	for _, input := range passes {
+		p.Init([]byte(input))
+		m, err := MatchParser([]byte(sch), p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !m {
+			t.Errorf("expected true, but got no match for %s", input)
+		}
+	}
+}
+
+func TestUserProfileReflect(t *testing.T) {
+	sch := SchemaJSONSchemaExampleUserProfile
+	passes := userProfilePasses
+	var p parse.ParserWithInit = newReflectParser()
+
+	g, err := newGrammar([]byte(sch))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("translated to: %v", g.String())
+	for _, input := range passes {
+		p.Init([]byte(input))
+		m, err := MatchParser([]byte(sch), p)
 		if err != nil {
 			t.Fatal(err)
 		}

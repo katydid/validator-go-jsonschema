@@ -14,7 +14,12 @@
 
 package jsonschema
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/katydid/parser-go-json/json"
+	"github.com/katydid/parser-go/parse"
+)
 
 const SchemaConfIsIn2026OrLate2025AndEU = `{
 		"definitions": {
@@ -86,17 +91,46 @@ const SchemaConfIsIn2026OrLate2025AndEU = `{
 	}`
 
 var confFails = []string{
+	`{"Name":"W","Due":{"Year":"2011","Month":"11","Day":"24"},"Notify":{"Year":"iDu7","Month":null,"Day":"HPX"},"Loc":{"Cont":"","Ctry":null,"City":"c"},"Category":"D48pd","Tags":["XQtwy","SbMZikT","XYw1OTkaP","gFFI","c4","6","UwYQAy4","MKq","U5"]}`,
 	`{"Name":"Ich","Due":{"Year":"2052","Month":"04","Day":"19"},"Notify":{"Year":"JPPsvD","Month":null,"Day":"j"},"Loc":{"Cont":"RzgAnuS","Ctry":"2697S","City":"bQC"},"Category":"f7J3Pb","Tags":["L64","QVMoWrb6l"]}`,
+	`{"Name":"JPpw7","Due":{"Year":"2066","Month":"05","Day":"10"},"Notify":{"Year":null,"Month":"P8","Day":"nvCAe2"},"Loc":{"Cont":"Ybve","Ctry":"z62J","City":"6QiQI7xA4"},"Category":"beIEfEfgK","Tags":["","Sitd4nJc5","3S","AFIXwIVpu","hUkXki"]}`,
 }
 
-func TestConf(t *testing.T) {
-	g, err := newGrammar([]byte(SchemaConfIsIn2026OrLate2025AndEU))
+func TestConfJSON(t *testing.T) {
+	sch := SchemaConfIsIn2026OrLate2025AndEU
+	fails := confFails
+	var p parse.ParserWithInit = json.NewJSONSchemaParser()
+
+	g, err := newGrammar([]byte(sch))
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("translated to: %v", g.String())
-	for _, input := range confFails {
-		m, err := MatchBytes([]byte(SchemaConfIsIn2026OrLate2025AndEU), []byte(input))
+	for _, input := range fails {
+		p.Init([]byte(input))
+		m, err := MatchParser([]byte(sch), p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if m {
+			t.Errorf("expected false, but got match for %s", input)
+		}
+	}
+}
+
+func TestConfReflect(t *testing.T) {
+	sch := SchemaConfIsIn2026OrLate2025AndEU
+	fails := confFails
+	var p parse.ParserWithInit = newReflectParser()
+
+	g, err := newGrammar([]byte(sch))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("translated to: %v", g.String())
+	for _, input := range fails {
+		p.Init([]byte(input))
+		m, err := MatchParser([]byte(sch), p)
 		if err != nil {
 			t.Fatal(err)
 		}

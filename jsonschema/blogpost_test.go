@@ -14,7 +14,12 @@
 
 package jsonschema
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/katydid/parser-go-json/json"
+	"github.com/katydid/parser-go/parse"
+)
 
 const SchemaJSONSchemaExampleBlogPost = `{
   "$id": "https://example.com/blog-post.schema.json",
@@ -80,19 +85,46 @@ var blogpostPasses = []string{
 	`{"Title":"9CAoZ","Content":"jsUMl7","PublishedDate":"2000-11-11T00:12:03Z","Author":{"Username":"h78o02X1","Email":"xzvcwvj@hotmail.com","FullName":"Fz","Age":4937305690741089630,"Location":"oWo","Interests":["k"]},"Tags":["c","z","","U76zzqj"]}`,
 }
 
-func TestBlogpost(t *testing.T) {
-	g, err := newGrammar([]byte(SchemaJSONSchemaExampleBlogPost))
+func TestBlogpostJSON(t *testing.T) {
+	sch := SchemaJSONSchemaExampleBlogPost
+	passes := blogpostPasses
+
+	g, err := newGrammar([]byte(sch))
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("translated to: %v", g.String())
-	for _, input := range blogpostPasses {
-		m, err := MatchBytes([]byte(SchemaJSONSchemaExampleBlogPost), []byte(input))
+	for _, input := range passes {
+		var p parse.ParserWithInit = json.NewJSONSchemaParser()
+		p.Init([]byte(input))
+		m, err := MatchParser([]byte(sch), p)
 		if err != nil {
 			t.Fatal(err)
 		}
 		if !m {
 			t.Errorf("expected true, but got no match for %s", input)
+		}
+	}
+}
+
+func TestBlogpostReflect(t *testing.T) {
+	sch := SchemaJSONSchemaExampleBlogPost
+	passes := blogpostPasses
+	var p parse.ParserWithInit = newReflectParser()
+
+	g, err := newGrammar([]byte(sch))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("translated to: %v", g.String())
+	for _, input := range passes {
+		p.Init([]byte(input))
+		m, err := MatchParser([]byte(sch), p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !m {
+			t.Errorf("expected true, but got match for %s", input)
 		}
 	}
 }

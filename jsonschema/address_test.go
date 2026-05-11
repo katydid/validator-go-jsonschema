@@ -14,7 +14,12 @@
 
 package jsonschema
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/katydid/parser-go-json/json"
+	"github.com/katydid/parser-go/parse"
+)
 
 // https://json-schema.org/learn/json-schema-examples#address
 // A schema representing an address, with optional properties for different address components
@@ -57,9 +62,31 @@ var addressFails = []string{
 	`{"PostOfficeBox":"","ExtendedAddress":"s09okTtQE","Locality":"Wr","Region":"A00mf66p","PostalCode":"y06dclIm","CountryName":"qld539n","Other":"W73k4i"}`, // StreetAddress missing dependentRequired
 }
 
-func TestAddress(t *testing.T) {
-	for _, input := range addressFails {
-		m, err := MatchBytes([]byte(SchemaJSONSchemaExampleAddress), []byte(input))
+func TestAddressJSON(t *testing.T) {
+	sch := SchemaJSONSchemaExampleAddress
+	fails := addressFails
+	var p parse.ParserWithInit = json.NewJSONSchemaParser()
+
+	for _, input := range fails {
+		p.Init([]byte(input))
+		m, err := MatchParser([]byte(sch), p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if m {
+			t.Errorf("expected false, but got match for %s", input)
+		}
+	}
+}
+
+func TestAddressReflect(t *testing.T) {
+	sch := SchemaJSONSchemaExampleAddress
+	fails := addressFails
+	var p parse.ParserWithInit = newReflectParser()
+
+	for _, input := range fails {
+		p.Init([]byte(input))
+		m, err := MatchParser([]byte(sch), p)
 		if err != nil {
 			t.Fatal(err)
 		}
