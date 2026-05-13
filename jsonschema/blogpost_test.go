@@ -85,9 +85,10 @@ var blogpostPasses = []string{
 	`{"Title":"9CAoZ","Content":"jsUMl7","PublishedDate":"2000-11-11T00:12:03Z","Author":{"Username":"h78o02X1","Email":"xzvcwvj@hotmail.com","FullName":"Fz","Age":4937305690741089630,"Location":"oWo","Interests":["k"]},"Tags":["c","z","","U76zzqj"]}`,
 }
 
-func TestBlogpostJSON(t *testing.T) {
+func TestBlogpostJSONMatchParser(t *testing.T) {
 	sch := SchemaJSONSchemaExampleBlogPost
 	passes := blogpostPasses
+	var p parse.ParserWithInit = json.NewJSONSchemaParser()
 
 	g, err := newGrammar([]byte(sch))
 	if err != nil {
@@ -95,7 +96,6 @@ func TestBlogpostJSON(t *testing.T) {
 	}
 	t.Logf("translated to: %v", g.String())
 	for _, input := range passes {
-		var p parse.ParserWithInit = json.NewJSONSchemaParser()
 		p.Init([]byte(input))
 		m, err := MatchParser([]byte(sch), p)
 		if err != nil {
@@ -107,7 +107,7 @@ func TestBlogpostJSON(t *testing.T) {
 	}
 }
 
-func TestBlogpostReflect(t *testing.T) {
+func TestBlogpostReflectMatchParser(t *testing.T) {
 	sch := SchemaJSONSchemaExampleBlogPost
 	passes := blogpostPasses
 	var p parse.ParserWithInit = newReflectParser()
@@ -125,6 +125,35 @@ func TestBlogpostReflect(t *testing.T) {
 		}
 		if !m {
 			t.Errorf("expected true, but got match for %s", input)
+		}
+	}
+}
+
+func TestBlogpostJSONCompile(t *testing.T) {
+	sch := SchemaJSONSchemaExampleBlogPost
+	passes := blogpostPasses
+
+	var p parse.ParserWithInit = json.NewJSONSchemaParser()
+
+	g, err := newGrammar([]byte(sch))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("translated to: %v", g.String())
+
+	matcher, err := Compile([]byte(sch))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, input := range passes {
+		p.Init([]byte(input))
+		m, err := matcher.MatchParser(p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !m {
+			t.Errorf("expected true, but got no match for %s", input)
 		}
 	}
 }

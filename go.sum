@@ -6,10 +6,14 @@ github.com/katydid/parser-go v0.8.5 h1:nybzT6/bTY0gPYWTMujmrjddX2QEFZgq8mBsBGsng
 github.com/katydid/parser-go v0.8.5/go.mod h1:e6PzxUlxRtkeyCMHQW7l+xG6/r/3edg14k2KK4l2WL4=
 github.com/katydid/parser-go-json v0.5.2 h1:3QfhMKC1oRWA9BbS+QA1LjWCbhRI25Wr2QS2o/iGPIY=
 github.com/katydid/parser-go-json v0.5.2/go.mod h1:t+K8lXmZ3KwDt/Qf1mmcmxnR3hjgfjbWR3x/ypHg0s4=
+github.com/katydid/parser-go-json v0.5.3-0.20260505170512-e8e8d144b951 h1:GGuUDADCqKvDK/qaQFDH4cZbJgxBm/sKCbozIFzh4Eg=
+github.com/katydid/parser-go-json v0.5.3-0.20260505170512-e8e8d144b951/go.mod h1:t+K8lXmZ3KwDt/Qf1mmcmxnR3hjgfjbWR3x/ypHg0s4=
 github.com/katydid/parser-go-reflect v0.3.1-0.20260511072333-8cf28a3b73d8 h1:0ryaeVdaPHdny29XiWUnXcTTmxf6MJ5HuUOtw+rG5Ys=
 github.com/katydid/parser-go-reflect v0.3.1-0.20260511072333-8cf28a3b73d8/go.mod h1:iyvC2cj+5iwPJrJB2zcT3klHUetRmVni3sV/dw5FtNs=
 github.com/katydid/validator-go v0.6.5-0.20260507174033-9abe986865a4 h1:3Cb+Sq4TBLB3U/dQtqNa/ztNmR2GiHjKdXnTlIk7yD0=
 github.com/katydid/validator-go v0.6.5-0.20260507174033-9abe986865a4/go.mod h1:04OOMFNCoUTNgdxxTPaeUNL6FBd6EmPkmVSgqSGGa70=
+github.com/katydid/validator-go v0.6.5-0.20260513164800-69f70037989c h1:P+CQca1aaIleJnsA3YbXr6G7ly2Niy18jqgshCWlDtc=
+github.com/katydid/validator-go v0.6.5-0.20260513164800-69f70037989c/go.mod h1:KjuOIKjg+9QrlBqP8F2gAp6LbP1dcCaWoCsT/r0Fh1k=
 github.com/qri-io/jsonpointer v0.1.1 h1:prVZBZLL6TW5vsSB9fFHFAMBLI4b0ri5vribQlTJiBA=
 github.com/qri-io/jsonpointer v0.1.1/go.mod h1:DnJPaYgiKu56EuDp8TU5wFLdZIcAnb/uH9v37ZaMV64=
 golang.org/x/mod v0.8.0 h1:LUYupSeNrTNCGzR/hVBk2NHZO4hXcVaW1k4Qx7rjPx8=
