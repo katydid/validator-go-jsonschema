@@ -64,6 +64,13 @@ var addressFails = []string{
 
 func TestAddressJSONMatchParser(t *testing.T) {
 	sch := SchemaJSONSchemaExampleAddress
+
+	g, err := newGrammar([]byte(sch))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("translated to: %v", g.String())
+
 	fails := addressFails
 	var p parse.ParserWithInit = json.NewJSONSchemaParser()
 
@@ -173,27 +180,6 @@ func TestSmallAddressJSONCompile(t *testing.T) {
 	fails = []string{
 		`{"ExtendedAddress":"a"}`,
 	}
-
-	// 	translated := `
-	// (
-	// 	tag(object):*
-	// 	&tag(object):
-	// 		(
-	// 			((.ExtendedAddress:*&.StreetAddress:*)|(!(ExtendedAddress):*)*)
-	// 			&{
-	// 				((CountryName:->stringType()|ExtendedAddress:->stringType()|StreetAddress:->stringType()))*
-	// 				;(!((CountryName|ExtendedAddress|StreetAddress)):*)*
-	// 			}
-	// 		)
-	// )`
-
-	// 		(
-	// 			.StreetAddress:*
-	// 			&{
-	// 				((CountryName:->stringType()|ExtendedAddress:->stringType()|StreetAddress:->stringType()))*
-	// 				;(!((CountryName|ExtendedAddress|StreetAddress)):*)*
-	// 			}
-	// 		)
 
 	if m, err := MatchBytes([]byte(sch), []byte(fails[0])); err != nil {
 		panic(err)

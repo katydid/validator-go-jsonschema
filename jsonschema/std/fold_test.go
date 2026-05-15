@@ -14,12 +14,12 @@
 
 package std
 
-func MustFoldA[A any](as []A, f func(A, A) A) A {
-	if len(as) == 0 {
-		panic("empty lists are not supported")
+import "testing"
+
+func TestMustFold(t *testing.T) {
+	xs := []int{1, 2, 3}
+	sum := MustFoldA(xs, func(a, b int) int { return a + b })
+	if sum != 6 {
+		t.Fatalf("expected sum = 6, but got %d", sum)
 	}
-	if len(as) == 1 {
-		return as[0]
-	}
-	return f(as[0], MustFoldA(as[1:], f))
 }
