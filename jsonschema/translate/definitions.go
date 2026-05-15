@@ -49,6 +49,9 @@ func defName(prefix string, name string, sch *schema.Schema) string {
 	if len(sch.Id) > 0 {
 		return sch.Id
 	}
+	if len(sch.Anchor) > 0 {
+		return "#" + sch.Anchor
+	}
 	name = prefix + name
 	return name
 }

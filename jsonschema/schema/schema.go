@@ -190,6 +190,7 @@ func (this *Schema) JsonString() string {
 */
 type Schema struct {
 	Id          string `json:"id,omitempty"`
+	Anchor      string `json:"$anchor,omitempty"`
 	Schema      string `json:"$schema,omitempty"`
 	Title       string `json:"title,omitempty"`
 	Description string `json:"description,omitempty"`

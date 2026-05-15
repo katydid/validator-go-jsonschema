@@ -40,6 +40,10 @@ func translateRef(prefix string, name string) (*ast.Pattern, error) {
 }
 
 func newRefName(s string) (string, error) {
+	if strings.HasPrefix(s, "#") && !strings.HasPrefix(s, "#/") && s != "#" {
+		// anchors like #bla are also allowed
+		return s, nil
+	}
 	path, err := parsePointer(s)
 	if err != nil {
 		return "", err
