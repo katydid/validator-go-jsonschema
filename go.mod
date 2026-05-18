@@ -9,7 +9,7 @@ require (
 	github.com/katydid/parser-go v0.8.7
 	github.com/katydid/parser-go-json v0.5.3
 	github.com/katydid/parser-go-reflect v0.3.1
-	github.com/katydid/validator-go v0.6.5-0.20260514093008-185598f032ef
+	github.com/katydid/validator-go v0.6.5-0.20260518170812-ede7625d65a1
 	github.com/qri-io/jsonpointer v0.1.1
 )
 
