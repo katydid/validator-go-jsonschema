@@ -20,6 +20,11 @@ jobs:
       with:
         repository: json-schema-org/JSON-Schema-Test-Suite
         path: gopath/src/github.com/json-schema-org/JSON-Schema-Test-Suite
+    - name: Checkout JSON Schema benchsuite
+      uses: actions/checkout@v4
+      with:
+        repository: katydid/validator-jsonschema-benchmarks
+        path: gopath/src/github.com/katydid/validator-jsonschema-benchmarks
     - name: Setup Go
       uses: actions/setup-go@v3
       with:
