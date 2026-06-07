@@ -96,17 +96,17 @@ func TestBenchmarkSuite(t *testing.T) {
 		"ansible-meta":           "const, default, enum inside items, items with default, anyOf, additionalProperties, title, if then else, type list, ref",
 		"cmake-presets":          "const, ref, oneOf, anyOf, type: null, propertyNames: pattern, allOf",
 		"draft-04-rmUniqueItems": "TODO",
-		"geojson":                "timed out",
+		"geojson":                "timed out, minItems, oneOf",
 	}
 	// TODO fix these
 	notMatchingYet := map[string]string{
 		"babelrc":                    "const, default, enum inside items, items with default, anyOf, additionalProperties, title, if then else, type list, ref",
-		"cypress":                    "TODO",
-		"example-devicetype-invalid": "TODO",
-		"gitpod-configuration":       "TODO",
-		"lerna":                      "TODO",
-		"nest-cli":                   "TODO",
-		"pulumi":                     "TODO",
+		"cypress":                    "type list, default, anyOf, allOf",
+		"example-devicetype-invalid": "const, oneOf",
+		"gitpod-configuration":       "type list, default",
+		"lerna":                      "type list",
+		"nest-cli":                   "default, anyOf",
+		"pulumi":                     "oneOf, if, type list",
 	}
 	suites, err := getBenchmarks()
 	if err != nil {
