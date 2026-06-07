@@ -100,46 +100,71 @@ func TestBenchmarkSuite(t *testing.T) {
 	}
 	// TODO fix these
 	notMatchingYet := map[string]string{
-		"babelrc":                    "const, default, enum inside items, items with default, anyOf, additionalProperties, title, if then else, type list, ref",
-		"cypress":                    "type list, default, anyOf, allOf",
-		"example-devicetype-invalid": "const, oneOf",
-		"gitpod-configuration":       "type list, default",
-		"lerna":                      "type list",
-		"nest-cli":                   "default, anyOf",
-		"pulumi":                     "oneOf, if, type list",
+		"babelrc":              "const, default, enum inside items, items with default, anyOf, additionalProperties, title, if then else, type list, ref",
+		"cypress":              "type list, default, anyOf, allOf",
+		"gitpod-configuration": "type list, default",
+		"lerna":                "type list",
+		"nest-cli":             "default, anyOf",
+		"pulumi":               "oneOf, if, type list",
 	}
+	debugASingleFile := ""
+	// debugASingleFile = "example-devicetype-invalid"
 	suites, err := getBenchmarks()
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, suite := range suites {
-		t.Run(suite.name, func(t *testing.T) {
-			if reason, ok := notSupported[suite.name]; ok {
-				t.Skipf("skipping unsupported, because %v", reason)
-			}
-			if reason, ok := unsupportedByOthers[suite.name]; ok {
-				t.Skipf("skipping unsupported by others, because %v", reason)
-			}
-			if reason, ok := notCompilingYet[suite.name]; ok {
-				t.Skipf("temporarily skipping, because %v", reason)
-			}
-			matcher, err := Compile(suite.schema)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if reason, ok := notMatchingYet[suite.name]; ok {
-				t.Skipf("temporary skipping matching, because %v", reason)
-			}
-			want := !strings.Contains(suite.name, "-invalid")
-			for _, data := range suite.datas {
-				got, err := matcher.MatchBytes(data)
+		if debugASingleFile != "" {
+			if debugASingleFile == suite.name {
+				g, err := newGrammar(suite.schema)
 				if err != nil {
-					t.Fatalf("error: %v, given: %q", err, string(data))
+					t.Fatal(err)
 				}
-				if want != got {
-					t.Fatalf("want %v got %v, given: %q", want, got, string(data))
+				t.Logf("translated to: %v", g.String())
+				matcher, err := Compile(suite.schema)
+				if err != nil {
+					t.Fatal(err)
+				}
+				want := !strings.Contains(suite.name, "-invalid")
+				for _, data := range suite.datas {
+					got, err := matcher.MatchBytes(data)
+					if err != nil {
+						t.Fatalf("error: %v, given: %q", err, string(data))
+					}
+					if want != got {
+						t.Fatalf("want %v got %v, given: %q", want, got, string(data))
+					}
 				}
 			}
-		})
+		} else {
+			t.Run(suite.name, func(t *testing.T) {
+				if reason, ok := notSupported[suite.name]; ok {
+					t.Skipf("skipping unsupported, because %v", reason)
+				}
+				if reason, ok := unsupportedByOthers[suite.name]; ok {
+					t.Skipf("skipping unsupported by others, because %v", reason)
+				}
+				if reason, ok := notCompilingYet[suite.name]; ok {
+					t.Skipf("skipping temporarily, because %v", reason)
+				}
+				matcher, err := Compile(suite.schema)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if reason, ok := notMatchingYet[suite.name]; ok {
+					t.Skipf("temporary skipping matching, because %v", reason)
+				}
+				want := !strings.Contains(suite.name, "-invalid")
+				for _, data := range suite.datas {
+					got, err := matcher.MatchBytes(data)
+					if err != nil {
+						t.Fatalf("error: %v, given: %q", err, string(data))
+					}
+					if want != got {
+						t.Fatalf("want %v got %v, given: %q", want, got, string(data))
+					}
+				}
+			})
+		}
 	}
 }

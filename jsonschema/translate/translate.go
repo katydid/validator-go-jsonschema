@@ -110,8 +110,7 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 		if err != nil {
 			return nil, err
 		}
-		// ref overrides others if it is successful
-		return p, nil
+		ps = append(ps, p)
 	}
 	if len(ps) == 0 {
 		return ast.NewZAny(), nil
