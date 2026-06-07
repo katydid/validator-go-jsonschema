@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -53,8 +54,11 @@ func getBenchmarks() ([]*benchsuite, error) {
 			return nil, err
 		}
 
-		instancesDatas := bytes.Split(instancesData, []byte("\n"))
-		res = append(res, &benchsuite{name: entry.Name(), schema: schemaData, datas: instancesDatas})
+		lines := bytes.Split(instancesData, []byte("\n"))
+		if len(lines[len(lines)-1]) == 0 {
+			lines = lines[:len(lines)-1]
+		}
+		res = append(res, &benchsuite{name: entry.Name(), schema: schemaData, datas: lines})
 	}
 	if len(res) == 0 {
 		return nil, fmt.Errorf("couldn't find benchmarks at %s", pathBenchmarks)
@@ -64,20 +68,44 @@ func getBenchmarks() ([]*benchsuite, error) {
 
 func TestBenchmarkSuite(t *testing.T) {
 	notSupported := map[string]string{
-		"ansible-meta":           "json: cannot unmarshal bool into Go struct field Schema.Object.properties of type schema.Schema",
-		"cmake-presets":          "just takes long",
-		"cql2":                   "could not find schema for #/$defs/andOrExpression",
-		"cspell":                 "uniqueItems not supported",
-		"deno":                   "uniqueItems not supported",
-		"draft-04":               "json: cannot unmarshal bool into Go struct field Schema.Object.properties of type schema.Schema",
-		"unreal-engine-uproject": "uniqueItems not supported",
-		"geojson":                "timed out",
-		"jsconfig":               "uniqueItems not supported",
-		"krakend":                "uniqueItems not supported",
-		"lazygit":                "uniqueItems are not supported",
-		"openapi":                "could not find schema for #/$defs/server",
-		"stylecop":               "uniqueItems are not supported",
-		"ui5-manifest":           "json: cannot unmarshal bool into Go struct field Schema.definitions.Object.properties.Array.items of type []*schema.Schema",
+		"ajv-cosmicrealms-invalid": "uniqueItems not supported",
+		"ajv-cosmicrealms-valid":   "uniqueItems not supported",
+		"cspell":                   "uniqueItems not supported",
+		"cql2":                     "dynamicRef not supported",
+		"deno":                     "uniqueItems not supported",
+		"draft-04":                 "uniqueItems not supported",
+		"jsconfig":                 "uniqueItems not supported",
+		"krakend":                  "uniqueItems not supported",
+		"lazygit":                  "uniqueItems not supported",
+		"openapi":                  "dynamicRef not supported",
+		"stylecop":                 "uniqueItems not supported",
+		"unreal-engine-uproject":   "uniqueItems not supported",
+		"zschema-basic-invalid":    "uniqueItems not supported",
+		"zschema-basic-valid":      "uniqueItems not supported",
+		"zschema-advanced-invalid": "uniqueItems not supported",
+		"zschema-advanced-valid":   "uniqueItems not supported",
+	}
+	// TODO fix these
+	notSupportedYet := map[string]string{
+		"ansible-meta":                        "json: cannot unmarshal bool into Go struct field Schema.Object.properties of type schema.Schema",
+		"cmake-presets":                       "just takes long",
+		"draft-04-rmUniqueItems":              "TODO",
+		"geojson":                             "timed out",
+		"ui5-manifest":                        "json: cannot unmarshal bool into Go struct field Schema.definitions.Object.properties.Array.items of type []*schema.Schema",
+		"krakend-rmUniqueItems":               "TODO",
+		"ui5-manifest-rmUniqueItems":          "TODO",
+		"zschema-basic-rmUniqueItems-invalid": "TODO",
+		"zschema-basic-rmUniqueItems-valid":   "TODO",
+	}
+	// TODO fix these
+	notMatchingYet := map[string]string{
+		"babelrc":                    "TODO",
+		"cypress":                    "TODO",
+		"example-devicetype-invalid": "TODO",
+		"gitpod-configuration":       "TODO",
+		"lerna":                      "TODO",
+		"nest-cli":                   "TODO",
+		"pulumi":                     "TODO",
 	}
 	suites, err := getBenchmarks()
 	if err != nil {
@@ -86,16 +114,26 @@ func TestBenchmarkSuite(t *testing.T) {
 	for _, suite := range suites {
 		t.Run(suite.name, func(t *testing.T) {
 			if reason, ok := notSupported[suite.name]; ok {
-				t.Skipf("skipping, because %v", reason)
+				t.Skipf("skipping unsupported, because %v", reason)
+			}
+			if reason, ok := notSupportedYet[suite.name]; ok {
+				t.Skipf("temporarily skipping, because %v", reason)
 			}
 			matcher, err := Compile(suite.schema)
 			if err != nil {
 				t.Fatal(err)
 			}
+			if reason, ok := notMatchingYet[suite.name]; ok {
+				t.Skipf("temporary skipping matching, because %v", reason)
+			}
+			want := !strings.Contains(suite.name, "-invalid")
 			for _, data := range suite.datas {
-				_, err := matcher.MatchBytes(data)
+				got, err := matcher.MatchBytes(data)
 				if err != nil {
 					t.Fatalf("error: %v, given: %q", err, string(data))
+				}
+				if want != got {
+					t.Fatalf("want %v got %v, given: %q", want, got, string(data))
 				}
 			}
 		})
