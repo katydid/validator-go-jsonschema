@@ -25,15 +25,20 @@ func translateNumeric(schema schema.Numeric) (*ast.Pattern, error) {
 	if schema.MultipleOf != nil {
 		list = append(list, multipleOfExpr(*schema.MultipleOf))
 	}
-	if schema.Maximum != nil {
-		if schema.ExclusiveMaximum {
+
+	if m := schema.ExclusiveMaximum.GetFloat(); m != nil {
+		list = append(list, exclusiveMaximumExpr(*m))
+	} else if schema.Maximum != nil {
+		if schema.ExclusiveMaximum.IsExclusive() {
 			list = append(list, exclusiveMaximumExpr(*schema.Maximum))
 		} else {
 			list = append(list, maximumExpr(*schema.Maximum))
 		}
 	}
-	if schema.Minimum != nil {
-		if schema.ExclusiveMinimum {
+	if m := schema.ExclusiveMinimum.GetFloat(); m != nil {
+		list = append(list, exclusiveMinimumExpr(*m))
+	} else if schema.Minimum != nil {
+		if schema.ExclusiveMinimum.IsExclusive() {
 			list = append(list, exclusiveMinimumExpr(*schema.Minimum))
 		} else {
 			list = append(list, minimumExpr(*schema.Minimum))

@@ -79,27 +79,28 @@ func TestBenchmarkSuite(t *testing.T) {
 		"lazygit":                  "uniqueItems not supported",
 		"openapi":                  "dynamicRef not supported",
 		"stylecop":                 "uniqueItems not supported",
+		"ui5-manifest":             "uniqueItems not supported",
 		"unreal-engine-uproject":   "uniqueItems not supported",
 		"zschema-basic-invalid":    "uniqueItems not supported",
 		"zschema-basic-valid":      "uniqueItems not supported",
 		"zschema-advanced-invalid": "uniqueItems not supported",
 		"zschema-advanced-valid":   "uniqueItems not supported",
 	}
+	unsupportedByOthers := map[string]string{
+		"krakend-rmUniqueItems":      "not supported by ajv, ajv-bun, hyperjump, networknt. Features: ref with weird syntax: #/definitions/https%3A~1~1www.krakend.io~1schema~1v2.7~1timeunits.json/definitions/timeunit, default, const, patternProperties, title, pattern, not, anyOf, deprecated",
+		"ui5-manifest-rmUniqueItems": "not supported by ajv, ajv-bun, boon, go-kaptinlin, go-santhosh-tekuri, hyperjump, networknt",
+		"cspell-rmUniqueItems":       "not supported by boon, go-kaptinlin, go-santhosh-tekuri, json_schemer and kmp",
+	}
 	// TODO fix these
-	notSupportedYet := map[string]string{
-		"ansible-meta":                        "json: cannot unmarshal bool into Go struct field Schema.Object.properties of type schema.Schema",
-		"cmake-presets":                       "just takes long",
-		"draft-04-rmUniqueItems":              "TODO",
-		"geojson":                             "timed out",
-		"ui5-manifest":                        "json: cannot unmarshal bool into Go struct field Schema.definitions.Object.properties.Array.items of type []*schema.Schema",
-		"krakend-rmUniqueItems":               "TODO",
-		"ui5-manifest-rmUniqueItems":          "TODO",
-		"zschema-basic-rmUniqueItems-invalid": "TODO",
-		"zschema-basic-rmUniqueItems-valid":   "TODO",
+	notCompilingYet := map[string]string{
+		"ansible-meta":           "const, default, enum inside items, items with default, anyOf, additionalProperties, title, if then else, type list, ref",
+		"cmake-presets":          "const, ref, oneOf, anyOf, type: null, propertyNames: pattern, allOf",
+		"draft-04-rmUniqueItems": "TODO",
+		"geojson":                "timed out",
 	}
 	// TODO fix these
 	notMatchingYet := map[string]string{
-		"babelrc":                    "TODO",
+		"babelrc":                    "const, default, enum inside items, items with default, anyOf, additionalProperties, title, if then else, type list, ref",
 		"cypress":                    "TODO",
 		"example-devicetype-invalid": "TODO",
 		"gitpod-configuration":       "TODO",
@@ -116,7 +117,10 @@ func TestBenchmarkSuite(t *testing.T) {
 			if reason, ok := notSupported[suite.name]; ok {
 				t.Skipf("skipping unsupported, because %v", reason)
 			}
-			if reason, ok := notSupportedYet[suite.name]; ok {
+			if reason, ok := unsupportedByOthers[suite.name]; ok {
+				t.Skipf("skipping unsupported by others, because %v", reason)
+			}
+			if reason, ok := notCompilingYet[suite.name]; ok {
 				t.Skipf("temporarily skipping, because %v", reason)
 			}
 			matcher, err := Compile(suite.schema)

@@ -27,7 +27,7 @@ import (
 func TestDebug(t *testing.T) {
 	tests := buildTests(t, path202012)
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "dependentRequired.json:empty dependents:empty object") {
+		if !strings.Contains(test.String(), "exclusiveMinimum.json:exclusiveMinimum validation:below the exclusiveMinimum is invalid") {
 			continue
 		}
 		testDebug(t, test)

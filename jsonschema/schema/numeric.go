@@ -14,15 +14,54 @@
 
 package schema
 
+import (
+	"errors"
+
+	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
+)
+
 // http://json-schema.org/latest/json-schema-validation.html#anchor13
 type Numeric struct {
-	MultipleOf       *float64 `json:"multipleOf,omitempty"`
-	Maximum          *float64 `json:"maximum,omitempty"`
-	ExclusiveMaximum bool     `json:"exclusiveMaximum,omitempty"`
-	Minimum          *float64 `json:"minimum,omitempty"`
-	ExclusiveMinimum bool     `json:"exclusiveMinimum,omitempty"`
+	MultipleOf       *float64  `json:"multipleOf,omitempty"`
+	Maximum          *float64  `json:"maximum,omitempty"`
+	ExclusiveMaximum *Exlusive `json:"exclusiveMaximum,omitempty"`
+	Minimum          *float64  `json:"minimum,omitempty"`
+	ExclusiveMinimum *Exlusive `json:"exclusiveMinimum,omitempty"`
 }
 
 func (this Numeric) HasNumericConstraints() bool {
-	return this.MultipleOf != nil || this.Maximum != nil || this.Minimum != nil
+	return this.MultipleOf != nil || this.Maximum != nil || this.Minimum != nil || this.ExclusiveMaximum != nil || this.ExclusiveMinimum != nil
+}
+
+type Exlusive struct {
+	isExclusive bool
+	val         *float64
+}
+
+func (this *Exlusive) IsExclusive() bool {
+	return this != nil && this.isExclusive
+}
+
+func (this *Exlusive) GetFloat() *float64 {
+	if this == nil {
+		return nil
+	}
+	return this.val
+}
+
+func (this *Exlusive) UnmarshalJSON(buf []byte) error {
+	var b bool
+	errBool := std.UnmarshalJSON(buf, &b)
+	if errBool == nil {
+		this.isExclusive = b
+		return nil
+	}
+	var f float64
+	errFloat := std.UnmarshalJSON(buf, &f)
+	if errFloat == nil {
+		this.isExclusive = true
+		this.val = &f
+		return nil
+	}
+	return errors.New(errBool.Error() + "\n" + errFloat.Error())
 }

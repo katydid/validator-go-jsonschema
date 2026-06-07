@@ -15,6 +15,8 @@
 package schema
 
 import (
+	"errors"
+
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 )
 
@@ -50,13 +52,15 @@ func (this *Items) GetArray() []*Schema {
 
 func (this *Items) UnmarshalJSON(buf []byte) error {
 	var s *Schema
-	if err := std.UnmarshalJSON(buf, &s); err == nil {
+	errObj := std.UnmarshalJSON(buf, &s)
+	if errObj == nil {
 		*this = Items{Object: s}
 		return nil
 	}
 	schemas := []*Schema{}
-	if err := std.UnmarshalJSON(buf, &schemas); err != nil {
-		return err
+	errArr := std.UnmarshalJSON(buf, &schemas)
+	if errArr != nil {
+		return errors.New(errObj.Error() + "\n" + errArr.Error())
 	}
 	*this = Items{Array: schemas}
 	return nil
