@@ -12,5 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-regenerate:
-	gocc -p github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ipv4 ipv4.bnf
+package = 'github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ipv4'
+
+generate:
+	gocc -p $(package) grammar.bnf
+	go run ../cmd/gen_noalloc_lexer/main.go $(package)/token > ./lexer/noalloc.go

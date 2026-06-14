@@ -41,8 +41,8 @@ install:
 bench:
 	TESTSUITE=MUST go test -test.v -test.run=XXX -test.bench=. ./...
 
-regenerate:
-	(cd jsonschema/funcs/email && make regenerate)
+generate:
+	(cd jsonschema/funcs && make generate)
 
 clean:
 	go clean ./...
