@@ -15,12 +15,11 @@
 package funcs
 
 import (
-	"github.com/katydid/parser-go/cast"
 	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
 
-	jsonschema "github.com/katydid/validator-go-jsonschema/jsonschema/funcs/santhosh-tekuri"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ipv6/netip"
 )
 
 // IPv6 returns whether a string is a valid ipv6
@@ -61,9 +60,7 @@ func (this *ipv6) Eval() (bool, error) {
 		// ignore non appropriate kinds
 		return true, nil
 	}
-	str := cast.ToString(v)
-	err = jsonschema.ValidateIPV6(str)
-	return err == nil, nil
+	return netip.IsIPv6(v), nil
 }
 
 func (this *ipv6) Compare(that funcs.Comparable) int {
