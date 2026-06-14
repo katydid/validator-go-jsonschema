@@ -15,8 +15,6 @@
 package funcs
 
 import (
-	"io"
-
 	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
@@ -53,17 +51,7 @@ func (this *ipv4) ToExpr() *ast.Expr {
 }
 
 func isIPV4(lexer *lexer.Lexer, data []byte) bool {
-	lexer.Init(data)
-	_, err := lexer.Next()
-	valid := err == nil
-	if valid {
-		// check that there is only one email address
-		_, err = lexer.Next()
-		if err != io.EOF {
-			return false
-		}
-	}
-	return valid
+	return lexer.IsValid(data)
 }
 
 func (this *ipv4) Eval() (bool, error) {

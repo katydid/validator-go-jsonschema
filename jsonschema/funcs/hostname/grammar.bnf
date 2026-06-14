@@ -1,0 +1,19 @@
+// https://datatracker.ietf.org/doc/html/rfc5321#section-4.1.2
+// Domain         = sub-domain *("." sub-domain)
+// sub-domain     = Let-dig [Ldh-str]
+// Let-dig        = ALPHA / DIGIT
+// Ldh-str        = *( ALPHA / DIGIT / "-" ) Let-dig
+
+_digit09 : '0'-'9' ;
+
+_alpha: 'a' - 'z' | 'A' - 'Z' ;
+
+_letdig: _digit09 | _alpha ;
+
+_letdigdash: _digit09 | _alpha | '-' ;
+
+_ldhstr: { _letdigdash } _letdig ;
+
+_subdomain: _letdig | _letdig _ldhstr ;
+
+domain: _subdomain { '.' _subdomain} ;
