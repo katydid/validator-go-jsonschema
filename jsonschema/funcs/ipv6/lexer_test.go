@@ -1,16 +1,27 @@
-// Copyright 2020 The Go Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+// Copyright 2026 Walter Schulze
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-// We copied these tests from src/net/netip/netip_test.go in the Go standard libary.
-
-package netip
+package ipv6
 
 import (
 	"testing"
+
+	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ipv6/lexer"
 )
 
 func TestValidIPv6(t *testing.T) {
+	lexer := lexer.NewLexer(nil)
 	var validIPs = []struct {
 		in    string
 		valid bool
@@ -75,11 +86,16 @@ func TestValidIPv6(t *testing.T) {
 			in:    "FD9E:1A04:F01D::1",
 			valid: true,
 		},
+		// IPv4 only
+		{
+			in:    "::192.168.140.255",
+			valid: true,
+		},
 	}
 
 	for _, test := range validIPs {
 		t.Run(test.in, func(t *testing.T) {
-			got := validIPv6([]byte(test.in))
+			got := lexer.IsValid([]byte(test.in))
 			if got != test.valid {
 				t.Fatalf("want %v got %v for %s", test.valid, got, test.in)
 			}
@@ -152,7 +168,7 @@ func TestValidIPv6(t *testing.T) {
 
 	for _, s := range invalidIPs {
 		t.Run(s, func(t *testing.T) {
-			if validIPv6([]byte(s)) {
+			if lexer.IsValid([]byte(s)) {
 				t.Fatal()
 			}
 		})

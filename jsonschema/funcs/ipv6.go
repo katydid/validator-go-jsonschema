@@ -19,13 +19,14 @@ import (
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ipv6/netip"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ipv6/lexer"
 )
 
 // IPv6 returns whether a string is a valid ipv6
 func IPv6() (funcs.Bool, error) {
 	return funcs.TrimBool(&ipv6{
-		hash: funcs.Hash("ipv6"),
+		hash:  funcs.Hash("ipv6"),
+		lexer: lexer.NewLexer(nil),
 	}), nil
 }
 
@@ -37,6 +38,7 @@ func (this *ipv6) SetValue(v parse.Token) {
 
 type ipv6 struct {
 	Token parse.Token
+	lexer *lexer.Lexer
 	hash  uint64
 }
 
@@ -60,7 +62,7 @@ func (this *ipv6) Eval() (bool, error) {
 		// ignore non appropriate kinds
 		return true, nil
 	}
-	return netip.IsIPv6(v), nil
+	return this.lexer.IsValid(v), nil
 }
 
 func (this *ipv6) Compare(that funcs.Comparable) int {
