@@ -35,45 +35,25 @@ package dateformat
 //      | (1-9) (0-9) Odd  (2 | 6)
 // NotLeapYear = (1-9) (0-9) 0 0
 
-func IsValid(bs []byte) bool {
-	l := 4 + 1 + 2 + 1 + 2 // 10
-	if len(bs) != l {
-		return false
-	}
-	yearbs := bs[0:4]
-	year := 0
-	for _, ch := range yearbs {
+func bytesToInt(bs []byte) (int, bool) {
+	res := 0
+	for _, ch := range bs {
 		ch -= '0'
 		if ch > 9 {
-			return false
+			return 0, false
 		}
-		year = year*10 + int(ch)
+		res = res*10 + int(ch)
 	}
-	monbs := bs[5:7]
-	mon := 0
-	for _, ch := range monbs {
-		ch -= '0'
-		if ch > 9 {
-			return false
-		}
-		mon = mon*10 + int(ch)
-	}
+	return res, true
+}
+
+func isValidDay(year, mon, day int) bool {
 	if mon == 0 || mon > 12 {
 		return false
-	}
-	daybs := bs[8:10]
-	day := 0
-	for _, ch := range daybs {
-		ch -= '0'
-		if ch > 9 {
-			return false
-		}
-		day = day*10 + int(ch)
 	}
 	if day == 0 || day > 31 {
 		return false
 	}
-
 	switch mon {
 	case 1, 3, 5, 7, 8, 10, 12:
 		return true
@@ -94,6 +74,35 @@ func IsValid(bs []byte) bool {
 		return true
 	}
 	return false
+}
+
+func IsValid(bs []byte) bool {
+	l := 4 + 1 + 2 + 1 + 2 // 10
+	if len(bs) != l {
+		return false
+	}
+	yearbs := bs[0:4]
+	year, ok := bytesToInt(yearbs)
+	if !ok {
+		return false
+	}
+	if bs[4] != '-' {
+		return false
+	}
+	monbs := bs[5:7]
+	mon, ok := bytesToInt(monbs)
+	if !ok {
+		return false
+	}
+	if bs[7] != '-' {
+		return false
+	}
+	daybs := bs[8:10]
+	day, ok := bytesToInt(daybs)
+	if !ok {
+		return false
+	}
+	return isValidDay(year, mon, day)
 }
 
 // Month Number  Month/Year           Maximum value of date-mday

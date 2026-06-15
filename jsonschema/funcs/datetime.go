@@ -15,12 +15,10 @@
 package funcs
 
 import (
-	"github.com/katydid/parser-go/cast"
 	"github.com/katydid/parser-go/parse"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/datetimeformat"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
-
-	jsonschema "github.com/katydid/validator-go-jsonschema/jsonschema/funcs/santhosh-tekuri"
 )
 
 // DateTime returns whether a string is a valid datetime
@@ -61,9 +59,7 @@ func (this *datetime) Eval() (bool, error) {
 		// ignore non appropriate kinds
 		return true, nil
 	}
-	str := cast.ToString(v)
-	err = jsonschema.ValidateDateTime(str)
-	return err == nil, nil
+	return datetimeformat.IsValid(v), nil
 }
 
 func (this *datetime) Compare(that funcs.Comparable) int {
