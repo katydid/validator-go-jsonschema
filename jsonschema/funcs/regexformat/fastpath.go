@@ -80,6 +80,19 @@ func tryFastPathPrefix(expr string) func(s string) bool {
 	}
 }
 
+func isUnreservedAscii(c byte) bool {
+	if c >= 'A' && c <= 'Z' {
+		return true
+	} else if c >= 'a' && c <= 'z' {
+		return true
+	} else if c >= '0' && c <= '9' {
+		return true
+	} else if c == '_' || c == '/' || c == '-' {
+		return true
+	}
+	return false
+}
+
 func tryFastPathCharSet(expr string) func(s string) bool {
 	if expr[0] != '^' {
 		return nil
@@ -102,33 +115,15 @@ func tryFastPathCharSet(expr string) func(s string) bool {
 		plus = true
 		expr = expr[:len(expr)-1]
 	}
-	if expr[len(expr)-1] != ']' {
+	offset, set := getCharSet(expr)
+	if offset == -1 {
 		return nil
 	}
-	expr = expr[:len(expr)-1]
-	if len(expr) == 0 {
+	if offset != len(expr)-1 {
 		return nil
 	}
-	set := [256]byte{}
-	var prev byte
-	i := 0
-	for i < len(expr) {
-		c := expr[i]
-		if isUnreservedAscii(c) {
-			set[c] = 1
-		} else if c == '-' {
-			next := expr[i+1]
-			if !isUnreservedAscii(next) {
-				return nil
-			}
-			for j := prev; j <= next; j++ {
-				set[j] = 1
-			}
-		} else {
-			return nil
-		}
-		prev = c
-		i++
+	if expr[offset] != ']' {
+		return nil
 	}
 	if plus {
 		return matchAlpha1(set)
@@ -139,14 +134,41 @@ func tryFastPathCharSet(expr string) func(s string) bool {
 	return nil
 }
 
-func isUnreservedAscii(c byte) bool {
+func getCharSet(expr string) (int, [256]byte) {
+	set := [256]byte{}
+	var prev byte
+	i := 0
+	for i < len(expr) {
+		c := expr[i]
+		if isUnreservedInsideRange(c) {
+			set[c] = 1
+		} else if c == '-' {
+			next := expr[i+1]
+			if !isUnreservedInsideRange(next) {
+				return -1, set
+			}
+			for j := prev; j <= next; j++ {
+				set[j] = 1
+			}
+		} else if c == ']' {
+			return i, set
+		} else {
+			return -1, set
+		}
+		prev = c
+		i++
+	}
+	return -1, set
+}
+
+func isUnreservedInsideRange(c byte) bool {
 	if c >= 'A' && c <= 'Z' {
 		return true
 	} else if c >= 'a' && c <= 'z' {
 		return true
 	} else if c >= '0' && c <= '9' {
 		return true
-	} else if c == '_' || c == '/' {
+	} else if c == '_' || c == '/' || c == '.' {
 		return true
 	}
 	return false
