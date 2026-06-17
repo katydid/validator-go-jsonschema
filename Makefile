@@ -41,6 +41,11 @@ install:
 bench:
 	TESTSUITE=MUST go test -test.v -test.run=XXX -test.bench=. ./...
 
+profile-complex:
+	TESTSUITE=MUST go test -test.v -test.run=XXX -test.bench=. ./jsonschema -test.cpuprofile=cpu.out -test.memprofile=mem.out
+	go tool pprof -alloc_space -png mem.out
+	go tool pprof -png cpu.out
+
 generate:
 	(cd jsonschema/funcs && make generate)
 
