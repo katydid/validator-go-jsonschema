@@ -16,6 +16,7 @@ package funcs
 
 import (
 	"math/big"
+	"strings"
 
 	"github.com/katydid/parser-go/cast"
 	"github.com/katydid/parser-go/parse"
@@ -23,32 +24,36 @@ import (
 	"github.com/katydid/validator-go/validator/funcs"
 )
 
-type minimum struct {
+type maximumbig struct {
 	Token parse.Token
-	d     float64
+	s     string
 	big   *big.Float
 	hash  uint64
 }
 
-var _ funcs.Setter = &minimum{}
+var _ funcs.Setter = &maximumbig{}
 
-func (this *minimum) SetValue(v parse.Token) {
+func (this *maximumbig) SetValue(v parse.Token) {
 	this.Token = v
 }
 
-func Minimum(d funcs.ConstDouble) (funcs.Bool, error) {
-	evaluatedD, err := d.Eval()
+func MaximumBig(s funcs.ConstString) (funcs.Bool, error) {
+	evaluatedS, err := s.Eval()
 	if err != nil {
 		return nil, err
 	}
-	return &minimum{
-		d:    evaluatedD,
-		big:  big.NewFloat(evaluatedD),
-		hash: funcs.Hash("minimum", d),
+	evaluatedB, _, err := new(big.Float).Parse(evaluatedS, 10)
+	if err != nil {
+		return nil, err
+	}
+	return &maximumbig{
+		s:    evaluatedS,
+		big:  evaluatedB,
+		hash: funcs.Hash("maximumbig", s),
 	}, nil
 }
 
-func (this *minimum) Eval() (bool, error) {
+func (this *maximumbig) Eval() (bool, error) {
 	if this.Token == nil {
 		return false, errTokenNotSet
 	}
@@ -56,57 +61,50 @@ func (this *minimum) Eval() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	var n float64
+	var n *big.Float
 	switch kind {
 	case parse.Int64Kind:
-		n = float64(cast.ToInt64(v))
+		n = big.NewFloat(float64(cast.ToInt64(v)))
 	case parse.Float64Kind:
-		n = cast.ToFloat64(v)
+		n = big.NewFloat(cast.ToFloat64(v))
 	case parse.DecimalKind:
 		s := cast.ToString(v)
-		n, _, err := new(big.Float).Parse(s, 10)
+		n, _, err = new(big.Float).Parse(s, 10)
 		if err != nil {
 			return false, nil
 		}
-		return n.Cmp(this.big) >= 0, nil
 	default:
 		// not a number is ignored
 		return true, nil
 	}
-	return n >= this.d, nil
+	return n.Cmp(this.big) <= 0, nil
 }
 
-func (this *minimum) ToExpr() *ast.Expr {
-	return ast.NewFunction("minimum", ast.NewDoubleConst(this.d))
+func (this *maximumbig) ToExpr() *ast.Expr {
+	return ast.NewFunction("maximumbig", ast.NewStringConst(this.s))
 }
 
-func (this *minimum) HasVariable() bool {
+func (this *maximumbig) HasVariable() bool {
 	return true
 }
 
-func (this *minimum) Hash() uint64 {
+func (this *maximumbig) Hash() uint64 {
 	return this.hash
 }
 
-func (this *minimum) Compare(that funcs.Comparable) int {
+func (this *maximumbig) Compare(that funcs.Comparable) int {
 	if this.Hash() != that.Hash() {
 		if this.Hash() < that.Hash() {
 			return -1
 		}
 		return 1
 	}
-	if other, ok := that.(*minimum); ok {
-		if this.d != other.d {
-			if this.d < other.d {
-				return -1
-			}
-			return 1
-		}
-		return 0
+	if other, ok := that.(*maximumbig); ok {
+		return strings.Compare(this.s, other.s)
 	}
 	return this.ToExpr().Compare(that.ToExpr())
 }
 
 func init() {
-	funcs.Register("minimum", Minimum)
+	funcs.Register("maximumbig", MaximumBig)
 }

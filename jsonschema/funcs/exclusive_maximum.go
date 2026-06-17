@@ -15,6 +15,8 @@
 package funcs
 
 import (
+	"math/big"
+
 	"github.com/katydid/parser-go/cast"
 	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go/validator/ast"
@@ -24,6 +26,7 @@ import (
 type exclusiveMaximum struct {
 	Token parse.Token
 	d     float64
+	big   *big.Float
 	hash  uint64
 }
 
@@ -40,6 +43,7 @@ func ExclusiveMaximum(d funcs.ConstDouble) (funcs.Bool, error) {
 	}
 	return &exclusiveMaximum{
 		d:    evaluatedD,
+		big:  big.NewFloat(evaluatedD),
 		hash: funcs.Hash("exclusiveMaximum", d),
 	}, nil
 }
@@ -59,8 +63,12 @@ func (this *exclusiveMaximum) Eval() (bool, error) {
 	case parse.Float64Kind:
 		n = cast.ToFloat64(v)
 	case parse.DecimalKind:
-		// TODO: add support
-		return false, nil
+		s := cast.ToString(v)
+		n, _, err := new(big.Float).Parse(s, 10)
+		if err != nil {
+			return false, nil
+		}
+		return n.Cmp(this.big) < 0, nil
 	default:
 		// not a number is ignored
 		return true, nil

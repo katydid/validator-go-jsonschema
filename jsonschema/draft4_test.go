@@ -56,6 +56,7 @@ var supportedDraft4 = &Supported{
 		"optional/zeroTerminatedFloats.json": true,
 
 		// optional/format
+		"optional/bignum.json":           true,
 		"optional/format/date-time.json": true,
 		"optional/format/email.json":     true,
 		"optional/format/hostname.json":  true,
@@ -70,7 +71,6 @@ var supportedDraft4 = &Supported{
 		"definitions.json": true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
 		// optional
 		"optional/id.json":             true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
-		"optional/bignum.json":         true, // Need better decimal support in at least maximum, integer, number, minimum
 		"optional/float-overflow.json": true, // Need better checking for float overflow to convert to decimal in the json parser and we need to support decimal in multipleOf
 	},
 	passingTests:  map[string]bool{},

@@ -30,16 +30,32 @@ func minimumExpr(d float64) *ast.Expr {
 	return ast.NewFunction("minimum", combinator.DoubleConst(d))
 }
 
+func minimumBigExpr(s string) *ast.Expr {
+	return ast.NewFunction("minimumbig", combinator.StringConst(s))
+}
+
 func exclusiveMinimumExpr(d float64) *ast.Expr {
 	return ast.NewFunction("exclusiveMinimum", combinator.DoubleConst(d))
+}
+
+func exclusiveMinimumBigExpr(s string) *ast.Expr {
+	return ast.NewFunction("exclusiveMinimumBig", combinator.StringConst(s))
 }
 
 func maximumExpr(d float64) *ast.Expr {
 	return ast.NewFunction("maximum", combinator.DoubleConst(d))
 }
 
+func maximumBigExpr(s string) *ast.Expr {
+	return ast.NewFunction("maximumbig", combinator.StringConst(s))
+}
+
 func exclusiveMaximumExpr(d float64) *ast.Expr {
 	return ast.NewFunction("exclusiveMaximum", combinator.DoubleConst(d))
+}
+
+func exclusiveMaximumBigExpr(s string) *ast.Expr {
+	return ast.NewFunction("exclusiveMaximumBig", combinator.StringConst(s))
 }
 
 func emailExpr() *ast.Expr {

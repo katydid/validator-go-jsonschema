@@ -15,6 +15,9 @@
 package funcs
 
 import (
+	"math/big"
+
+	"github.com/katydid/parser-go/cast"
 	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
@@ -22,6 +25,7 @@ import (
 
 type integer struct {
 	Token parse.Token
+	big   big.Int
 	hash  uint64
 }
 
@@ -41,11 +45,19 @@ func (this *integer) Eval() (bool, error) {
 	if this.Token == nil {
 		return false, errTokenNotSet
 	}
-	kind, _, err := this.Token.Token()
+	kind, v, err := this.Token.Token()
 	if err != nil {
 		return false, err
 	}
-	return kind == parse.Int64Kind, nil
+	if kind == parse.Int64Kind {
+		return true, nil
+	}
+	if kind != parse.DecimalKind {
+		return false, nil
+	}
+	s := cast.ToString(v)
+	_, ok := this.big.SetString(s, 10)
+	return ok, nil
 }
 
 func (this *integer) ToExpr() *ast.Expr {

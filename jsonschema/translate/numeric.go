@@ -26,22 +26,50 @@ func translateNumeric(schema schema.Numeric) (*ast.Pattern, error) {
 		list = append(list, multipleOfExpr(*schema.MultipleOf))
 	}
 
-	if m := schema.ExclusiveMaximum.GetFloat(); m != nil {
-		list = append(list, exclusiveMaximumExpr(*m))
+	if m := schema.ExclusiveMaximum.GetNumber(); m != nil {
+		if f := m.GetFloat(); f != nil {
+			list = append(list, exclusiveMaximumExpr(*f))
+		} else if f := m.GetBigFloat(); f != nil {
+			list = append(list, exclusiveMaximumBigExpr(*f))
+		}
 	} else if schema.Maximum != nil {
 		if schema.ExclusiveMaximum.IsExclusive() {
-			list = append(list, exclusiveMaximumExpr(*schema.Maximum))
+			m := schema.Maximum
+			if f := m.GetFloat(); f != nil {
+				list = append(list, exclusiveMaximumExpr(*f))
+			} else if f := m.GetBigFloat(); f != nil {
+				list = append(list, exclusiveMaximumBigExpr(*f))
+			}
 		} else {
-			list = append(list, maximumExpr(*schema.Maximum))
+			m := schema.Maximum
+			if f := m.GetFloat(); f != nil {
+				list = append(list, maximumExpr(*f))
+			} else if f := m.GetBigFloat(); f != nil {
+				list = append(list, maximumBigExpr(*f))
+			}
 		}
 	}
-	if m := schema.ExclusiveMinimum.GetFloat(); m != nil {
-		list = append(list, exclusiveMinimumExpr(*m))
+	if m := schema.ExclusiveMinimum.GetNumber(); m != nil {
+		if f := m.GetFloat(); f != nil {
+			list = append(list, exclusiveMinimumExpr(*f))
+		} else if f := m.GetBigFloat(); f != nil {
+			list = append(list, exclusiveMinimumBigExpr(*f))
+		}
 	} else if schema.Minimum != nil {
 		if schema.ExclusiveMinimum.IsExclusive() {
-			list = append(list, exclusiveMinimumExpr(*schema.Minimum))
+			m := schema.Minimum
+			if f := m.GetFloat(); f != nil {
+				list = append(list, exclusiveMinimumExpr(*f))
+			} else if f := m.GetBigFloat(); f != nil {
+				list = append(list, exclusiveMinimumBigExpr(*f))
+			}
 		} else {
-			list = append(list, minimumExpr(*schema.Minimum))
+			m := schema.Minimum
+			if f := m.GetFloat(); f != nil {
+				list = append(list, minimumExpr(*f))
+			} else if f := m.GetBigFloat(); f != nil {
+				list = append(list, minimumBigExpr(*f))
+			}
 		}
 	}
 	return combinator.Value(andExpr(list)), nil
