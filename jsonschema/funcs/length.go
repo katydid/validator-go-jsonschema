@@ -23,30 +23,30 @@ import (
 	"github.com/katydid/validator-go/validator/funcs"
 )
 
-type minLength struct {
+type length struct {
 	Token parse.Token
 	n     int64
 	hash  uint64
 }
 
-var _ funcs.Setter = &minLength{}
+var _ funcs.Setter = &length{}
 
-func (this *minLength) SetValue(v parse.Token) {
+func (this *length) SetValue(v parse.Token) {
 	this.Token = v
 }
 
-func MinLength(N funcs.ConstInt) (funcs.Bool, error) {
+func Length(N funcs.ConstInt) (funcs.Bool, error) {
 	n, err := N.Eval()
 	if err != nil {
 		return nil, err
 	}
-	return &minLength{
+	return &length{
 		n:    n,
-		hash: funcs.Hash("minLength", N),
+		hash: funcs.Hash("length", N),
 	}, nil
 }
 
-func (this *minLength) Eval() (bool, error) {
+func (this *length) Eval() (bool, error) {
 	if this.Token == nil {
 		return false, errTokenNotSet
 	}
@@ -58,61 +58,62 @@ func (this *minLength) Eval() (bool, error) {
 		// ignore non string values.
 		return true, nil
 	}
-	return runeCountGe(v, int(this.n)), nil
+	expected := int(this.n)
+	return runeCountEq(v, expected), nil
 }
 
-// returns if number of runes is greater than of equal to min.
-func runeCountGe(bs []byte, min int) bool {
-	np := len(bs)
-	var n int
-	// can only create less characters than bytes, so if already less then we are done
-	if len(bs) < min {
+// returns if number of runes is equal to want
+func runeCountEq(bs []byte, want int) bool {
+	// there is no way to create more characters from fewer bytes, so the length cannot be equal.
+	if len(bs) < want {
 		return false
 	}
+	np := len(bs)
+	var n int
 	for ; n < np; n++ {
 		if c := bs[n]; c >= utf8.RuneSelf {
 			// non-ASCII slow path
 			s := cast.ToString(bs[n:])
-			return runeCountStringGe(s, min-n)
+			return runeCountStringEq(s, want-n)
 		}
-		if n >= min {
-			return true
+		if n > want {
+			return false
 		}
 	}
-	return n >= min
+	return n == want
 }
 
-func runeCountStringGe(s string, min int) bool {
+func runeCountStringEq(s string, expected int) bool {
 	n := 0
 	for range s {
-		if n >= min {
-			return true
+		if n > expected {
+			return false
 		}
 		n++
 	}
-	return n >= min
+	return n == expected
 }
 
-func (this *minLength) ToExpr() *ast.Expr {
-	return ast.NewFunction("minLength", ast.NewIntConst(this.n))
+func (this *length) ToExpr() *ast.Expr {
+	return ast.NewFunction("length", ast.NewIntConst(this.n))
 }
 
-func (this *minLength) HasVariable() bool {
+func (this *length) HasVariable() bool {
 	return true
 }
 
-func (this *minLength) Hash() uint64 {
+func (this *length) Hash() uint64 {
 	return this.hash
 }
 
-func (this *minLength) Compare(that funcs.Comparable) int {
+func (this *length) Compare(that funcs.Comparable) int {
 	if this.Hash() != that.Hash() {
 		if this.Hash() < that.Hash() {
 			return -1
 		}
 		return 1
 	}
-	if other, ok := that.(*minLength); ok {
+	if other, ok := that.(*length); ok {
 		if this.n != other.n {
 			if this.n < other.n {
 				return -1
@@ -125,5 +126,5 @@ func (this *minLength) Compare(that funcs.Comparable) int {
 }
 
 func init() {
-	funcs.Register("minLength", MinLength)
+	funcs.Register("length", Length)
 }

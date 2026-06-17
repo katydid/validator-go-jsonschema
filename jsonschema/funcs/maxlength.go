@@ -58,9 +58,39 @@ func (this *maxLength) Eval() (bool, error) {
 		// ignore non string values.
 		return true, nil
 	}
-	s := cast.ToString(v)
-	l := utf8.RuneCountInString(s)
-	return l <= int(this.n), nil
+	return runeCountLe(v, int(this.n)), nil
+}
+
+// returns if number of runes is greater than of equal to max.
+func runeCountLe(bs []byte, max int) bool {
+	// there is no way to create more characters from fewer bytes, so the length is less than.
+	if len(bs) <= max {
+		return true
+	}
+	np := len(bs)
+	var n int
+	for ; n < np; n++ {
+		if c := bs[n]; c >= utf8.RuneSelf {
+			// non-ASCII slow path
+			s := cast.ToString(bs[n:])
+			return runeCountStringLe(s, max-n)
+		}
+		if n > max {
+			return false
+		}
+	}
+	return n <= max
+}
+
+func runeCountStringLe(s string, max int) bool {
+	n := 0
+	for range s {
+		if n > max {
+			return false
+		}
+		n++
+	}
+	return n <= max
 }
 
 func (this *maxLength) ToExpr() *ast.Expr {

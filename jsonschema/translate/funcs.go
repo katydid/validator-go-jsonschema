@@ -145,3 +145,11 @@ func maxLengthExpr(d uint64) *ast.Expr {
 func minLengthExpr(d uint64) *ast.Expr {
 	return ast.NewFunction("minLength", combinator.IntConst(int64(d)))
 }
+
+func lengthExpr(d uint64) *ast.Expr {
+	return ast.NewFunction("length", combinator.IntConst(int64(d)))
+}
+
+func minmaxLengthExpr(min uint64, max uint64) *ast.Expr {
+	return ast.NewFunction("minmaxLength", combinator.IntConst(int64(min)), combinator.IntConst(int64(max)))
+}

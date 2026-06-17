@@ -23,30 +23,36 @@ import (
 	"github.com/katydid/validator-go/validator/funcs"
 )
 
-type minLength struct {
+type minmaxLength struct {
 	Token parse.Token
-	n     int64
+	min   int
+	max   int
 	hash  uint64
 }
 
-var _ funcs.Setter = &minLength{}
+var _ funcs.Setter = &minmaxLength{}
 
-func (this *minLength) SetValue(v parse.Token) {
+func (this *minmaxLength) SetValue(v parse.Token) {
 	this.Token = v
 }
 
-func MinLength(N funcs.ConstInt) (funcs.Bool, error) {
-	n, err := N.Eval()
+func MinMaxLength(Min funcs.ConstInt, Max funcs.ConstInt) (funcs.Bool, error) {
+	min, err := Min.Eval()
 	if err != nil {
 		return nil, err
 	}
-	return &minLength{
-		n:    n,
-		hash: funcs.Hash("minLength", N),
+	max, err := Max.Eval()
+	if err != nil {
+		return nil, err
+	}
+	return &minmaxLength{
+		min:  int(min),
+		max:  int(max),
+		hash: funcs.Hash("minmaxLength", Min, Max),
 	}, nil
 }
 
-func (this *minLength) Eval() (bool, error) {
+func (this *minmaxLength) Eval() (bool, error) {
 	if this.Token == nil {
 		return false, errTokenNotSet
 	}
@@ -58,11 +64,11 @@ func (this *minLength) Eval() (bool, error) {
 		// ignore non string values.
 		return true, nil
 	}
-	return runeCountGe(v, int(this.n)), nil
+	return runeCountRange(v, this.min, this.max), nil
 }
 
-// returns if number of runes is greater than of equal to min.
-func runeCountGe(bs []byte, min int) bool {
+// returns if number of runes is in range
+func runeCountRange(bs []byte, min int, max int) bool {
 	np := len(bs)
 	var n int
 	// can only create less characters than bytes, so if already less then we are done
@@ -73,48 +79,54 @@ func runeCountGe(bs []byte, min int) bool {
 		if c := bs[n]; c >= utf8.RuneSelf {
 			// non-ASCII slow path
 			s := cast.ToString(bs[n:])
-			return runeCountStringGe(s, min-n)
+			return runeCountRangeString(s, min-n, max-n)
 		}
-		if n >= min {
-			return true
+		if n > max {
+			return false
 		}
 	}
-	return n >= min
+	return n >= min && n <= max
 }
 
-func runeCountStringGe(s string, min int) bool {
+func runeCountRangeString(s string, min int, max int) bool {
 	n := 0
 	for range s {
-		if n >= min {
-			return true
+		if n > max {
+			return false
 		}
 		n++
 	}
-	return n >= min
+	return n >= min && n <= max
 }
 
-func (this *minLength) ToExpr() *ast.Expr {
-	return ast.NewFunction("minLength", ast.NewIntConst(this.n))
+func (this *minmaxLength) ToExpr() *ast.Expr {
+	return ast.NewFunction("minmaxLength", ast.NewIntConst(int64(this.min)), ast.NewIntConst(int64(this.max)))
 }
 
-func (this *minLength) HasVariable() bool {
+func (this *minmaxLength) HasVariable() bool {
 	return true
 }
 
-func (this *minLength) Hash() uint64 {
+func (this *minmaxLength) Hash() uint64 {
 	return this.hash
 }
 
-func (this *minLength) Compare(that funcs.Comparable) int {
+func (this *minmaxLength) Compare(that funcs.Comparable) int {
 	if this.Hash() != that.Hash() {
 		if this.Hash() < that.Hash() {
 			return -1
 		}
 		return 1
 	}
-	if other, ok := that.(*minLength); ok {
-		if this.n != other.n {
-			if this.n < other.n {
+	if other, ok := that.(*minmaxLength); ok {
+		if this.min != other.min {
+			if this.min < other.min {
+				return -1
+			}
+			return 1
+		}
+		if this.max != other.max {
+			if this.max < other.max {
 				return -1
 			}
 			return 1
@@ -125,5 +137,5 @@ func (this *minLength) Compare(that funcs.Comparable) int {
 }
 
 func init() {
-	funcs.Register("minLength", MinLength)
+	funcs.Register("minmaxLength", MinMaxLength)
 }

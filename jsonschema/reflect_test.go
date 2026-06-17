@@ -22,8 +22,8 @@ import (
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 )
 
-func unmarshalToMap(data []byte) (map[string]any, error) {
-	m := make(map[string]any)
+func unmarshal(data []byte) (any, error) {
+	var m any
 	err := std.UnmarshalJSON(data, &m)
 	return m, err
 }
@@ -38,7 +38,7 @@ type reflectWithInit struct {
 }
 
 func (r *reflectWithInit) Init(data []byte) {
-	m, err := unmarshalToMap(data)
+	m, err := unmarshal(data)
 	if err != nil {
 		panic(err)
 	}

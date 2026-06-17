@@ -22,11 +22,19 @@ import (
 
 func translateString(schema schema.String, format string) (*ast.Pattern, error) {
 	list := []*ast.Expr{}
-	if schema.MaxLength != nil {
-		list = append(list, maxLengthExpr(*schema.MaxLength))
-	}
-	if schema.MinLength > 0 {
-		list = append(list, minLengthExpr(schema.MinLength))
+	if schema.MaxLength != nil && schema.MinLength > 0 {
+		if *schema.MaxLength == schema.MinLength {
+			list = append(list, lengthExpr(schema.MinLength))
+		} else {
+			list = append(list, minmaxLengthExpr(schema.MinLength, *schema.MaxLength))
+		}
+	} else {
+		if schema.MaxLength != nil {
+			list = append(list, maxLengthExpr(*schema.MaxLength))
+		}
+		if schema.MinLength > 0 {
+			list = append(list, minLengthExpr(schema.MinLength))
+		}
 	}
 	if schema.Pattern != nil {
 		list = append(list, regexExpr(*schema.Pattern))
