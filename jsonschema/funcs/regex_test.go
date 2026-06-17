@@ -16,6 +16,8 @@ package funcs
 
 import (
 	"testing"
+
+	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/regexformat"
 )
 
 type regexSuite struct {
@@ -37,18 +39,14 @@ type test struct {
 
 func TestRegexECMASuites(t *testing.T) {
 	for _, suite := range emcaSuites {
-		r, err := compileRegex(suite.schema.pattern)
+		matchString, err := regexformat.Compile(suite.schema.pattern)
 		if err != nil {
 			t.Errorf("error compiling regex for: %s: %s: %v", suite.description, suite.schema.pattern, err)
 		} else {
 			for _, test := range suite.tests {
-				got, err := r.MatchString(test.data)
-				if err != nil {
-					t.Errorf("error matching string for %s: %s: %s: %s", suite.description, suite.schema.pattern, test.description, test.data)
-				} else {
-					if got != test.valid {
-						t.Errorf("%s: %s: %s: %s want %v got %v", suite.description, suite.schema.pattern, test.description, test.data, test.valid, got)
-					}
+				got := matchString(test.data)
+				if got != test.valid {
+					t.Errorf("%s: %s: %s: %s want %v got %v", suite.description, suite.schema.pattern, test.description, test.data, test.valid, got)
 				}
 			}
 		}
@@ -347,35 +345,34 @@ var emcaSuites []regexSuite = []regexSuite{
 			},
 		},
 	},
-	// TODO: Uncomment when https://github.com/dlclark/regexp2/issues/101 is fixed.
-	// {
-	// 	description: "patterns always use unicode semantics with pattern",
-	// 	schema: regexSchema{
-	// 		pattern: "\\p{Letter}cole",
-	// 	},
-	// 	tests: []test{
-	// 		{
-	// 			description: "ascii character in json string",
-	// 			data:        "Les hivers de mon enfance etaient des saisons longues, longues. Nous vivions en trois lieux: l'ecole, l'eglise et la patinoire; mais la vraie vie etait sur la patinoire.",
-	// 			valid:       true,
-	// 		},
-	// 		{
-	// 			description: "literal unicode character in json string",
-	// 			data:        "Les hivers de mon enfance étaient des saisons longues, longues. Nous vivions en trois lieux: l'école, l'église et la patinoire; mais la vraie vie était sur la patinoire.",
-	// 			valid:       true,
-	// 		},
-	// 		{
-	// 			description: "unicode character in hex format in string",
-	// 			data:        "Les hivers de mon enfance étaient des saisons longues, longues. Nous vivions en trois lieux: l'\u00e9cole, l'église et la patinoire; mais la vraie vie était sur la patinoire.",
-	// 			valid:       true,
-	// 		},
-	// 		{
-	// 			description: "unicode matching is case-sensitive",
-	// 			data:        "LES HIVERS DE MON ENFANCE ÉTAIENT DES SAISONS LONGUES, LONGUES. NOUS VIVIONS EN TROIS LIEUX: L'ÉCOLE, L'ÉGLISE ET LA PATINOIRE; MAIS LA VRAIE VIE ÉTAIT SUR LA PATINOIRE.",
-	// 			valid:       false,
-	// 		},
-	// 	},
-	// },
+	{
+		description: "patterns always use unicode semantics with pattern",
+		schema: regexSchema{
+			pattern: "\\p{Letter}cole",
+		},
+		tests: []test{
+			{
+				description: "ascii character in json string",
+				data:        "Les hivers de mon enfance etaient des saisons longues, longues. Nous vivions en trois lieux: l'ecole, l'eglise et la patinoire; mais la vraie vie etait sur la patinoire.",
+				valid:       true,
+			},
+			{
+				description: "literal unicode character in json string",
+				data:        "Les hivers de mon enfance étaient des saisons longues, longues. Nous vivions en trois lieux: l'école, l'église et la patinoire; mais la vraie vie était sur la patinoire.",
+				valid:       true,
+			},
+			{
+				description: "unicode character in hex format in string",
+				data:        "Les hivers de mon enfance étaient des saisons longues, longues. Nous vivions en trois lieux: l'\u00e9cole, l'église et la patinoire; mais la vraie vie était sur la patinoire.",
+				valid:       true,
+			},
+			{
+				description: "unicode matching is case-sensitive",
+				data:        "LES HIVERS DE MON ENFANCE ÉTAIENT DES SAISONS LONGUES, LONGUES. NOUS VIVIONS EN TROIS LIEUX: L'ÉCOLE, L'ÉGLISE ET LA PATINOIRE; MAIS LA VRAIE VIE ÉTAIT SUR LA PATINOIRE.",
+				valid:       false,
+			},
+		},
+	},
 	{
 		description: "\\w in patterns matches [A-Za-z0-9_], not unicode letters",
 		schema: regexSchema{
@@ -450,36 +447,35 @@ var emcaSuites []regexSuite = []regexSuite{
 			},
 		},
 	},
-	// TODO: Uncomment when https://github.com/dlclark/regexp2/issues/101 is fixed.
-	// {
-	// 	description: "pattern with non-ASCII digits",
-	// 	schema: regexSchema{
-	// 		pattern: "^\\p{digit}+$",
-	// 	},
-	// 	tests: []test{
-	// 		{
-	// 			description: "ascii digits",
-	// 			data:        "42",
-	// 			valid:       true,
-	// 		},
-	// 		{
-	// 			description: "ascii non-digits",
-	// 			data:        "-%#",
-	// 			valid:       false,
-	// 		},
-	// 		{
-	// 			description: "non-ascii digits (BENGALI DIGIT FOUR, BENGALI DIGIT TWO)",
-	// 			data:        "৪২",
-	// 			valid:       true,
-	// 		},
-	// 	},
-	// },
+	{
+		description: "pattern with non-ASCII digits",
+		schema: regexSchema{
+			pattern: "^\\p{digit}+$",
+		},
+		tests: []test{
+			{
+				description: "ascii digits",
+				data:        "42",
+				valid:       true,
+			},
+			{
+				description: "ascii non-digits",
+				data:        "-%#",
+				valid:       false,
+			},
+			{
+				description: "non-ascii digits (BENGALI DIGIT FOUR, BENGALI DIGIT TWO)",
+				data:        "৪২",
+				valid:       true,
+			},
+		},
+	},
 }
 
 // draft4/optional/emcascript-regex.json
 // ECMA 262 regex $ does not match trailing newline
 func TestRegexECMATrailingNewline(t *testing.T) {
-	r, err := compileRegex("^abc$")
+	matchString, err := regexformat.Compile("^abc$")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -490,19 +486,13 @@ func TestRegexECMATrailingNewline(t *testing.T) {
 		"matches in Python, but not in ECMA 262": "abc\\n",
 	}
 	for desc, input := range valid {
-		m, err := r.MatchString(input)
-		if err != nil {
-			t.Fatal(err)
-		}
+		m := matchString(input)
 		if !m {
 			t.Fatalf("expected match for %s", desc)
 		}
 	}
 	for desc, input := range invalid {
-		m, err := r.MatchString(input)
-		if err != nil {
-			t.Fatal(err)
-		}
+		m := matchString(input)
 		if m {
 			t.Fatalf("expected no match for %s", desc)
 		}
@@ -513,7 +503,7 @@ func TestRegexECMATrailingNewline(t *testing.T) {
 // Proper UTF-16 surrogate pair handling: pattern
 // Optional because .Net doesn't correctly handle 32-bit Unicode characters
 func TestRegexUTF16(t *testing.T) {
-	r, err := compileRegex("^🐲*$")
+	matchString, err := regexformat.Compile("^🐲*$")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -529,16 +519,13 @@ func TestRegexUTF16(t *testing.T) {
 		"doesn't match two ASCII": "DD",
 	}
 	for desc, input := range valid {
-		m, err := r.MatchString(input)
-		if err != nil {
-			t.Fatal(err)
-		}
+		m := matchString(input)
 		if !m {
 			t.Fatalf("expected match for %s", desc)
 		}
 	}
 	for desc, input := range invalid {
-		m, err := r.MatchString(input)
+		m := matchString(input)
 		if err != nil {
 			t.Fatal(err)
 		}

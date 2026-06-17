@@ -18,15 +18,10 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/dlclark/regexp2/v2"
-
+	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/regexformat"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
 )
-
-func compileRegex(s string) (*regexp2.Regexp, error) {
-	return regexp2.Compile(s, regexp2.ECMAScript|regexp2.Unicode)
-}
 
 var errRegexVar = errors.New("regex requires a constant expression as its first parameter, but it has a variable parameter")
 
@@ -44,13 +39,13 @@ func Regex(pattern funcs.ConstString, input funcs.String) (funcs.Bool, error) {
 	if err != nil {
 		return nil, err
 	}
-	r, err := compileRegex(p)
+	matchString, err := regexformat.Compile(p)
 	if err != nil {
 		return nil, err
 	}
 	return funcs.TrimBool(&regex{
 		pattern:     p,
-		r:           r,
+		matchString: matchString,
 		S:           input,
 		hash:        funcs.Hash("regex", pattern, input),
 		hasVariable: input.HasVariable(),
@@ -59,7 +54,7 @@ func Regex(pattern funcs.ConstString, input funcs.String) (funcs.Bool, error) {
 
 type regex struct {
 	pattern     string
-	r           *regexp2.Regexp
+	matchString func(string) bool
 	S           funcs.String
 	hash        uint64
 	hasVariable bool
@@ -81,7 +76,7 @@ func (this *regex) Eval() (bool, error) {
 		// But json schema says regex has to ignore non string types
 		return true, nil
 	}
-	return this.r.MatchString(s)
+	return this.matchString(s), nil
 }
 
 func (this *regex) Compare(that funcs.Comparable) int {
