@@ -132,52 +132,51 @@ var uriTests []test = []test{
 		data:        "https://[@example.org/test.txt",
 		valid:       false,
 	},
-	// TODO fix
-	// {
-	// 	description: "unescaped non US-ASCII characters",
-	// 	data:        "https://example.org/foobar®.txt",
-	// 	valid:       false,
-	// },
-	// {
-	// 	description: "invalid backslash character",
-	// 	data:        "https://example.org/foobar\\.txt",
-	// 	valid:       false,
-	// },
-	// {
-	// 	description: "invalid \" character",
-	// 	data:        "https://example.org/foobar\".txt",
-	// 	valid:       false,
-	// },
-	// {
-	// 	description: "invalid <> characters",
-	// 	data:        "https://example.org/foobar<>.txt",
-	// 	valid:       false,
-	// },
-	// {
-	// 	description: "invalid {} characters",
-	// 	data:        "https://example.org/foobar{}.txt",
-	// 	valid:       false,
-	// },
-	// {
-	// 	description: "invalid ^ character",
-	// 	data:        "https://example.org/foobar^.txt",
-	// 	valid:       false,
-	// },
-	// {
-	// 	description: "invalid ` character",
-	// 	data:        "https://example.org/foobar`.txt",
-	// 	valid:       false,
-	// },
-	// {
-	// 	description: "invalid SPACE character",
-	// 	data:        "https://example.org/foo bar.txt",
-	// 	valid:       false,
-	// },
-	// {
-	// 	description: "invalid | character",
-	// 	data:        "https://example.org/foobar|.txt",
-	// 	valid:       false,
-	// },
+	{
+		description: "unescaped non US-ASCII characters",
+		data:        "https://example.org/foobar®.txt",
+		valid:       false,
+	},
+	{
+		description: "invalid backslash character",
+		data:        "https://example.org/foobar\\.txt",
+		valid:       false,
+	},
+	{
+		description: "invalid \" character",
+		data:        "https://example.org/foobar\".txt",
+		valid:       false,
+	},
+	{
+		description: "invalid <> characters",
+		data:        "https://example.org/foobar<>.txt",
+		valid:       false,
+	},
+	{
+		description: "invalid {} characters",
+		data:        "https://example.org/foobar{}.txt",
+		valid:       false,
+	},
+	{
+		description: "invalid ^ character",
+		data:        "https://example.org/foobar^.txt",
+		valid:       false,
+	},
+	{
+		description: "invalid ` character",
+		data:        "https://example.org/foobar`.txt",
+		valid:       false,
+	},
+	{
+		description: "invalid SPACE character",
+		data:        "https://example.org/foo bar.txt",
+		valid:       false,
+	},
+	{
+		description: "invalid | character",
+		data:        "https://example.org/foobar|.txt",
+		valid:       false,
+	},
 	{
 		description: "URI with leading-zero IPv4 is structurally valid as a reg-name",
 		data:        "http://087.10.0.1/",

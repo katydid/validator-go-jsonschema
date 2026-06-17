@@ -23,33 +23,33 @@ import (
 	jsonschema "github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ianlancetaylor"
 )
 
-// URITemplate returns whether a string is a valid uri-template
-func URITemplate() (funcs.Bool, error) {
-	return funcs.TrimBool(&uriTemplate{
-		hash: funcs.Hash("uriTemplate"),
+// IRIReference returns whether a string is a valid iri-reference
+func IRIReference() (funcs.Bool, error) {
+	return funcs.TrimBool(&iriReference{
+		hash: funcs.Hash("iriReference"),
 	}), nil
 }
 
-var _ funcs.Setter = &uriTemplate{}
+var _ funcs.Setter = &iriReference{}
 
-func (this *uriTemplate) SetValue(v parse.Token) {
+func (this *iriReference) SetValue(v parse.Token) {
 	this.Token = v
 }
 
-type uriTemplate struct {
+type iriReference struct {
 	Token parse.Token
 	hash  uint64
 }
 
-func (this *uriTemplate) HasVariable() bool {
+func (this *iriReference) HasVariable() bool {
 	return true
 }
 
-func (this *uriTemplate) ToExpr() *ast.Expr {
-	return ast.NewFunction("uriTemplate")
+func (this *iriReference) ToExpr() *ast.Expr {
+	return ast.NewFunction("iriReference")
 }
 
-func (this *uriTemplate) Eval() (bool, error) {
+func (this *iriReference) Eval() (bool, error) {
 	if this.Token == nil {
 		return false, errTokenNotSet
 	}
@@ -62,11 +62,11 @@ func (this *uriTemplate) Eval() (bool, error) {
 		return true, nil
 	}
 	str := cast.ToString(v)
-	err = jsonschema.ValidateURITemplate(str)
+	err = jsonschema.ValidateIRIReference(str)
 	return err == nil, nil
 }
 
-func (this *uriTemplate) Compare(that funcs.Comparable) int {
+func (this *iriReference) Compare(that funcs.Comparable) int {
 	if this.Hash() != that.Hash() {
 		if this.Hash() < that.Hash() {
 			return -1
@@ -76,10 +76,10 @@ func (this *uriTemplate) Compare(that funcs.Comparable) int {
 	return this.ToExpr().Compare(that.ToExpr())
 }
 
-func (this *uriTemplate) Hash() uint64 {
+func (this *iriReference) Hash() uint64 {
 	return this.hash
 }
 
 func init() {
-	funcs.Register("uriTemplate", URITemplate)
+	funcs.Register("iriReference", IRIReference)
 }

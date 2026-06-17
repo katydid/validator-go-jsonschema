@@ -2,8 +2,6 @@ package jsonschema
 
 import (
 	"fmt"
-	"net/netip"
-	gourl "net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -166,64 +164,9 @@ func ValidateDuration(s string) error {
 	return nil
 }
 
-// json schema validator for format: ipv6
-func ValidateIPV6(s string) error {
-	if !strings.Contains(s, ":") {
-		return fmt.Errorf("missing colon")
-	}
-	addr, err := netip.ParseAddr(s)
-	if err != nil {
-		return err
-	}
-	if addr.Zone() != "" {
-		return fmt.Errorf("zone id is not a part of ipv6 address")
-	}
-	return nil
-}
-
-// see https://en.wikipedia.org/wiki/Hostname#Restrictions_on_valid_host_names
-// json schema validator for format: hostname
-func ValidateHostname(s string) error {
-	// entire hostname (including the delimiting dots but not a trailing dot) has a maximum of 253 ASCII characters
-	s = strings.TrimSuffix(s, ".")
-	if len(s) > 253 {
-		return fmt.Errorf("more than 253 characters long")
-	}
-
-	// Hostnames are composed of series of labels concatenated with dots, as are all domain names
-	for _, label := range strings.Split(s, ".") {
-		// Each label must be from 1 to 63 characters long
-		if len(label) < 1 || len(label) > 63 {
-			return fmt.Errorf("label must be 1 to 63 characters long")
-		}
-
-		// labels must not start or end with a hyphen
-		if strings.HasPrefix(label, "-") {
-			return fmt.Errorf("label starts with hyphen")
-		}
-		if strings.HasSuffix(label, "-") {
-			return fmt.Errorf("label ends with hyphen")
-		}
-
-		// labels may contain only the ASCII letters 'a' through 'z' (in a case-insensitive manner),
-		// the digits '0' through '9', and the hyphen ('-')
-		for _, ch := range label {
-			switch {
-			case ch >= 'a' && ch <= 'z':
-			case ch >= 'A' && ch <= 'Z':
-			case ch >= '0' && ch <= '9':
-			case ch == '-':
-			default:
-				return fmt.Errorf("invalid character %q", ch)
-			}
-		}
-	}
-	return nil
-}
-
 // see see https://datatracker.ietf.org/doc/html/rfc3339#section-5.6
 // json schema validator for format: date
-func ValidateDate(s string) error {
+func validateDate(s string) error {
 	_, err := time.Parse("2006-01-02", s)
 	return err
 }
@@ -330,7 +273,7 @@ func ValidateTime(str string) error {
 
 // see https://datatracker.ietf.org/doc/html/rfc3339#section-5.6
 // json schema validator for format: date-time
-func ValidateDateTime(s string) error {
+func validateDateTime(s string) error {
 	// min: yyyy-mm-ddThh:mm:ssZ
 	if len(s) < 20 {
 		return fmt.Errorf("less than 20 characters long")
@@ -339,88 +282,11 @@ func ValidateDateTime(s string) error {
 	if s[10] != 't' && s[10] != 'T' {
 		return fmt.Errorf("11th character must be t or T")
 	}
-	if err := ValidateDate(s[:10]); err != nil {
+	if err := validateDate(s[:10]); err != nil {
 		return fmt.Errorf("invalid date element: %v", err)
 	}
 	if err := ValidateTime(s[11:]); err != nil {
 		return fmt.Errorf("invalid time element: %v", err)
-	}
-	return nil
-}
-
-func parseURL(s string) (*gourl.URL, error) {
-	u, err := gourl.Parse(s)
-	if err != nil {
-		return nil, err
-	}
-
-	// gourl does not Validate ipv6 host address
-	hostName := u.Hostname()
-	if strings.Contains(hostName, ":") {
-		if !strings.Contains(u.Host, "[") || !strings.Contains(u.Host, "]") {
-			return nil, fmt.Errorf("ipv6 address not enclosed in brackets")
-		}
-		if err := ValidateIPV6(hostName); err != nil {
-			return nil, fmt.Errorf("invalid ipv6 address: %v", err)
-		}
-	}
-
-	return u, nil
-}
-
-// json schema validator for format: uri
-// json schema validator for format: iri
-func ValidateURI(s string) error {
-	u, err := parseURL(s)
-	if err != nil {
-		return err
-	}
-	if !u.IsAbs() {
-		return fmt.Errorf("relative url")
-	}
-	return nil
-}
-
-// json schema validator for format: uri-reference
-// json schema validator for format: iri-reference
-func ValidateURIReference(s string) error {
-	if strings.Contains(s, `\`) {
-		return fmt.Errorf(`contains \`)
-	}
-	_, err := parseURL(s)
-	return err
-}
-
-// json schema validator for format: uri-template
-func ValidateURITemplate(s string) error {
-	u, err := parseURL(s)
-	if err != nil {
-		return err
-	}
-	for _, tok := range strings.Split(u.RawPath, "/") {
-		tok, err = gourl.PathUnescape(tok)
-		if err != nil {
-			return fmt.Errorf("percent decode failed: %v", err)
-		}
-		want := true
-		for _, ch := range tok {
-			var got bool
-			switch ch {
-			case '{':
-				got = true
-			case '}':
-				got = false
-			default:
-				continue
-			}
-			if got != want {
-				return fmt.Errorf("nested curly braces")
-			}
-			want = !want
-		}
-		if !want {
-			return fmt.Errorf("no matching closing brace")
-		}
 	}
 	return nil
 }
@@ -437,18 +303,18 @@ func ValidatePeriod(s string) error {
 		if err := ValidateDuration(start); err != nil {
 			return fmt.Errorf("invalid start duration: %v", err)
 		}
-		if err := ValidateDateTime(end); err != nil {
+		if err := validateDateTime(end); err != nil {
 			return fmt.Errorf("invalid end date-time: %v", err)
 		}
 	} else {
-		if err := ValidateDateTime(start); err != nil {
+		if err := validateDateTime(start); err != nil {
 			return fmt.Errorf("invalid start date-time: %v", err)
 		}
 		if strings.HasPrefix(end, "P") {
 			if err := ValidateDuration(end); err != nil {
 				return fmt.Errorf("invalid end duration: %v", err)
 			}
-		} else if err := ValidateDateTime(end); err != nil {
+		} else if err := validateDateTime(end); err != nil {
 			return fmt.Errorf("invalid end date-time: %v", err)
 		}
 	}

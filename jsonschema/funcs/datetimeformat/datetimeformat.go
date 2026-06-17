@@ -226,7 +226,6 @@ func IsValid(bs []byte) bool {
 	return true
 }
 
-// TODO look up in a table
 func isLeapSecond(year, mon, day, hour, min int) bool {
 	if hour != 23 {
 		return false

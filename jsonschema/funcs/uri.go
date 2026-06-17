@@ -20,7 +20,7 @@ import (
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/funcs"
 
-	jsonschema "github.com/katydid/validator-go-jsonschema/jsonschema/funcs/santhosh-tekuri"
+	jsonschema "github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ianlancetaylor"
 )
 
 // URI returns whether a string is a valid uri

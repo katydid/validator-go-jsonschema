@@ -73,19 +73,8 @@ var supportedDraft4 = &Supported{
 		"optional/bignum.json":         true, // Need better decimal support in at least maximum, integer, number, minimum
 		"optional/float-overflow.json": true, // Need better checking for float overflow to convert to decimal in the json parser and we need to support decimal in multipleOf
 	},
-	passingTests: map[string]bool{},
-	skippingTests: map[string]bool{
-		// optional/format
-		"optional/format/uri.json:validation of URIs:unescaped non US-ASCII characters": true, // need a better URI library
-		"optional/format/uri.json:validation of URIs:invalid backslash character":       true, // need a better URI library
-		"optional/format/uri.json:validation of URIs:invalid \" character":              true, // need a better URI library
-		"optional/format/uri.json:validation of URIs:invalid <> characters":             true, // need a better URI library
-		"optional/format/uri.json:validation of URIs:invalid {} characters":             true, // need a better URI library
-		"optional/format/uri.json:validation of URIs:invalid ^ character":               true, // need a better URI library
-		"optional/format/uri.json:validation of URIs:invalid ` character":               true, // need a better URI library
-		"optional/format/uri.json:validation of URIs:invalid SPACE character":           true, // need a better URI library
-		"optional/format/uri.json:validation of URIs:invalid | character":               true, // need a better URI library
-	},
+	passingTests:  map[string]bool{},
+	skippingTests: map[string]bool{},
 }
 
 func TestSuiteDraft4(t *testing.T) {

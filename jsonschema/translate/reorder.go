@@ -15,7 +15,9 @@
 package translate
 
 import (
+	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
+	"github.com/katydid/validator-go/validator/combinator"
 )
 
 func newAnd(ps ...*ast.Pattern) *ast.Pattern {
@@ -24,4 +26,8 @@ func newAnd(ps ...*ast.Pattern) *ast.Pattern {
 
 func newOr(ps ...*ast.Pattern) *ast.Pattern {
 	return ast.NewOr(ps...)
+}
+
+func andExpr(list []*ast.Expr) *ast.Expr {
+	return std.MustFoldA(list, combinator.And)
 }

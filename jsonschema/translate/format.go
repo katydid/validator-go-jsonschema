@@ -40,10 +40,14 @@ func translateFormat(format string) (*ast.Expr, error) {
 		return ipv6Expr(), nil
 	case "time":
 		return timeExpr(), nil
-	case "uri", "iri":
+	case "uri":
 		return uriExpr(), nil
-	case "uri-reference", "iri-reference":
+	case "iri":
+		return iriExpr(), nil
+	case "uri-reference":
 		return uriReferenceExpr(), nil
+	case "iri-reference":
+		return iriReferenceExpr(), nil
 	case "uri-template":
 		return uriTemplateExpr(), nil
 	case "period":

@@ -90,8 +90,16 @@ func uriExpr() *ast.Expr {
 	return ast.NewFunction("uri")
 }
 
+func iriExpr() *ast.Expr {
+	return ast.NewFunction("iri")
+}
+
 func uriReferenceExpr() *ast.Expr {
 	return ast.NewFunction("uriReference")
+}
+
+func iriReferenceExpr() *ast.Expr {
+	return ast.NewFunction("iriReference")
 }
 
 func uriTemplateExpr() *ast.Expr {

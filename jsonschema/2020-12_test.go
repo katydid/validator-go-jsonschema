@@ -106,11 +106,11 @@ var supported202012 = &Supported{
 		"uniqueItems.json":                         true, // not supported
 		"optional/bignum.json":                     true, // Need better decimal support in at least maximum, integer, number, minimum
 		"optional/float-overflow.json":             true, // Need better checking for float overflow to convert to decimal in the json parser and we need to support decimal in multipleOf
-		"optional/dependencies-compatibility.json": true, // TODO: just skipping because this is throwing a null pointer exception at the time, we need to fix this.
+		"optional/dependencies-compatibility.json": true, // just skipping because this is throwing a null pointer exception at the time, we need to fix this.
 	},
 	passingTests: map[string]bool{},
 	skippingTests: map[string]bool{
-		// TODO: not sure about this, but  skipping for now
+		// not sure about this, but skipping for now
 		"format.json:ipv4 format:invalid ipv4 string is only an annotation by default":                                   true,
 		"format.json:email format:invalid email string is only an annotation by default":                                 true,
 		"format.json:ipv6 format:invalid ipv6 string is only an annotation by default":                                   true,

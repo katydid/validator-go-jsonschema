@@ -23,33 +23,38 @@ import (
 	jsonschema "github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ianlancetaylor"
 )
 
-// URITemplate returns whether a string is a valid uri-template
-func URITemplate() (funcs.Bool, error) {
-	return funcs.TrimBool(&uriTemplate{
-		hash: funcs.Hash("uriTemplate"),
+// IRI returns whether a string is a valid iri
+func IRI() (funcs.Bool, error) {
+	return funcs.TrimBool(&iri{
+		hash: funcs.Hash("iri"),
 	}), nil
 }
 
-var _ funcs.Setter = &uriTemplate{}
+var _ funcs.Setter = &iri{}
 
-func (this *uriTemplate) SetValue(v parse.Token) {
+func (this *iri) SetValue(v parse.Token) {
 	this.Token = v
 }
 
-type uriTemplate struct {
+type iri struct {
 	Token parse.Token
 	hash  uint64
 }
 
-func (this *uriTemplate) HasVariable() bool {
+func (this *iri) HasVariable() bool {
 	return true
 }
 
-func (this *uriTemplate) ToExpr() *ast.Expr {
-	return ast.NewFunction("uriTemplate")
+func (this *iri) ToExpr() *ast.Expr {
+	return ast.NewFunction("iri")
 }
 
-func (this *uriTemplate) Eval() (bool, error) {
+func isIRI(str string) bool {
+	err := jsonschema.ValidateIRI(str)
+	return err == nil
+}
+
+func (this *iri) Eval() (bool, error) {
 	if this.Token == nil {
 		return false, errTokenNotSet
 	}
@@ -62,11 +67,11 @@ func (this *uriTemplate) Eval() (bool, error) {
 		return true, nil
 	}
 	str := cast.ToString(v)
-	err = jsonschema.ValidateURITemplate(str)
-	return err == nil, nil
+	valid := isIRI(str)
+	return valid, nil
 }
 
-func (this *uriTemplate) Compare(that funcs.Comparable) int {
+func (this *iri) Compare(that funcs.Comparable) int {
 	if this.Hash() != that.Hash() {
 		if this.Hash() < that.Hash() {
 			return -1
@@ -76,10 +81,10 @@ func (this *uriTemplate) Compare(that funcs.Comparable) int {
 	return this.ToExpr().Compare(that.ToExpr())
 }
 
-func (this *uriTemplate) Hash() uint64 {
+func (this *iri) Hash() uint64 {
 	return this.hash
 }
 
 func init() {
-	funcs.Register("uriTemplate", URITemplate)
+	funcs.Register("iri", IRI)
 }

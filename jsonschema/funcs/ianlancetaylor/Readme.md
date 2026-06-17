@@ -1,0 +1,1 @@
+Copied from the format folder of https://github.com/ianlancetaylor/jsonschema

@@ -12,14 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package translate
+package format
 
-import (
-	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
-	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/combinator"
-)
+// json schema validator for format: uri
+func ValidateURI(s string) error {
+	return uriFormat(s)
+}
 
-func andExpr(list []*ast.Expr) *ast.Expr {
-	return std.MustFoldA(list, combinator.And)
+// json schema validator for format: iri
+func ValidateIRI(s string) error {
+	return iriFormat(s)
+}
+
+// json schema validator for format: uri-reference
+func ValidateURIReference(s string) error {
+	return uriReferenceFormat(s)
+}
+
+// json schema validator for format: iri-reference
+func ValidateIRIReference(s string) error {
+	return iriReferenceFormat(s)
+}
+
+// json schema validator for format: uri-template
+func ValidateURITemplate(s string) error {
+	return uriTemplateFormat(s)
 }
