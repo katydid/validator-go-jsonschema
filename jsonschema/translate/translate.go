@@ -53,7 +53,7 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 			return nil, err
 		}
 		if !hasType(s.Type, schema.TypeString) {
-			p = ast.NewOr(p, notStringType())
+			p = newOr(p, notStringType())
 		}
 		ps = append(ps, p)
 	}
@@ -64,7 +64,7 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 		}
 		p = NewArrayNode(p)
 		if !hasType(s.Type, schema.TypeArray) {
-			p = ast.NewOr(p, notArrayType())
+			p = newOr(p, notArrayType())
 		}
 		ps = append(ps, p)
 	}
@@ -75,7 +75,7 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 		}
 		p = NewObjectNode(p)
 		if !hasType(s.Type, schema.TypeObject) {
-			p = ast.NewOr(p, notObjectType())
+			p = newOr(p, notObjectType())
 		}
 		ps = append(ps, p)
 	}
@@ -115,5 +115,5 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 	if len(ps) == 0 {
 		return ast.NewZAny(), nil
 	}
-	return ast.NewAnd(ps...), nil
+	return newAnd(ps...), nil
 }

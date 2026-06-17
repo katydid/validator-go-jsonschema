@@ -15,29 +15,13 @@
 package translate
 
 import (
-	"fmt"
-
-	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
-	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func translateOneOf(schemas []*schema.Schema) (*ast.Pattern, error) {
-	ps, err := std.MapErr(schemas, translate)
-	if err != nil {
-		return nil, err
-	}
-	if len(ps) == 0 {
-		return nil, fmt.Errorf("oneof of zero schemas not supported")
-	}
-	if len(ps) == 1 {
-		return ps[0], nil
-	}
-	combo := make([]*ast.Pattern, len(ps))
-	for i := range ps {
-		this := ps[i]
-		other := newOr(std.Rest(ps, i)...)
-		combo[i] = newAnd(this, ast.NewNot(other))
-	}
-	return newOr(combo...), nil
+func newAnd(ps ...*ast.Pattern) *ast.Pattern {
+	return ast.NewAnd(ps...)
+}
+
+func newOr(ps ...*ast.Pattern) *ast.Pattern {
+	return ast.NewOr(ps...)
 }

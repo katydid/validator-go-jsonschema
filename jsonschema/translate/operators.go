@@ -34,14 +34,14 @@ func translateOperators(schema *schema.Schema) (*ast.Pattern, error) {
 		if err != nil {
 			return nil, err
 		}
-		res = append(res, ast.NewAnd(ps...))
+		res = append(res, newAnd(ps...))
 	}
 	if len(schema.AnyOf) > 0 {
 		ps, err := std.MapErr(schema.AnyOf, translate)
 		if err != nil {
 			return nil, err
 		}
-		res = append(res, ast.NewOr(ps...))
+		res = append(res, newOr(ps...))
 	}
 	if len(schema.OneOf) > 0 {
 		p, err := translateOneOf(schema.OneOf)
@@ -57,5 +57,5 @@ func translateOperators(schema *schema.Schema) (*ast.Pattern, error) {
 		}
 		res = append(res, ast.NewNot(p))
 	}
-	return ast.NewAnd(res...), nil
+	return newAnd(res...), nil
 }

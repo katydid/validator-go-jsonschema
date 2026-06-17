@@ -80,7 +80,7 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 		constraints = append(constraints, ast.NewInterleave(p, additional))
 	}
 
-	return ast.NewAnd(constraints...), nil
+	return newAnd(constraints...), nil
 }
 
 type property struct {
@@ -190,11 +190,11 @@ func translateProps(props []*property) (*ast.Pattern, error) {
 			children = append(children, prop.child.Clone())
 		}
 
-		r := ast.NewTreeNode(name, ast.NewAnd(children...))
+		r := ast.NewTreeNode(name, newAnd(children...))
 		res = append(res, r)
 	}
 
-	return ast.NewZeroOrMore(ast.NewOr(res...)), nil
+	return ast.NewZeroOrMore(newOr(res...)), nil
 }
 
 func findOverlapping(props []*property) ([]*property, []*property, error) {
@@ -236,7 +236,7 @@ func translateRequired(required []string) (*ast.Pattern, error) {
 	if len(res) == 0 {
 		return ast.NewZAny(), nil
 	}
-	return ast.NewAnd(res...), nil
+	return newAnd(res...), nil
 }
 
 func maxProperties(n int) *ast.Pattern {
@@ -312,7 +312,7 @@ func translateDependencies(deps *schema.Dependencies) (*ast.Pattern, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ast.NewAnd(p1, p2), nil
+	return newAnd(p1, p2), nil
 }
 
 func translateDependentRequired(deps map[string][]string) (*ast.Pattern, error) {
@@ -323,13 +323,13 @@ func translateDependentRequired(deps map[string][]string) (*ast.Pattern, error) 
 			ifName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(name), ast.NewZAny()))
 			thenName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(reqName), ast.NewZAny()))
 			elseName := ast.NewZeroOrMore(ast.NewTreeNode(ast.NewAnyNameExcept(ast.NewStringName(name)), ast.NewZAny()))
-			res = append(res, ast.NewOr(ast.NewAnd(ifName, thenName), elseName))
+			res = append(res, newOr(newAnd(ifName, thenName), elseName))
 		}
 	}
 	if len(res) == 0 {
 		return ast.NewZAny(), nil
 	}
-	return ast.NewAnd(res...), nil
+	return newAnd(res...), nil
 }
 
 // TODO: There is a problem there that the object and array tags are added, but then they nest object and arrays too deeply.
@@ -343,10 +343,10 @@ func translateDependentSchemas(deps map[string]*schema.Schema) (*ast.Pattern, er
 		}
 		ifName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(name), ast.NewZAny()))
 		elseName := ast.NewZeroOrMore(ast.NewTreeNode(ast.NewAnyNameExcept(ast.NewStringName(name)), ast.NewZAny()))
-		res = append(res, ast.NewOr(ast.NewAnd(ifName, thenPattern), elseName))
+		res = append(res, newOr(newAnd(ifName, thenPattern), elseName))
 	}
 	if len(res) == 0 {
 		return ast.NewZAny(), nil
 	}
-	return ast.NewAnd(res...), nil
+	return newAnd(res...), nil
 }

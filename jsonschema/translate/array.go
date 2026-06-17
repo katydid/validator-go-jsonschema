@@ -65,13 +65,13 @@ func translateArray(s *schema.Schema) (*ast.Pattern, error) {
 			}
 			patterns = std.Map(patterns, anyIndex)
 			patterns = concatCombos(patterns, additionalItems)
-			constraints = append(constraints, ast.NewOr(patterns...))
+			constraints = append(constraints, newOr(patterns...))
 		}
 	}
 	if len(constraints) == 0 {
 		return ast.NewZAny(), nil
 	}
-	return ast.NewAnd(constraints...), nil
+	return newAnd(constraints...), nil
 }
 
 func concatCombos(ps []*ast.Pattern, additionalItems *ast.Pattern) []*ast.Pattern {

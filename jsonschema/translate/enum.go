@@ -80,5 +80,5 @@ func translateEnum(enum []any) (*ast.Pattern, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ast.NewOr(exacts...), nil
+	return newOr(exacts...), nil
 }

@@ -28,7 +28,7 @@ func translateTypes(typs []schema.SimpleType) (*ast.Pattern, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ast.NewOr(ps...), nil
+	return newOr(ps...), nil
 }
 
 func translateType(typ schema.SimpleType) (*ast.Pattern, error) {
@@ -76,11 +76,11 @@ func anyFieldType() *ast.Pattern {
 }
 
 func notObjectType() *ast.Pattern {
-	return ast.NewOr(arrayType(), anyFieldType())
+	return newOr(arrayType(), anyFieldType())
 }
 
 func notArrayType() *ast.Pattern {
-	return ast.NewOr(objectType(), anyFieldType())
+	return newOr(objectType(), anyFieldType())
 }
 
 func stringType() *ast.Pattern {
@@ -88,5 +88,5 @@ func stringType() *ast.Pattern {
 }
 
 func notStringType() *ast.Pattern {
-	return ast.NewOr(objectType(), arrayType(), ast.NewNot(stringType()))
+	return newOr(objectType(), arrayType(), ast.NewNot(stringType()))
 }
