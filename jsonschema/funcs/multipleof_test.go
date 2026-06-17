@@ -83,6 +83,12 @@ func TestMultipleOfTooLarge(t *testing.T) {
 	}
 }
 
+func TestMultipleOfOverflow(t *testing.T) {
+	if !isMultipleOf(1e308, 0.5) {
+		t.Fatal("expected multiple of")
+	}
+}
+
 func TestMultipleOfSmallMultipleOfLarge(t *testing.T) {
 	if !isMultipleOf(12391239123, 1e-8) {
 		t.Fatal("expected multiple of")

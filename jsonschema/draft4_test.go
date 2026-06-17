@@ -57,6 +57,7 @@ var supportedDraft4 = &Supported{
 
 		// optional/format
 		"optional/bignum.json":           true,
+		"optional/float-overflow.json":   true,
 		"optional/format/date-time.json": true,
 		"optional/format/email.json":     true,
 		"optional/format/hostname.json":  true,
@@ -70,8 +71,8 @@ var supportedDraft4 = &Supported{
 		"refRemote.json":   true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
 		"definitions.json": true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
 		// optional
-		"optional/id.json":             true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
-		"optional/float-overflow.json": true, // Need better checking for float overflow to convert to decimal in the json parser and we need to support decimal in multipleOf
+		"optional/id.json": true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
+
 	},
 	passingTests:  map[string]bool{},
 	skippingTests: map[string]bool{},

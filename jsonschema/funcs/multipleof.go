@@ -15,6 +15,9 @@
 package funcs
 
 import (
+	"math"
+	"math/big"
+
 	"github.com/katydid/parser-go/cast"
 	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go/validator/ast"
@@ -24,6 +27,7 @@ import (
 type multipleOf struct {
 	Token parse.Token
 	d     float64
+	b     *big.Float
 	hash  uint64
 }
 
@@ -40,13 +44,22 @@ func MultipleOf(d funcs.ConstDouble) (funcs.Bool, error) {
 	}
 	return &multipleOf{
 		d:    evaluatedD,
+		b:    big.NewFloat(evaluatedD),
 		hash: funcs.Hash("multipleOf", d),
 	}, nil
 }
 
 func isMultipleOf(n float64, d float64) bool {
-	v := n / d
-	return v == float64(int64(v)) || v == float64(uint64(v))
+	quo := n / d
+	if math.IsInf(quo, 0) {
+		// try really slow multiple of
+		r := new(big.Float).SetPrec(big.MaxPrec).Quo(big.NewFloat(n), big.NewFloat(d))
+		return r.IsInt()
+	}
+	if quo != math.Trunc(quo) {
+		return false
+	}
+	return true
 }
 
 func (this *multipleOf) Eval() (bool, error) {
@@ -60,13 +73,17 @@ func (this *multipleOf) Eval() (bool, error) {
 	var n float64
 	switch kind {
 	case parse.Int64Kind:
-		// TODO: Consider not supporting Int64Kind here
 		n = float64(cast.ToInt64(v))
 	case parse.Float64Kind:
 		n = cast.ToFloat64(v)
 	case parse.DecimalKind:
-		// TODO: add support
-		return false, nil
+		s := cast.ToString(v)
+		n, _, err := new(big.Float).Parse(s, 10)
+		if err != nil {
+			return false, nil
+		}
+		z := new(big.Float).Quo(n, this.b)
+		return z.IsInt(), nil
 	default:
 		// not a number is ignored
 		return true, nil
