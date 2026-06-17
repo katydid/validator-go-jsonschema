@@ -150,6 +150,7 @@ func getCharSet(expr string) (int, [256]byte) {
 			for j := prev; j <= next; j++ {
 				set[j] = 1
 			}
+			i++
 		} else if c == ']' {
 			return i, set
 		} else {
