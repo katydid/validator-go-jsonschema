@@ -57,5 +57,12 @@ func translateOperators(schema *schema.Schema) (*ast.Pattern, error) {
 		}
 		res = append(res, ast.NewNot(p))
 	}
+	if schema.If != nil {
+		p, err := translateIf(schema.If, schema.Then, schema.Else)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, p)
+	}
 	return newAnd(res...), nil
 }

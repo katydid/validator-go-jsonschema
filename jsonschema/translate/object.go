@@ -91,11 +91,11 @@ type property struct {
 }
 
 func newProperties(s *schema.Schema) ([]*property, error) {
-	names := std.SortedKeys(s.Properties)
+	names := std.SortedKeys(s.GetProperties())
 	patternNames := std.SortedKeys(s.PatternProperties)
 	props := make([]*property, 0, len(names)+len(patternNames))
 	for _, name := range names {
-		p, err := newProperty(name, s.Properties[name])
+		p, err := newProperty(name, s.GetProperties()[name])
 		if err != nil {
 			return nil, err
 		}
@@ -260,7 +260,7 @@ func minProperties(n int) *ast.Pattern {
 func translateAdditionalProperties(s *schema.Schema) (*ast.Pattern, error) {
 	additional := ast.NewZAny()
 
-	names := std.SortedKeys(s.Properties)
+	names := std.SortedKeys(s.GetProperties())
 	patternNames := std.SortedKeys(s.PatternProperties)
 
 	if len(names) > 0 || len(patternNames) > 0 {

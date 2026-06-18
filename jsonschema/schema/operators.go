@@ -26,10 +26,15 @@ type Operators struct {
 	AnyOf []*Schema `json:"anyOf,omitempty"`
 	OneOf []*Schema `json:"oneOf,omitempty"`
 	Not   *Schema   `json:"not,omitempty"`
+
+	If   *Schema `json:"if,omitempty"`
+	Then *Schema `json:"then,omitempty"`
+	Else *Schema `json:"else,omitempty"`
 }
 
 func (this Operators) HasOperatorConstraints() bool {
 	return this.Enum != nil ||
 		this.AllOf != nil || this.AnyOf != nil ||
-		this.OneOf != nil || this.Not != nil
+		this.OneOf != nil || this.Not != nil ||
+		this.If != nil
 }

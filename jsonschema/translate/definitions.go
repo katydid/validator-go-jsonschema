@@ -97,7 +97,7 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 			return err
 		}
 	}
-	for _, sch := range s.Object.Properties {
+	for _, sch := range s.Object.GetProperties() {
 		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
 			return err
 		}
@@ -177,7 +177,7 @@ func findSchema(pointer []string, s *schema.Schema) *schema.Schema {
 		if len(pointer) < 2 {
 			return nil
 		}
-		sch, ok := s.Properties[pointer[1]]
+		sch, ok := s.GetProperties()[pointer[1]]
 		if !ok {
 			return nil
 		}

@@ -33,15 +33,15 @@ func exactMatch(a any) (*ast.Pattern, error) {
 	case string:
 		return combinator.Value(ast.NewEqual(ast.NewStringConst(v))), nil
 	case json.Number:
-		i, err := v.Int64()
-		if err == nil {
+		i, interr := v.Int64()
+		if interr == nil {
 			return combinator.Value(ast.NewEqual(ast.NewIntConst(i))), nil
 		}
-		f, err := v.Float64()
-		if err == nil {
+		f, floaterr := v.Float64()
+		if floaterr == nil {
 			return combinator.Value(ast.NewEqual(ast.NewDoubleConst(f))), nil
 		}
-		return nil, fmt.Errorf("unsupported type %T for value %v", a, a)
+		return nil, fmt.Errorf("unsupported type %T for value %v given errs: [%v, %v]", a, a, interr, floaterr)
 	case []any:
 		ps := make([]*ast.Pattern, 0, len(v))
 		for _, vv := range v {

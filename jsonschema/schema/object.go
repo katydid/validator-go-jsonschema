@@ -14,20 +14,20 @@
 
 package schema
 
+import (
+	"encoding/json"
+
+	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
+)
+
 // http://json-schema.org/latest/json-schema-validation.html#anchor53
 type Object struct {
 	MaxProperties        *uint64     `json:"maxProperties,omitempty"`
 	MinProperties        uint64      `json:"minProperties,omitempty"`
 	Required             []string    `json:"required,omitempty"`
 	AdditionalProperties *Additional `json:"additionalProperties,omitempty"`
-	/*
-	   "type": "object",
-	   "additionalProperties": { "$ref": "#" },
-	   "default": {}
-	*/
-	//http://json-schema.org/latest/json-schema-validation.html#anchor64
-	//  The value of "properties" MUST be an object. Each value of this object MUST be an object, and each object MUST be a valid JSON Schema.
-	Properties map[string]*Schema `json:"properties,omitempty"`
+
+	Properties *Properties `json:"properties,omitempty"`
 	/*
 	   "type": "object",
 	   "additionalProperties": { "$ref": "#" },
@@ -46,4 +46,42 @@ func (this Object) HasObjectConstraints() bool {
 		this.Required != nil || this.AdditionalProperties != nil ||
 		this.Properties != nil || this.PatternProperties != nil ||
 		this.Dependencies != nil || this.DependentRequired != nil || this.DependentSchemas != nil
+}
+
+type Properties map[string]*Schema
+
+/*
+   "type": "object",
+   "additionalProperties": { "$ref": "#" },
+   "default": {}
+*/
+//http://json-schema.org/latest/json-schema-validation.html#anchor64
+//  The value of "properties" MUST be an object. Each value of this object MUST be an object, and each object MUST be a valid JSON Schema.
+// But sometimes it isn't and then we can ignore those values.
+func (this *Properties) UnmarshalJSON(data []byte) error {
+	var objmap map[string]json.RawMessage
+	if err := std.UnmarshalJSON(data, &objmap); err != nil {
+		return err
+	}
+	props := map[string]*Schema{}
+	for k := range objmap {
+		var s *Schema
+		if err := std.UnmarshalJSON(objmap[k], &s); err != nil {
+			// ignore non schema values
+			continue
+		}
+		props[k] = s
+	}
+	*this = props
+	return nil
+}
+
+func (this *Object) GetProperties() map[string]*Schema {
+	if this == nil {
+		return map[string]*Schema{}
+	}
+	if this.Properties == nil {
+		return map[string]*Schema{}
+	}
+	return *this.Properties
 }
