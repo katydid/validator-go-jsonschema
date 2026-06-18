@@ -20,7 +20,7 @@ import (
 	"github.com/katydid/validator-go/validator/combinator"
 )
 
-func translateString(schema schema.String, format string) (*ast.Pattern, error) {
+func translateString(schema schema.String) (*ast.Pattern, error) {
 	list := []*ast.Expr{}
 	if schema.MaxLength != nil && schema.MinLength > 0 {
 		if *schema.MaxLength == schema.MinLength {
@@ -39,8 +39,8 @@ func translateString(schema schema.String, format string) (*ast.Pattern, error) 
 	if schema.Pattern != nil {
 		list = append(list, regexExpr(*schema.Pattern))
 	}
-	if len(format) > 0 {
-		formatExpr, err := translateFormat(format)
+	if len(schema.Format) > 0 {
+		formatExpr, err := translateFormat(schema.Format)
 		if err != nil {
 			return nil, err
 		}

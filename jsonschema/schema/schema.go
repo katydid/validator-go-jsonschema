@@ -56,8 +56,7 @@ type Schema struct {
 	// Const is *any because a JSON null (Go nil) is a valid value.
 	Const *any `json:"const,omitempty"`
 
-	Ref    string `json:"$ref,omitempty"`
-	Format string `json:"format,omitempty"`
+	Ref string `json:"$ref,omitempty"`
 }
 
 func (this Schema) GetType() []SimpleType {

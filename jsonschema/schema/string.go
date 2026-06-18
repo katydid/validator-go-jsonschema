@@ -19,8 +19,9 @@ type String struct {
 	MaxLength *uint64 `json:"maxLength,omitempty"`
 	MinLength uint64  `json:"minLength,omitempty"`
 	Pattern   *string `json:"pattern,omitempty"`
+	Format    string  `json:"format,omitempty"`
 }
 
 func (this String) HasStringConstraints() bool {
-	return this.MaxLength != nil || this.MinLength > 0 || this.Pattern != nil
+	return this.MaxLength != nil || this.MinLength > 0 || this.Pattern != nil || len(this.Format) > 0
 }

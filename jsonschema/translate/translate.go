@@ -17,7 +17,6 @@ package translate
 import (
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/combinator"
 )
 
 func Translate(s *schema.Schema) (*ast.Grammar, error) {
@@ -48,7 +47,7 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 		ps = append(ps, p)
 	}
 	if s.HasStringConstraints() {
-		p, err := translateString(s.String, s.Format)
+		p, err := translateString(s.String)
 		if err != nil {
 			return nil, err
 		}
@@ -84,14 +83,6 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 		if err != nil {
 			return nil, err
 		}
-		ps = append(ps, p)
-	}
-	if len(s.Format) > 0 {
-		expr, err := translateFormat(s.Format)
-		if err != nil {
-			return nil, err
-		}
-		p := combinator.Value(expr)
 		ps = append(ps, p)
 	}
 	if s.Const != nil {
