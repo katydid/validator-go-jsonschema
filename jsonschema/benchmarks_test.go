@@ -93,9 +93,8 @@ func TestBenchmarkSuite(t *testing.T) {
 	}
 	// TODO fix these
 	notCompilingYet := map[string]string{
-		"geojson":       "timed out, minItems, oneOf: Current way of representing oneOf blows up, we should add an xor operator to validator-go",
-		"cmake-presets": "const, ref, oneOf, anyOf, type: null, propertyNames: pattern, allOf: Current way of representing oneOf blows up, we should add an xor operator to validator-go",
-		"ui5":           "need better reference support: reference to unknown definition then/then/else/then/definitions/builder-specVersion-3.0",
+		"geojson": "takes 5 minutes to compile",
+		"ui5":     "need better reference support: reference to unknown definition then/then/else/then/definitions/builder-specVersion-3.0",
 	}
 	// TODO fix these
 	notMatchingYet := map[string]string{}
