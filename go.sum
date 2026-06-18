@@ -14,6 +14,10 @@ github.com/katydid/validator-go v0.6.5-0.20260617150113-a0ac3afd4069 h1:/GGqMn+2
 github.com/katydid/validator-go v0.6.5-0.20260617150113-a0ac3afd4069/go.mod h1:JYsBaEUMMB8nXzLqLuJ8LoYgNlIi+FDN1/8EERBHanw=
 github.com/katydid/validator-go v0.6.5-0.20260618134830-58451504ee4d h1:7Jkak7Xm1ECrm4KXNLIDd9bBFIViFDi3qjTcH9lfmG8=
 github.com/katydid/validator-go v0.6.5-0.20260618134830-58451504ee4d/go.mod h1:JYsBaEUMMB8nXzLqLuJ8LoYgNlIi+FDN1/8EERBHanw=
+github.com/katydid/validator-go v0.6.5-0.20260618174636-7537c52e7a69 h1:tmoibAQuSvqyyh46tQg0q15S3/tmkrU7duMj+6pFhm8=
+github.com/katydid/validator-go v0.6.5-0.20260618174636-7537c52e7a69/go.mod h1:JYsBaEUMMB8nXzLqLuJ8LoYgNlIi+FDN1/8EERBHanw=
+github.com/katydid/validator-go v0.6.5-0.20260618183202-b25156b46ea2 h1:QFwE997Fop62h8TsFR2t9lgSfuQd9I+zj45RTMyNgCA=
+github.com/katydid/validator-go v0.6.5-0.20260618183202-b25156b46ea2/go.mod h1:JYsBaEUMMB8nXzLqLuJ8LoYgNlIi+FDN1/8EERBHanw=
 github.com/qri-io/jsonpointer v0.1.1 h1:prVZBZLL6TW5vsSB9fFHFAMBLI4b0ri5vribQlTJiBA=
 github.com/qri-io/jsonpointer v0.1.1/go.mod h1:DnJPaYgiKu56EuDp8TU5wFLdZIcAnb/uH9v37ZaMV64=
 golang.org/x/mod v0.8.0 h1:LUYupSeNrTNCGzR/hVBk2NHZO4hXcVaW1k4Qx7rjPx8=

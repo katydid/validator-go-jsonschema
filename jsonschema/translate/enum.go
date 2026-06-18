@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/combinator"
@@ -70,6 +71,19 @@ func exactMatch(a any) (*ast.Pattern, error) {
 		return NewObjectNode(ast.NewInterleave(ps...)), nil
 	}
 	return nil, fmt.Errorf("unsupported type %T for value %v", a, a)
+}
+
+func hasConstString(s *schema.Schema) bool {
+	if s.Const != nil {
+		_, ok := (*s.Const).(string)
+		return ok
+	}
+	if s.Enum != nil {
+		if tryAllStrings(s.Enum) != nil {
+			return true
+		}
+	}
+	return false
 }
 
 func translateEnum(enum []any) (*ast.Pattern, error) {

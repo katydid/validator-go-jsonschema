@@ -39,6 +39,13 @@ func newOr(ps ...*ast.Pattern) *ast.Pattern {
 	return ast.NewOr(ps...)
 }
 
+func newXor(ps ...*ast.Pattern) *ast.Pattern {
+	if len(ps) == 0 {
+		return ast.NewZAny()
+	}
+	return ast.NewXor(ps...)
+}
+
 func andExpr(list []*ast.Expr) *ast.Expr {
 	return std.MustFoldA(list, combinator.And)
 }

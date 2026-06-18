@@ -99,7 +99,10 @@ func translateTypeConstraints(s *schema.Schema) (*ast.Pattern, error) {
 			}
 			ps = append(ps, newAnd(typ, p))
 		} else {
-			ps = append(ps, typ)
+			if !hasConstString(s) {
+				// constant already takes care of checking string type
+				ps = append(ps, typ)
+			}
 		}
 	} else if s.HasStringConstraints() {
 		p, err := translateString(s.String)

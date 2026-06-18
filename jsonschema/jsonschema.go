@@ -116,7 +116,7 @@ func Compile(schemaStr []byte) (Matcher, error) {
 	if err != nil {
 		return nil, err
 	}
-	a, err := auto.Compile(g, auto.WithRecordOpts(), auto.WithMaxBitSetSize(32))
+	a, err := auto.Compile(g, auto.WithRecordOpts(), auto.WithMaxBitSetSize(10))
 	if err != nil {
 		if errors.Is(err, auto.ErrTooBig) {
 			return NewMemoizer(schemaStr)
