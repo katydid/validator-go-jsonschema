@@ -66,38 +66,6 @@ func getBenchmarks() ([]*benchsuite, error) {
 	return res, nil
 }
 
-func DisabledTestBenchmarkSuiteSingle(t *testing.T) {
-	filename := "lerna"
-	suites, err := getBenchmarks()
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, suite := range suites {
-		if filename != suite.name {
-			continue
-		}
-		g, err := newGrammar(suite.schema)
-		if err != nil {
-			t.Fatal(err)
-		}
-		t.Logf("translated to: %v", g.String())
-		matcher, err := Compile(suite.schema)
-		if err != nil {
-			t.Fatal(err)
-		}
-		want := !strings.Contains(suite.name, "-invalid")
-		for i, data := range suite.datas {
-			got, err := matcher.MatchBytes(data)
-			if err != nil {
-				t.Fatalf("at %d error: %v, given: %q", i, err, string(data))
-			}
-			if want != got {
-				t.Fatalf("at %d want %v got %v, given: %q", i, want, got, string(data))
-			}
-		}
-	}
-}
-
 func TestBenchmarkSuite(t *testing.T) {
 	notSupported := map[string]string{
 		"ajv-cosmicrealms-invalid": "uniqueItems not supported",

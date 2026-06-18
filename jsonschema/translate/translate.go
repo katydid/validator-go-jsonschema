@@ -35,53 +35,11 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 	if s.Default != nil {
 		// default works if we do nothing
 	}
-	var ps []*ast.Pattern
-	if s.Type != nil {
-		p, err := translateTypes(*s.Type)
-		if err != nil {
-			return nil, err
-		}
-		ps = append(ps, p)
+	ptype, err := translateTypeConstraints(s)
+	if err != nil {
+		return nil, err
 	}
-	if s.HasNumericConstraints() {
-		p, err := translateNumeric(s.Numeric)
-		if err != nil {
-			return nil, err
-		}
-		ps = append(ps, p)
-	}
-	if s.HasStringConstraints() {
-		p, err := translateString(s.String)
-		if err != nil {
-			return nil, err
-		}
-		if !hasType(s.Type, schema.TypeString) {
-			p = newOr(p, notStringType())
-		}
-		ps = append(ps, p)
-	}
-	if s.HasArrayConstraints() {
-		p, err := translateArray(s)
-		if err != nil {
-			return nil, err
-		}
-		p = NewArrayNode(p)
-		if !hasType(s.Type, schema.TypeArray) {
-			p = newOr(p, notArrayType())
-		}
-		ps = append(ps, p)
-	}
-	if s.HasObjectConstraints() {
-		p, err := translateObject(s)
-		if err != nil {
-			return nil, err
-		}
-		p = NewObjectNode(p)
-		if !hasType(s.Type, schema.TypeObject) {
-			p = newOr(p, notObjectType())
-		}
-		ps = append(ps, p)
-	}
+	ps := []*ast.Pattern{ptype}
 	if s.HasOperatorConstraints() {
 		p, err := translateOperators(s)
 		if err != nil {
@@ -100,8 +58,100 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 		}
 		ps = append(ps, p)
 	}
-	if len(ps) == 0 {
-		return ast.NewZAny(), nil
-	}
 	return newAnd(ps...), nil
+}
+
+func translateTypeConstraints(s *schema.Schema) (*ast.Pattern, error) {
+	var ps []*ast.Pattern
+	if hasType(s.Type, schema.TypeNull) {
+		ps = append(ps, nullType())
+	}
+	if hasType(s.Type, schema.TypeBoolean) {
+		ps = append(ps, boolType())
+	}
+	if hasType(s.Type, schema.TypeInteger) || hasType(s.Type, schema.TypeNumber) {
+		typ := integerType()
+		if hasType(s.Type, schema.TypeNumber) {
+			typ = numberType()
+		}
+		if s.HasNumericConstraints() {
+			p, err := translateNumeric(s.Numeric)
+			if err != nil {
+				return nil, err
+			}
+			ps = append(ps, newAnd(p, typ))
+		} else {
+			ps = append(ps, typ)
+		}
+	} else if s.HasNumericConstraints() {
+		p, err := translateNumeric(s.Numeric)
+		if err != nil {
+			return nil, err
+		}
+		ps = append(ps, newOr(p, notNumberType()))
+	}
+	if hasType(s.Type, schema.TypeString) {
+		typ := stringType()
+		if s.HasStringConstraints() {
+			p, err := translateString(s.String)
+			if err != nil {
+				return nil, err
+			}
+			ps = append(ps, newAnd(typ, p))
+		} else {
+			ps = append(ps, typ)
+		}
+	} else if s.HasStringConstraints() {
+		p, err := translateString(s.String)
+		if err != nil {
+			return nil, err
+		}
+		ps = append(ps, newOr(p, notStringType()))
+	}
+	if hasType(s.Type, schema.TypeArray) {
+		if s.HasArrayConstraints() {
+			p, err := translateArray(s)
+			if err != nil {
+				return nil, err
+			}
+			p = NewArrayNode(p)
+			ps = append(ps, p)
+		} else {
+			typ := arrayType()
+			ps = append(ps, typ)
+		}
+	} else if s.HasArrayConstraints() {
+		p, err := translateArray(s)
+		if err != nil {
+			return nil, err
+		}
+		p = NewArrayNode(p)
+		ps = append(ps, newOr(p, notArrayType()))
+	}
+	if hasType(s.Type, schema.TypeObject) {
+		if s.HasObjectConstraints() {
+			p, err := translateObject(s)
+			if err != nil {
+				return nil, err
+			}
+			p = NewObjectNode(p)
+			ps = append(ps, p)
+		} else {
+			typ := objectType()
+			ps = append(ps, typ)
+		}
+	} else if s.HasObjectConstraints() {
+		p, err := translateObject(s)
+		if err != nil {
+			return nil, err
+		}
+		p = NewObjectNode(p)
+		ps = append(ps, newOr(p, notObjectType()))
+	}
+	if s.Type != nil && len(*s.Type) == 1 {
+		// If there is only one type, then there is no options to consider and all constraints and conjunctions.
+		return newAnd(ps...), nil
+	}
+	// If there zero or two types, we can type the union of the constriants.
+	return newOr(ps...), nil
 }

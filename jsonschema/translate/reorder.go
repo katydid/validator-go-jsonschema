@@ -15,16 +15,27 @@
 package translate
 
 import (
+	"slices"
+
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/combinator"
 )
 
 func newAnd(ps ...*ast.Pattern) *ast.Pattern {
+	ps = slices.DeleteFunc(ps, func(p *ast.Pattern) bool {
+		return p.ZAny != nil
+	})
+	if len(ps) == 0 {
+		return ast.NewZAny()
+	}
 	return ast.NewAnd(ps...)
 }
 
 func newOr(ps ...*ast.Pattern) *ast.Pattern {
+	if len(ps) == 0 {
+		return ast.NewZAny()
+	}
 	return ast.NewOr(ps...)
 }
 

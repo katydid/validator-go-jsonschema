@@ -15,40 +15,37 @@
 package translate
 
 import (
-	"fmt"
-
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
-	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 	"github.com/katydid/validator-go/validator/ast"
 	"github.com/katydid/validator-go/validator/combinator"
 )
 
-func translateTypes(typs []schema.SimpleType) (*ast.Pattern, error) {
-	ps, err := std.MapErr(typs, translateType)
-	if err != nil {
-		return nil, err
-	}
-	return newOr(ps...), nil
+func boolType() *ast.Pattern {
+	return combinator.Value(boolTypeExpr())
 }
 
-func translateType(typ schema.SimpleType) (*ast.Pattern, error) {
-	switch typ {
-	case schema.TypeObject:
-		return objectType(), nil
-	case schema.TypeArray:
-		return arrayType(), nil
-	case schema.TypeBoolean:
-		return combinator.Value(boolTypeExpr()), nil
-	case schema.TypeInteger:
-		return combinator.Value(integerTypeExpr()), nil
-	case schema.TypeNull:
-		return combinator.Value(nullTypeExpr()), nil
-	case schema.TypeNumber:
-		return combinator.Value(numberTypeExpr()), nil
-	case schema.TypeString:
-		return combinator.Value(stringTypeExpr()), nil
-	}
-	panic(fmt.Sprintf("unknown simpletype: %s", typ))
+func integerType() *ast.Pattern {
+	return combinator.Value(integerTypeExpr())
+}
+
+func nullType() *ast.Pattern {
+	return combinator.Value(nullTypeExpr())
+}
+
+func numberType() *ast.Pattern {
+	return combinator.Value(numberTypeExpr())
+}
+
+func stringType() *ast.Pattern {
+	return combinator.Value(stringTypeExpr())
+}
+
+func arrayType() *ast.Pattern {
+	return NewArrayNode(ast.NewZAny())
+}
+
+func objectType() *ast.Pattern {
+	return NewObjectNode(ast.NewZAny())
 }
 
 func hasType(typs *schema.Type, theType schema.SimpleType) bool {
@@ -63,14 +60,6 @@ func hasType(typs *schema.Type, theType schema.SimpleType) bool {
 	return false
 }
 
-func arrayType() *ast.Pattern {
-	return NewArrayNode(ast.NewZAny())
-}
-
-func objectType() *ast.Pattern {
-	return NewObjectNode(ast.NewZAny())
-}
-
 func anyFieldType() *ast.Pattern {
 	return combinator.Value(anyValueExpr())
 }
@@ -83,10 +72,10 @@ func notArrayType() *ast.Pattern {
 	return newOr(objectType(), anyFieldType())
 }
 
-func stringType() *ast.Pattern {
-	return combinator.Value(stringTypeExpr())
-}
-
 func notStringType() *ast.Pattern {
 	return newOr(objectType(), arrayType(), ast.NewNot(stringType()))
+}
+
+func notNumberType() *ast.Pattern {
+	return newOr(objectType(), arrayType(), ast.NewNot(numberType()))
 }
