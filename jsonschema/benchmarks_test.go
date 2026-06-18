@@ -99,14 +99,7 @@ func TestBenchmarkSuite(t *testing.T) {
 		"geojson":                "timed out, minItems, oneOf",
 	}
 	// TODO fix these
-	notMatchingYet := map[string]string{
-		"babelrc":              "const, default, enum inside items, items with default, anyOf, additionalProperties, title, if then else, type list, ref",
-		"cypress":              "type list, default, anyOf, allOf",
-		"gitpod-configuration": "type list, default",
-		"lerna":                "type list",
-		"nest-cli":             "default, anyOf",
-		"pulumi":               "oneOf, if, type list",
-	}
+	notMatchingYet := map[string]string{}
 	suites, err := getBenchmarks()
 	if err != nil {
 		t.Fatal(err)
