@@ -28,10 +28,14 @@ func Translate(s *schema.Schema) (*ast.Grammar, error) {
 }
 
 func translate(s *schema.Schema) (*ast.Pattern, error) {
-	var ps []*ast.Pattern
+	if s.Const != nil {
+		// If there is a const no other constraints are necessary.
+		return translateConst(*s.Const)
+	}
 	if s.Default != nil {
 		// default works if we do nothing
 	}
+	var ps []*ast.Pattern
 	if s.Type != nil {
 		p, err := translateTypes(*s.Type)
 		if err != nil {
@@ -80,13 +84,6 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 	}
 	if s.HasOperatorConstraints() {
 		p, err := translateOperators(s)
-		if err != nil {
-			return nil, err
-		}
-		ps = append(ps, p)
-	}
-	if s.Const != nil {
-		p, err := translateConst(*s.Const)
 		if err != nil {
 			return nil, err
 		}
