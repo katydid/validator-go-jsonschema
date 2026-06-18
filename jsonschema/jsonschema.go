@@ -15,6 +15,8 @@
 package jsonschema
 
 import (
+	"errors"
+
 	"github.com/katydid/parser-go-json/json"
 	"github.com/katydid/parser-go/parse"
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
@@ -109,15 +111,18 @@ type compiled struct {
 }
 
 func Compile(schemaStr []byte) (Matcher, error) {
+	p := json.NewJSONSchemaParser()
 	g, err := newGrammar(schemaStr)
 	if err != nil {
 		return nil, err
 	}
-	a, err := auto.CompileRecord(g)
+	a, err := auto.Compile(g, auto.WithRecordOpts(), auto.WithMaxBitSetSize(32))
 	if err != nil {
+		if errors.Is(err, auto.ErrTooBig) {
+			return NewMemoizer(schemaStr)
+		}
 		return nil, err
 	}
-	p := json.NewJSONSchemaParser()
 	return &compiled{
 		parser: p,
 		auto:   a,

@@ -177,3 +177,11 @@ func lengthExpr(d uint64) *ast.Expr {
 func minmaxLengthExpr(min uint64, max uint64) *ast.Expr {
 	return ast.NewFunction("minmaxLength", combinator.IntConst(int64(min)), combinator.IntConst(int64(max)))
 }
+
+func enumStringExpr(ss []string) *ast.Expr {
+	return ast.NewFunction("enum", combinator.StringsConst(ss))
+}
+
+func enumDoubleExpr(ds []float64) *ast.Expr {
+	return ast.NewFunction("enum", combinator.DoublesConst(ds))
+}

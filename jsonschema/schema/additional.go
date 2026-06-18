@@ -15,6 +15,8 @@
 package schema
 
 import (
+	"fmt"
+
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 )
 
@@ -53,16 +55,18 @@ type Additional struct {
 
 func (this *Additional) UnmarshalJSON(buf []byte) error {
 	var b bool
-	if err := std.UnmarshalJSON(buf, &b); err == nil {
+	boolerr := std.UnmarshalJSON(buf, &b)
+	if boolerr == nil {
 		*this = Additional{Bool: &b}
 		return nil
 	}
 	s := &Schema{}
-	if err := std.UnmarshalJSON(buf, s); err != nil {
-		return err
+	objecterr := std.UnmarshalJSON(buf, s)
+	if objecterr == nil {
+		*this = Additional{Schema: s}
+		return nil
 	}
-	*this = Additional{Schema: s}
-	return nil
+	return fmt.Errorf("%s %s", boolerr, objecterr)
 }
 
 func (this *Additional) GetSchema() *Schema {

@@ -93,10 +93,9 @@ func TestBenchmarkSuite(t *testing.T) {
 	}
 	// TODO fix these
 	notCompilingYet := map[string]string{
-		"ansible-meta":           "const, default, enum inside items, items with default, anyOf, additionalProperties, title, if then else, type list, ref",
-		"cmake-presets":          "const, ref, oneOf, anyOf, type: null, propertyNames: pattern, allOf",
+		"geojson":                "timed out, minItems, oneOf: Current way of representing oneOf blows up, we should add an xor operator to validator-go",
+		"cmake-presets":          "const, ref, oneOf, anyOf, type: null, propertyNames: pattern, allOf: Current way of representing oneOf blows up, we should add an xor operator to validator-go",
 		"draft-04-rmUniqueItems": "TODO",
-		"geojson":                "timed out, minItems, oneOf",
 	}
 	// TODO fix these
 	notMatchingYet := map[string]string{}

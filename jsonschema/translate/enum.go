@@ -76,9 +76,43 @@ func translateEnum(enum []any) (*ast.Pattern, error) {
 	if len(enum) == 0 {
 		return ast.NewNot(ast.NewZAny()), nil
 	}
+	if len(enum) > 1 {
+		if p := tryAllStrings(enum); p != nil {
+			return p, nil
+		}
+		if p := tryAllNumbers(enum); p != nil {
+			return p, nil
+		}
+	}
 	exacts, err := std.MapErr(enum, exactMatch)
 	if err != nil {
 		return nil, err
 	}
 	return newOr(exacts...), nil
+}
+
+func tryAllStrings(enum []any) *ast.Pattern {
+	enums := make([]string, len(enum))
+	for i, e := range enum {
+		if _, ok := e.(string); !ok {
+			return nil
+		}
+		enums[i] = enum[i].(string)
+	}
+	return combinator.Value(enumStringExpr(enums))
+}
+
+func tryAllNumbers(enum []any) *ast.Pattern {
+	enums := make([]float64, len(enum))
+	for i, e := range enum {
+		if _, ok := e.(json.Number); !ok {
+			return nil
+		}
+		var err error
+		enums[i], err = enum[i].(json.Number).Float64()
+		if err != nil {
+			return nil
+		}
+	}
+	return combinator.Value(enumDoubleExpr(enums))
 }
