@@ -15,12 +15,13 @@
 package jsonschema
 
 import (
+	"slices"
 	"strings"
 	"testing"
 )
 
 func TestBenchmarkSuiteSingle(t *testing.T) {
-	filename := "lerna"
+	filename := "clang-format-invalid"
 	suites, err := getBenchmarks()
 	if err != nil {
 		t.Fatal(err)
@@ -33,11 +34,11 @@ func TestBenchmarkSuiteSingle(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		t.Logf("translated to: %v", g.String())
 		matcher, err := Compile(suite.schema)
 		if err != nil {
 			t.Fatal(err)
 		}
+		fails := []string{}
 		want := !strings.Contains(suite.name, "-invalid")
 		for i, data := range suite.datas {
 			got, err := matcher.MatchBytes(data)
@@ -45,8 +46,19 @@ func TestBenchmarkSuiteSingle(t *testing.T) {
 				t.Fatalf("at %d error: %v, given: %q", i, err, string(data))
 			}
 			if want != got {
-				t.Fatalf("at %d want %v got %v, given: %q", i, want, got, string(data))
+				fails = append(fails, string(data))
+				t.Errorf("at %d want %v got %v, given: %q", i, want, got, string(data))
 			}
+		}
+		slices.SortFunc(fails, func(x, y string) int {
+			if len(x) == len(y) {
+				return strings.Compare(x, y)
+			}
+			return len(x) - len(y)
+		})
+		t.Logf("translated to: %v", g.String())
+		if len(fails) > 0 {
+			t.Fatalf("smallest fail = %s", fails[0])
 		}
 	}
 }

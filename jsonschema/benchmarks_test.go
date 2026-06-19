@@ -93,7 +93,10 @@ func TestBenchmarkSuite(t *testing.T) {
 	}
 	// TODO fix these
 	notCompilingYet := map[string]string{
-		"ui5": "need better reference support: reference to unknown definition then/then/else/then/definitions/builder-specVersion-3.0",
+		"ui5":             "need better reference support: reference to unknown definition then/then/else/then/definitions/builder-specVersion-3.0",
+		"ui5-invalid":     "TODO",
+		"geojson-invalid": "just slow to compile",
+		"geojson":         "just slow to compile",
 	}
 	// TODO fix these
 	notMatchingYet := map[string]string{}

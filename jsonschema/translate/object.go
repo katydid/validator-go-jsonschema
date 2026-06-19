@@ -263,6 +263,7 @@ func translateAdditionalProperties(s *schema.Schema) (*ast.Pattern, error) {
 	names := std.SortedKeys(s.GetProperties())
 	patternNames := std.SortedKeys(s.PatternProperties)
 
+	otherNames := ast.NewAnyName()
 	if len(names) > 0 || len(patternNames) > 0 {
 		nameExprs := make([]*ast.NameExpr, len(names)+len(patternNames))
 		for i, name := range names {
@@ -271,10 +272,11 @@ func translateAdditionalProperties(s *schema.Schema) (*ast.Pattern, error) {
 		for i, name := range patternNames {
 			nameExprs[i+len(names)] = ast.NewRegexName(name)
 		}
+		otherNames = ast.NewAnyNameExcept(
+			ast.NewNameChoice(nameExprs...),
+		)
 		additional = ast.NewZeroOrMore(
-			ast.NewTreeNode(ast.NewAnyNameExcept(
-				ast.NewNameChoice(nameExprs...),
-			), ast.NewZAny()),
+			ast.NewTreeNode(otherNames, ast.NewZAny()),
 		)
 	}
 	if s.AdditionalProperties != nil {
@@ -286,7 +288,7 @@ func translateAdditionalProperties(s *schema.Schema) (*ast.Pattern, error) {
 				return nil, err
 			}
 			additional = ast.NewZeroOrMore(
-				ast.NewTreeNode(ast.NewAnyName(), p),
+				ast.NewTreeNode(otherNames, p),
 			)
 		}
 	}

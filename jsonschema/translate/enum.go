@@ -90,7 +90,8 @@ func translateEnum(enum []any) (*ast.Pattern, error) {
 	if len(enum) == 0 {
 		return ast.NewNot(ast.NewZAny()), nil
 	}
-	if len(enum) > 1 {
+	// try some heuristics here to find what is fastest, equality with ors OR a hash lookup
+	if len(enum) >= 3 {
 		if p := tryAllStrings(enum); p != nil {
 			return p, nil
 		}
