@@ -15,6 +15,7 @@
 package translate
 
 import (
+	"errors"
 	"regexp"
 
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
@@ -58,10 +59,27 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 		}
 		constraints = append(constraints, deps)
 	}
-
 	additional, err := translateAdditionalProperties(s)
 	if err != nil {
 		return nil, err
+	}
+	if s.PropertyNames != nil {
+		// currently only pattern property names are supported.
+		if s.PropertyNames.Pattern != nil {
+			if s.PatternProperties == nil {
+				s.PatternProperties = make(map[string]*schema.Schema)
+			}
+			s.PatternProperties[*s.PropertyNames.Pattern] = &schema.Schema{}
+			if s.AdditionalProperties != nil {
+				if s.AdditionalProperties.Schema != nil {
+					// we handle additional properties in propertyNames, so we can ignore it later.
+					additional = ast.NewEmpty()
+					s.PatternProperties[*s.PropertyNames.Pattern] = s.AdditionalProperties.Schema
+				}
+			}
+		} else {
+			return nil, errors.New("propertyNames support is limited to pattern")
+		}
 	}
 
 	props, err := newProperties(s)

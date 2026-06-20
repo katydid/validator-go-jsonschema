@@ -36,6 +36,7 @@ type Object struct {
 	//http://json-schema.org/latest/json-schema-validation.html#anchor64
 	//  The value of "patternProperties" MUST be an object. Each property name of this object SHOULD be a valid regular expression, according to the ECMA 262 regular expression dialect. Each property value of this object MUST be an object, and each object MUST be a valid JSON Schema.
 	PatternProperties map[string]*Schema  `json:"patternProperties,omitempty"`
+	PropertyNames     *Schema             `json:"propertyNames,omitempty"`
 	Dependencies      *Dependencies       `json:"dependencies,omitempty"` // Kept for compatibliy with versions before Draft 2019-09. Now this is two seperate fields dependentRequired and dependentSchemas
 	DependentRequired map[string][]string `json:"dependentRequired,omitempty"`
 	DependentSchemas  map[string]*Schema  `json:"dependentSchemas,omitempty"`
