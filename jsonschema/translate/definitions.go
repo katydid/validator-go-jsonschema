@@ -171,6 +171,31 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 			}
 			res[refName] = sch
 		} else if strings.HasPrefix(s.Ref, "http") {
+			refName, err := newRefName(s.Ref)
+			if err != nil {
+				return err
+			}
+			switch refName {
+			case "http://json-schema.org/draft-04/schema":
+				if _, ok := res[refName]; ok {
+					return nil
+				}
+				// handle meta schema validation with unique items
+				s, err := schema.ParseSchema([]byte(schema.SchemaDraft4ExlcudeUniqueItems))
+				if err != nil {
+					return err
+				}
+				s.SetDefaultVersion(schema.VersionDraft4)
+				res[refName] = s
+				defs, err := findMainDefinitions(s)
+				if err != nil {
+					return err
+				}
+				for name, sch := range defs {
+					res[name] = sch
+				}
+				delete(res, "main")
+			}
 			// TODO if it has a local part that goes deeper into the schema and does not just reference it, then there is more work to do here.
 		} else if strings.HasPrefix(s.Ref, "file") {
 			return fmt.Errorf("file ref not supported")

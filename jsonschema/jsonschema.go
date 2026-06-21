@@ -165,17 +165,5 @@ func (c *compiled) MatchParser(p parse.Parser) (bool, error) {
 
 func newGrammar(schemaStr []byte, opts ...Option) (*ast.Grammar, error) {
 	options := newOptions(opts)
-	s, err := schema.ParseSchema(schemaStr)
-	if err != nil {
-		return nil, err
-	}
-	s.SetDefaultVersion(options.version)
-	g, err := translate.Translate(s)
-	if err != nil {
-		return nil, err
-	}
-	if err := translate.CheckRefs(g); err != nil {
-		return nil, err
-	}
-	return g, err
+	return translate.NewGrammar(schemaStr, options.version)
 }

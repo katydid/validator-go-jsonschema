@@ -30,6 +30,7 @@ var supportedDraft4 = &Supported{
 		"anyOf.json":                   true,
 		"default.json":                 true,
 		"dependencies.json":            true,
+		"definitions.json":             true, // uniqueItems are not support, but we support everything else
 		"enum.json":                    true,
 		"format.json":                  true,
 		"infinite-loop-detection.json": true,
@@ -71,7 +72,6 @@ var supportedDraft4 = &Supported{
 	skippingFiles: map[string]bool{
 		"uniqueItems.json": true, // We do not support uniqueItems, see https://github.com/katydid/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
 		"refRemote.json":   true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
-		"definitions.json": true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
 		// optional
 		"optional/id.json": true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
 
