@@ -47,8 +47,8 @@ func translateDependentRequired(deps map[string][]string) (*ast.Pattern, error) 
 	names := std.SortedKeys(deps)
 	for _, name := range names {
 		for _, reqName := range deps[name] {
-			ifName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(name), ast.NewZAny()))
-			thenName := ast.NewContains(ast.NewTreeNode(ast.NewStringName(reqName), ast.NewZAny()))
+			ifName := NewObjectNode(ast.NewContains(ast.NewTreeNode(ast.NewStringName(name), ast.NewZAny())))
+			thenName := NewObjectNode(ast.NewContains(ast.NewTreeNode(ast.NewStringName(reqName), ast.NewZAny())))
 			elseName := ast.NewNot(ifName)
 			res = append(res, newOr(newAnd(ifName, thenName), elseName))
 		}
@@ -67,7 +67,7 @@ func translateDependentSchemas(deps map[string]*schema.Schema) (*ast.Pattern, er
 		if err != nil {
 			return nil, err
 		}
-		ifPat := ast.NewContains(ast.NewTreeNode(ast.NewStringName(name), ast.NewZAny()))
+		ifPat := NewObjectNode(ast.NewContains(ast.NewTreeNode(ast.NewStringName(name), ast.NewZAny())))
 		elsePat := ast.NewNot(ifPat)
 		res = append(res, newOr(newAnd(ifPat, thenPat), elsePat))
 	}

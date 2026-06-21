@@ -22,12 +22,12 @@ const pathDraft4 = "../../../json-schema-org/JSON-Schema-Test-Suite/tests/draft4
 
 var supportedDraft4 = &Supported{
 	passingFiles: map[string]bool{
-		"additionalItems.json":      true,
-		"additionalProperties.json": true,
-		"allOf.json":                true,
-		"anyOf.json":                true,
-		"default.json":              true,
-		// "dependencies.json": true,
+		"additionalItems.json":         true,
+		"additionalProperties.json":    true,
+		"allOf.json":                   true,
+		"anyOf.json":                   true,
+		"default.json":                 true,
+		"dependencies.json":            true,
 		"enum.json":                    true,
 		"format.json":                  true,
 		"infinite-loop-detection.json": true,

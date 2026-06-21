@@ -26,14 +26,18 @@ import (
 
 func TestDebug(t *testing.T) {
 	tests := buildTests(t, pathDraft4)
+	found := false
 	for _, test := range tests {
-		if !strings.Contains(test.String(), "default.json:invalid type for default:valid when property is specified") {
+		if !strings.Contains(test.String(), "dependencies.json") {
 			continue
 		}
+		t.Logf("testing %s", test.String())
 		testDebug(t, test)
-		return
+		found = true
 	}
-	t.Fatal("test not found")
+	if !found {
+		t.Fatal("test not found")
+	}
 }
 
 func testDebug(t *testing.T, test Test) {
