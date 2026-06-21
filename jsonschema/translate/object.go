@@ -38,27 +38,6 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 		}
 		constraints = append(constraints, required)
 	}
-	if s.Dependencies != nil {
-		deps, err := translateDependencies(s.Dependencies)
-		if err != nil {
-			return nil, err
-		}
-		constraints = append(constraints, deps)
-	}
-	if s.DependentRequired != nil {
-		deps, err := translateDependentRequired(s.DependentRequired)
-		if err != nil {
-			return nil, err
-		}
-		constraints = append(constraints, deps)
-	}
-	if s.DependentSchemas != nil {
-		deps, err := translateDependentSchemas(s.DependentSchemas)
-		if err != nil {
-			return nil, err
-		}
-		constraints = append(constraints, deps)
-	}
 	additional, err := translateAdditionalProperties(s)
 	if err != nil {
 		return nil, err

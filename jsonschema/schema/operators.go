@@ -30,11 +30,16 @@ type Operators struct {
 	If   *Schema `json:"if,omitempty"`
 	Then *Schema `json:"then,omitempty"`
 	Else *Schema `json:"else,omitempty"`
+
+	Dependencies      *Dependencies       `json:"dependencies,omitempty"` // Kept for compatibliy with versions before Draft 2019-09. Now this is two seperate fields dependentRequired and dependentSchemas
+	DependentRequired map[string][]string `json:"dependentRequired,omitempty"`
+	DependentSchemas  map[string]*Schema  `json:"dependentSchemas,omitempty"`
 }
 
 func (this Operators) HasOperatorConstraints() bool {
 	return this.Enum != nil ||
 		this.AllOf != nil || this.AnyOf != nil ||
 		this.OneOf != nil || this.Not != nil ||
-		this.If != nil
+		this.If != nil ||
+		this.Dependencies != nil || this.DependentRequired != nil || this.DependentSchemas != nil
 }

@@ -107,11 +107,10 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 			return err
 		}
 	}
-	if s.Object.Dependencies != nil {
-		for _, dep := range *s.Object.Dependencies {
+	if s.Operators.Dependencies != nil {
+		for name, dep := range *s.Operators.Dependencies {
 			if sch := dep.Schema; sch != nil {
-				// TODO add proper prefix
-				if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
+				if err := findSchemaDefinitions(root, prefix+"/dependencies/"+name, sch, res); err != nil {
 					return err
 				}
 			}

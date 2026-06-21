@@ -64,5 +64,26 @@ func translateOperators(schema *schema.Schema) (*ast.Pattern, error) {
 		}
 		res = append(res, p)
 	}
+	if schema.Dependencies != nil {
+		deps, err := translateDependencies(schema.Dependencies)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, NewObjectNode(deps))
+	}
+	if schema.DependentRequired != nil {
+		deps, err := translateDependentRequired(schema.DependentRequired)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, NewObjectNode(deps))
+	}
+	if schema.DependentSchemas != nil {
+		deps, err := translateDependentSchemas(schema.DependentSchemas)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, NewObjectNode(deps))
+	}
 	return newAnd(res...), nil
 }
