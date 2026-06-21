@@ -55,6 +55,7 @@ var supportedDraft4 = &Supported{
 
 		// optional
 		"optional/ecmascript-regex.json":     true,
+		"optional/id.json":                   true,
 		"optional/non-bmp-regex.json":        true,
 		"optional/zeroTerminatedFloats.json": true,
 
@@ -72,9 +73,6 @@ var supportedDraft4 = &Supported{
 	skippingFiles: map[string]bool{
 		"uniqueItems.json": true, // We do not support uniqueItems, see https://github.com/katydid/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
 		"refRemote.json":   true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
-		// optional
-		"optional/id.json": true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
-
 	},
 	passingTests:  map[string]bool{},
 	skippingTests: map[string]bool{},
