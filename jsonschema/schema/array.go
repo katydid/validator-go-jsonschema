@@ -23,6 +23,13 @@ type Array struct {
 	UniqueItems     bool        `json:"uniqueItems,omitempty"`
 }
 
+func (this Array) GetAdditionalItems() *Additional {
+	if this.AdditionalItems == nil {
+		return nil
+	}
+	return this.AdditionalItems
+}
+
 func (this Array) GetItems() *Items {
 	if this.Items == nil {
 		return nil

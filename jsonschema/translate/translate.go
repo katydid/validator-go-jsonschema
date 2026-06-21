@@ -56,6 +56,10 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 		if err != nil {
 			return nil, err
 		}
+		if s.GetVersion() <= schema.VersionDraft7 {
+			// before draft version 7 ref silently ignores siblings
+			return p, nil
+		}
 		ps = append(ps, p)
 	}
 	return newAnd(ps...), nil

@@ -16,6 +16,8 @@ package jsonschema
 
 import (
 	"testing"
+
+	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 )
 
 const pathDraft4 = "../../../json-schema-org/JSON-Schema-Test-Suite/tests/draft4/"
@@ -79,5 +81,5 @@ var supportedDraft4 = &Supported{
 }
 
 func TestSuiteDraft4(t *testing.T) {
-	runTests(t, pathDraft4, supportedDraft4)
+	runTests(t, pathDraft4, supportedDraft4, WithDefaultVersion(schema.VersionDraft4))
 }

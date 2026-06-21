@@ -65,3 +65,11 @@ func (this Schema) GetType() []SimpleType {
 	}
 	return nil
 }
+
+func (this Schema) GetVersion() Version {
+	return detectVersion(this.Schema)
+}
+
+func (this *Schema) SetDefaultVersion(defaultVersion Version) {
+	setDefaultVersion(this, defaultVersion)
+}

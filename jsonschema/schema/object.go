@@ -45,6 +45,20 @@ func (this Object) HasObjectConstraints() bool {
 		this.Properties != nil || this.PatternProperties != nil
 }
 
+func (this Object) GetAdditionalProperties() *Additional {
+	if this.AdditionalProperties == nil {
+		return nil
+	}
+	return this.AdditionalProperties
+}
+
+func (this Object) GetPatternProperties() map[string]*Schema {
+	if this.PatternProperties == nil {
+		return nil
+	}
+	return this.PatternProperties
+}
+
 type Properties map[string]*Schema
 
 /*

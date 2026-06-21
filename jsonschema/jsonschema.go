@@ -28,16 +28,41 @@ import (
 	"github.com/katydid/validator-go/validator/mem"
 )
 
-func MatchBytes(schemaStr []byte, jsonStr []byte) (bool, error) {
-	i, err := NewInterpreter(schemaStr)
+type version string
+
+type options struct {
+	version schema.Version
+}
+
+func newOptions(opts []Option) *options {
+	// set default values
+	o := &options{
+		version: schema.VersionLatest,
+	}
+	for _, opt := range opts {
+		opt(o)
+	}
+	return o
+}
+
+type Option func(o *options)
+
+func WithDefaultVersion(v schema.Version) Option {
+	return func(o *options) {
+		o.version = v
+	}
+}
+
+func MatchBytes(schemaStr []byte, jsonStr []byte, opts ...Option) (bool, error) {
+	i, err := NewInterpreter(schemaStr, opts...)
 	if err != nil {
 		return false, err
 	}
 	return i.MatchBytes(jsonStr)
 }
 
-func MatchParser(schemaStr []byte, p parse.Parser) (bool, error) {
-	i, err := NewInterpreter(schemaStr)
+func MatchParser(schemaStr []byte, p parse.Parser, opts ...Option) (bool, error) {
+	i, err := NewInterpreter(schemaStr, opts...)
 	if err != nil {
 		return false, err
 	}
@@ -54,8 +79,8 @@ type interpret struct {
 	g      *ast.Grammar
 }
 
-func NewInterpreter(schemaStr []byte) (Matcher, error) {
-	g, err := newGrammar(schemaStr)
+func NewInterpreter(schemaStr []byte, opts ...Option) (Matcher, error) {
+	g, err := newGrammar(schemaStr, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,8 +105,8 @@ type memoize struct {
 	mem    *mem.Mem
 }
 
-func NewMemoizer(schemaStr []byte) (Matcher, error) {
-	g, err := newGrammar(schemaStr)
+func NewMemoizer(schemaStr []byte, opts ...Option) (Matcher, error) {
+	g, err := newGrammar(schemaStr, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -110,9 +135,9 @@ type compiled struct {
 	auto   *auto.Auto
 }
 
-func Compile(schemaStr []byte) (Matcher, error) {
+func Compile(schemaStr []byte, opts ...Option) (Matcher, error) {
 	p := json.NewJSONSchemaParser()
-	g, err := newGrammar(schemaStr)
+	g, err := newGrammar(schemaStr, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,12 +163,14 @@ func (c *compiled) MatchParser(p parse.Parser) (bool, error) {
 	return c.auto.Validate(p)
 }
 
-func newGrammar(schemaStr []byte) (*ast.Grammar, error) {
-	schema, err := schema.ParseSchema(schemaStr)
+func newGrammar(schemaStr []byte, opts ...Option) (*ast.Grammar, error) {
+	options := newOptions(opts)
+	s, err := schema.ParseSchema(schemaStr)
 	if err != nil {
 		return nil, err
 	}
-	g, err := translate.Translate(schema)
+	s.SetDefaultVersion(options.version)
+	g, err := translate.Translate(s)
 	if err != nil {
 		return nil, err
 	}

@@ -14,7 +14,11 @@
 
 package jsonschema
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
+)
 
 const path202012 = "../../../json-schema-org/JSON-Schema-Test-Suite/tests/draft2020-12/"
 
@@ -131,5 +135,5 @@ var supported202012 = &Supported{
 }
 
 func TestSuite202012(t *testing.T) {
-	runTests(t, path202012, supported202012)
+	runTests(t, path202012, supported202012, WithDefaultVersion(schema.VersionDraft2020))
 }
