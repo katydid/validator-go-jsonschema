@@ -78,38 +78,39 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 		}
 	}
 	if sch := s.Array.AdditionalItems.GetSchema(); sch != nil {
-		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix+"/additionalItems", sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.Array.GetItems().GetObject(); sch != nil {
-		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix+"/items", sch, res); err != nil {
 			return err
 		}
 	}
-	for _, sch := range s.Array.GetItems().GetArray() {
-		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
+	for i, sch := range s.Array.GetItems().GetArray() {
+		if err := findSchemaDefinitions(root, prefix+"/items/"+strconv.Itoa(i), sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.Object.AdditionalProperties.GetSchema(); sch != nil {
-		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix+"/additionalProperties", sch, res); err != nil {
 			return err
 		}
 	}
 	for _, sch := range s.Object.GetProperties() {
-		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix+"/properties", sch, res); err != nil {
 			return err
 		}
 	}
 	for _, sch := range s.Object.PatternProperties {
-		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix+"/patternProperties", sch, res); err != nil {
 			return err
 		}
 	}
 	if s.Object.Dependencies != nil {
 		for _, dep := range *s.Object.Dependencies {
 			if sch := dep.Schema; sch != nil {
+				// TODO add proper prefix
 				if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
 					return err
 				}
@@ -117,22 +118,37 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 		}
 	}
 	for _, sch := range s.AllOf {
-		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix+"/allOf", sch, res); err != nil {
 			return err
 		}
 	}
 	for _, sch := range s.AnyOf {
-		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix+"/anyOf", sch, res); err != nil {
 			return err
 		}
 	}
 	for _, sch := range s.OneOf {
-		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix+"/oneOf", sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.Not; sch != nil {
-		if err := findSchemaDefinitions(root, prefix, sch, res); err != nil {
+		if err := findSchemaDefinitions(root, prefix+"/not", sch, res); err != nil {
+			return err
+		}
+	}
+	if sch := s.If; sch != nil {
+		if err := findSchemaDefinitions(root, prefix+"/if", sch, res); err != nil {
+			return err
+		}
+	}
+	if sch := s.Then; sch != nil {
+		if err := findSchemaDefinitions(root, prefix+"/then", sch, res); err != nil {
+			return err
+		}
+	}
+	if sch := s.Else; sch != nil {
+		if err := findSchemaDefinitions(root, prefix+"/else", sch, res); err != nil {
 			return err
 		}
 	}
@@ -185,6 +201,45 @@ func findSchema(pointer []string, s *schema.Schema) *schema.Schema {
 			return findSchema(pointer[2:], sch)
 		}
 		return sch
+	case "definitions":
+		if s.Definitions == nil {
+			return nil
+		}
+		sch, ok := s.Definitions[pointer[1]]
+		if !ok {
+			return nil
+		}
+		if len(pointer) > 2 {
+			return findSchema(pointer[2:], sch)
+		}
+		return sch
+	case "if":
+		sch := s.If
+		if sch == nil {
+			return nil
+		}
+		if len(pointer) > 1 {
+			return findSchema(pointer[1:], sch)
+		}
+		return sch
+	case "else":
+		sch := s.Else
+		if sch == nil {
+			return nil
+		}
+		if len(pointer) > 1 {
+			return findSchema(pointer[1:], sch)
+		}
+		return sch
+	case "then":
+		sch := s.Then
+		if sch == nil {
+			return nil
+		}
+		if len(pointer) > 1 {
+			return findSchema(pointer[1:], sch)
+		}
+		return sch
 	case "items":
 		if sch := s.Items.GetObject(); sch != nil {
 			if len(pointer) == 1 {
@@ -208,7 +263,6 @@ func findSchema(pointer []string, s *schema.Schema) *schema.Schema {
 		}
 		return findSchema(pointer[2:], sch)
 	default:
-		// TODO: support more relative pointers
 		return nil
 	}
 }
