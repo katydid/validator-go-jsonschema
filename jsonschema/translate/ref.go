@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go/validator/ast"
 )
 
@@ -52,16 +51,16 @@ func refToDefName(id string, ref string) (string, error) {
 	return path, nil
 }
 
-func definitionToPrefix(prefix string, name string, sch *schema.Schema) string {
+func definitionToPrefix(prefix string, id string, name string) string {
 	return "/definitions/" + name
 }
 
-func definitionToDefName(prefix string, name string, sch *schema.Schema) (string, error) {
-	if len(sch.Id) > 0 {
-		return prefix + sch.Id, nil
+func definitionToDefName(prefix string, parentId string, anchor string, id string, name string) (string, error) {
+	if len(id) > 0 {
+		return prefix + id, nil
 	}
-	if len(sch.Anchor) > 0 {
-		return "#" + sch.Anchor, nil
+	if len(anchor) > 0 {
+		return "#" + anchor, nil
 	}
 	name = "/definitions/" + name
 	s := prefix + name
