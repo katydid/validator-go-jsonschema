@@ -15,7 +15,6 @@
 package translate
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/katydid/validator-go/validator/ast"
@@ -30,9 +29,6 @@ func translateRef(parentId string, name string) (*ast.Pattern, error) {
 }
 
 func refToDefName(parentId string, ref string) (string, error) {
-	if strings.HasPrefix(ref, "file:/") {
-		return "", fmt.Errorf("remoteRef file is not supported")
-	}
 	if ref == "#" {
 		return "main", nil
 	}
@@ -45,8 +41,9 @@ func refToDefName(parentId string, ref string) (string, error) {
 		return "", err
 	}
 	if strings.HasPrefix(ref, "#/") {
-		path := strings.Join(paths, "/")
-		return path, nil
+		// make sure relative path is pasted on the back of the back with no removal of the last item.
+		parentId += "/"
+		return prependParentId(parentId, paths)
 	}
 	return prependParentId(parentId, paths)
 }
@@ -96,6 +93,10 @@ func definitionToDefName(prefix string, parentId string, name string, id string,
 	paths, err := parsePointer(s)
 	if err != nil {
 		return "", err
+	}
+	if len(parentId) > 0 && !strings.HasSuffix(parentId, "/") {
+		// make sure relative path is pasted on the back of the back with no removal of the last item.
+		parentId += "/"
 	}
 	return prependParentId(parentId, paths)
 }

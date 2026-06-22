@@ -15,7 +15,6 @@
 package translate
 
 import (
-	"fmt"
 	"net/url"
 	"strings"
 
@@ -27,7 +26,7 @@ const reservedWordForEmpty = "reserved word for empty definition path"
 func parsePointer(s string) ([]string, error) {
 	var path []string
 	var err error
-	if strings.HasPrefix(s, "http://") || strings.HasPrefix(s, "https://") {
+	if strings.HasPrefix(s, "http://") || strings.HasPrefix(s, "https://") || strings.HasPrefix(s, "file://") {
 		u, err := url.Parse(s)
 		if err != nil {
 			return nil, err
@@ -48,8 +47,6 @@ func parsePointer(s string) ([]string, error) {
 		}
 		prefix := u.Scheme + "://" + u.Host
 		path = append([]string{prefix}, append(urlPath, fragmentPath...)...)
-	} else if strings.HasPrefix(s, "file://") {
-		return nil, fmt.Errorf("file not supported")
 	} else if strings.HasPrefix(s, "#") {
 		// sometimes we forget to strip the hash from the front.
 		path, err = jsonpointer.ParseFragment(s[1:])

@@ -236,3 +236,53 @@ func TestDraft4Id2(t *testing.T) {
 		t.Fatalf("got %s want %s", defName, want)
 	}
 }
+
+// # Draft 4 test case:
+//
+//	{
+//		"description": "id with file URI still resolves pointers - *nix",
+//		"schema": {
+//			"id": "file:///folder/file.json",
+//			"definitions": {
+//				"foo": {
+//					"type": "number"
+//				}
+//			},
+//			"allOf": [
+//				{
+//					"$ref": "#/definitions/foo"
+//				}
+//			]
+//		},
+//		"tests": [
+//			{
+//				"description": "number is valid",
+//				"data": 1,
+//				"valid": true
+//			},
+//			{
+//				"description": "non-number is invalid",
+//				"data": "a",
+//				"valid": false
+//			}
+//		]
+//	},
+func TestDraft4File(t *testing.T) {
+	want := "file:///folder/file.json/definitions/foo"
+	// prefix, parentId, name, id, anchor
+	defName, err := definitionToDefName("", "file:///folder/file.json", "foo", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// parentId, name
+	refName, err := refToDefName("file:///folder/file.json", "#/definitions/foo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if defName != refName {
+		t.Fatalf("definitionToDefName = %s, but refToDefName = %s", defName, refName)
+	}
+	if defName != want {
+		t.Fatalf("got %s want %s", defName, want)
+	}
+}
