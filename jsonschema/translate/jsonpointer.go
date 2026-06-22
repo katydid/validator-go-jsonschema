@@ -56,11 +56,13 @@ func parsePointer(s string) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-	} else {
+	} else if strings.HasPrefix(s, "/") {
 		path, err = jsonpointer.ParseFragment(s)
 		if err != nil {
 			return nil, err
 		}
+	} else {
+		path = []string{s}
 	}
 
 	// This decodes the percent encoding, changing %25 to %

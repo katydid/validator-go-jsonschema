@@ -50,7 +50,7 @@ func ParseFragment(str string) ([]string, error) {
 	}
 
 	if str[0] != '/' {
-		return nil, fmt.Errorf("non-empty references must begin with a '/' character")
+		return nil, fmt.Errorf("non-empty references must begin with a '/' character %s", str)
 	}
 	str = str[1:]
 
