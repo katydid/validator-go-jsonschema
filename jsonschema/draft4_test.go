@@ -49,9 +49,9 @@ var supportedDraft4 = &Supported{
 		"pattern.json":                 true,
 		"patternProperties.json":       true,
 		"properties.json":              true,
-		// "ref.json": true,
-		"required.json": true,
-		"type.json":     true,
+		"ref.json":                     true,
+		"required.json":                true,
+		"type.json":                    true,
 
 		// optional
 		"optional/ecmascript-regex.json":     true,

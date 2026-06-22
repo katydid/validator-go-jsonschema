@@ -93,8 +93,7 @@ func TestBenchmarkSuite(t *testing.T) {
 	}
 	// TODO fix these
 	notCompilingYet := map[string]string{
-		"ui5":             "need better reference support: reference to unknown definition then/then/else/then/definitions/builder-specVersion-3.0",
-		"ui5-invalid":     "TODO",
+		"ui5-invalid":     "look at https://github.com/clairey-zx81/json-model/issues/8 for hints",
 		"geojson-invalid": "just slow to compile",
 		"geojson":         "just slow to compile",
 	}

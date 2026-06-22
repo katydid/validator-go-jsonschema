@@ -20,7 +20,7 @@ import (
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func translateOperators(s *schema.Schema) (*ast.Pattern, error) {
+func translateOperators(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 	var res []*ast.Pattern
 	if s.Enum != nil {
 		p, err := translateEnum(s.Enum)
@@ -30,42 +30,42 @@ func translateOperators(s *schema.Schema) (*ast.Pattern, error) {
 		res = append(res, p)
 	}
 	if len(s.AllOf) > 0 {
-		ps, err := std.MapErr(s.AllOf, translateWithParentId(s.Id))
+		ps, err := std.MapErr(s.AllOf, translateWithParentId(getId(parentId, s)))
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, newAnd(ps...))
 	}
 	if len(s.AnyOf) > 0 {
-		ps, err := std.MapErr(s.AnyOf, translateWithParentId(s.Id))
+		ps, err := std.MapErr(s.AnyOf, translateWithParentId(getId(parentId, s)))
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, newOr(ps...))
 	}
 	if len(s.OneOf) > 0 {
-		p, err := translateOneOf(s.Id, s.OneOf)
+		p, err := translateOneOf(getId(parentId, s), s.OneOf)
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, p)
 	}
 	if s.Not != nil {
-		p, err := translate(s.Id, s.Not)
+		p, err := translate(getId(parentId, s), s.Not)
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, ast.NewNot(p))
 	}
 	if s.If != nil {
-		p, err := translateIf(s.Id, s.If, s.Then, s.Else)
+		p, err := translateIf(getId(parentId, s), s.If, s.Then, s.Else)
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, p)
 	}
 	if s.Dependencies != nil {
-		deps, err := translateDependencies(s.Id, s.Dependencies)
+		deps, err := translateDependencies(getId(parentId, s), s.Dependencies)
 		if err != nil {
 			return nil, err
 		}
@@ -79,7 +79,7 @@ func translateOperators(s *schema.Schema) (*ast.Pattern, error) {
 		res = append(res, deps)
 	}
 	if s.DependentSchemas != nil {
-		deps, err := translateDependentSchemas(s.Id, s.DependentSchemas)
+		deps, err := translateDependentSchemas(getId(parentId, s), s.DependentSchemas)
 		if err != nil {
 			return nil, err
 		}

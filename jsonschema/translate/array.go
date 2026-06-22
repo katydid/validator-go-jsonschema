@@ -22,7 +22,7 @@ import (
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func translateArray(s *schema.Schema) (*ast.Pattern, error) {
+func translateArray(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 	constraints := []*ast.Pattern{}
 	if s.UniqueItems {
 		return nil, fmt.Errorf("uniqueItems are not supported")
@@ -41,7 +41,7 @@ func translateArray(s *schema.Schema) (*ast.Pattern, error) {
 			}
 		}
 		if s.AdditionalItems.Schema != nil {
-			p, err := translate(s.Id, s.AdditionalItems.Schema)
+			p, err := translate(getId(parentId, s), s.AdditionalItems.Schema)
 			if err != nil {
 				return nil, err
 			}
@@ -52,14 +52,14 @@ func translateArray(s *schema.Schema) (*ast.Pattern, error) {
 		// TODO: There is a problem here when items are arrays or objects.
 		if s.Items.Object != nil {
 			sch := s.Items.Object
-			pattern, err := translate(s.Id, sch)
+			pattern, err := translate(getId(parentId, s), sch)
 			if err != nil {
 				return nil, err
 			}
 			constraints = append(constraints, ast.NewZeroOrMore(anyIndex(pattern)))
 		} else if s.Items.Array != nil {
 			schs := s.Items.Array
-			patterns, err := std.MapErr(schs, translateWithParentId(s.Id))
+			patterns, err := std.MapErr(schs, translateWithParentId(getId(parentId, s)))
 			if err != nil {
 				return nil, err
 			}

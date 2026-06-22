@@ -23,7 +23,7 @@ import (
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func translateObject(s *schema.Schema) (*ast.Pattern, error) {
+func translateObject(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 	var constraints []*ast.Pattern
 	if s.MaxProperties != nil {
 		constraints = append(constraints, maxProperties(int(*s.MaxProperties)))
@@ -38,7 +38,7 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 		}
 		constraints = append(constraints, required)
 	}
-	additional, err := translateAdditionalProperties(s)
+	additional, err := translateAdditionalProperties(parentId, s)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func translateObject(s *schema.Schema) (*ast.Pattern, error) {
 		}
 	}
 
-	props, err := newProperties(s)
+	props, err := newProperties(parentId, s)
 	if err != nil {
 		return nil, err
 	}
@@ -87,19 +87,19 @@ type property struct {
 	child   *ast.Pattern
 }
 
-func newProperties(s *schema.Schema) ([]*property, error) {
+func newProperties(parentId string, s *schema.Schema) ([]*property, error) {
 	names := std.SortedKeys(s.GetProperties())
 	patternNames := std.SortedKeys(s.PatternProperties)
 	props := make([]*property, 0, len(names)+len(patternNames))
 	for _, name := range names {
-		p, err := newProperty(s.Id, name, s.GetProperties()[name])
+		p, err := newProperty(getId(parentId, s), name, s.GetProperties()[name])
 		if err != nil {
 			return nil, err
 		}
 		props = append(props, p)
 	}
 	for _, name := range patternNames {
-		p, err := newPatternProperty(s.Id, name, s.PatternProperties[name])
+		p, err := newPatternProperty(getId(parentId, s), name, s.PatternProperties[name])
 		if err != nil {
 			return nil, err
 		}
@@ -254,7 +254,7 @@ func minProperties(n int) *ast.Pattern {
 	return ast.NewConcat(ast.NewConcat(ps...), ast.NewZAny())
 }
 
-func translateAdditionalProperties(s *schema.Schema) (*ast.Pattern, error) {
+func translateAdditionalProperties(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 	additional := ast.NewZAny()
 
 	names := std.SortedKeys(s.GetProperties())
@@ -280,7 +280,7 @@ func translateAdditionalProperties(s *schema.Schema) (*ast.Pattern, error) {
 		if s.AdditionalProperties.Bool != nil && !(*s.AdditionalProperties.Bool) {
 			additional = ast.NewEmpty()
 		} else if s.AdditionalProperties.Schema != nil {
-			p, err := translate(s.Id, s.AdditionalProperties.Schema)
+			p, err := translate(getId(parentId, s), s.AdditionalProperties.Schema)
 			if err != nil {
 				return nil, err
 			}

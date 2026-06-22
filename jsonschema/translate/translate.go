@@ -41,13 +41,13 @@ func translate(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 	if s.Default != nil {
 		// default works if we do nothing
 	}
-	ptype, err := translateTypeConstraints(s)
+	ptype, err := translateTypeConstraints(parentId, s)
 	if err != nil {
 		return nil, err
 	}
 	ps := []*ast.Pattern{ptype}
 	if s.HasOperatorConstraints() {
-		p, err := translateOperators(s)
+		p, err := translateOperators(parentId, s)
 		if err != nil {
 			return nil, err
 		}
@@ -67,7 +67,7 @@ func translate(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 	return newAnd(ps...), nil
 }
 
-func translateTypeConstraints(s *schema.Schema) (*ast.Pattern, error) {
+func translateTypeConstraints(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 	var ps []*ast.Pattern
 	if hasType(s.Type, schema.TypeNull) {
 		ps = append(ps, nullType())
@@ -119,7 +119,7 @@ func translateTypeConstraints(s *schema.Schema) (*ast.Pattern, error) {
 	}
 	if hasType(s.Type, schema.TypeArray) {
 		if s.HasArrayConstraints() {
-			p, err := translateArray(s)
+			p, err := translateArray(parentId, s)
 			if err != nil {
 				return nil, err
 			}
@@ -130,7 +130,7 @@ func translateTypeConstraints(s *schema.Schema) (*ast.Pattern, error) {
 			ps = append(ps, typ)
 		}
 	} else if s.HasArrayConstraints() {
-		p, err := translateArray(s)
+		p, err := translateArray(parentId, s)
 		if err != nil {
 			return nil, err
 		}
@@ -139,7 +139,7 @@ func translateTypeConstraints(s *schema.Schema) (*ast.Pattern, error) {
 	}
 	if hasType(s.Type, schema.TypeObject) {
 		if s.HasObjectConstraints() {
-			p, err := translateObject(s)
+			p, err := translateObject(parentId, s)
 			if err != nil {
 				return nil, err
 			}
@@ -150,7 +150,7 @@ func translateTypeConstraints(s *schema.Schema) (*ast.Pattern, error) {
 			ps = append(ps, typ)
 		}
 	} else if s.HasObjectConstraints() {
-		p, err := translateObject(s)
+		p, err := translateObject(parentId, s)
 		if err != nil {
 			return nil, err
 		}

@@ -285,6 +285,9 @@ func translateDefinitions(s *schema.Schema) (map[string]*ast.Pattern, error) {
 	if _, ok := defs["main"]; ok {
 		return nil, fmt.Errorf("main is a reserved definition name for katydid")
 	}
+	if len(s.Id) > 0 {
+		defs[s.Id] = s
+	}
 	// katydid starts with the main pattern
 	defs["main"] = s
 	names := std.SortedKeys(defs)
