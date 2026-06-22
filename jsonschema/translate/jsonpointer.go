@@ -38,13 +38,16 @@ func parsePointer(s string) ([]string, error) {
 		} else {
 			fragment = "/" + u.Fragment
 		}
-		u.Fragment = ""
-		prefix := u.Scheme + "://" + u.Host + u.Path
-		path, err = jsonpointer.ParseFragment(fragment)
+		fragmentPath, err := jsonpointer.ParseFragment(fragment)
 		if err != nil {
 			return nil, err
 		}
-		path = append([]string{prefix}, path...)
+		urlPath := strings.Split(u.Path, "/")
+		if urlPath[0] == "" {
+			urlPath = urlPath[1:]
+		}
+		prefix := u.Scheme + "://" + u.Host
+		path = append([]string{prefix}, append(urlPath, fragmentPath...)...)
 	} else if strings.HasPrefix(s, "file://") {
 		return nil, fmt.Errorf("file not supported")
 	} else if strings.HasPrefix(s, "#") {
