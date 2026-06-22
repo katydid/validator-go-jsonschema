@@ -36,7 +36,7 @@ func findDefinitions(s *schema.Schema) (map[string]*schema.Schema, error) {
 func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema, res map[string]*schema.Schema) error {
 	for _, name := range std.SortedKeys(s.Definitions) {
 		sch := s.Definitions[name]
-		defname, err := definitionToDefName(prefix, sch.Id, sch.Anchor, s.Definitions[name].Id, name)
+		defname, err := definitionToDefName(prefix, sch.Id, name, s.Definitions[name].Id, sch.Anchor)
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,7 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 	}
 	for _, name := range std.SortedKeys(s.Definitions) {
 		sch := s.Definitions[name]
-		newprefix := definitionToPrefix(prefix, sch.Id, name)
+		newprefix := definitionToPrefix(prefix, name, sch.Id)
 		if err := findSchemaDefinitions(root, newprefix, sch, res); err != nil {
 			return err
 		}

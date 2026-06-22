@@ -21,15 +21,15 @@ import (
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func translateRef(id string, name string) (*ast.Pattern, error) {
-	defName, err := refToDefName(id, name)
+func translateRef(parentId string, name string) (*ast.Pattern, error) {
+	defName, err := refToDefName(parentId, name)
 	if err != nil {
 		return nil, err
 	}
 	return ast.NewReference(defName), nil
 }
 
-func refToDefName(id string, ref string) (string, error) {
+func refToDefName(parentId string, ref string) (string, error) {
 	if strings.HasPrefix(ref, "file:/") {
 		return "", fmt.Errorf("remoteRef file is not supported")
 	}
@@ -46,16 +46,16 @@ func refToDefName(id string, ref string) (string, error) {
 	}
 	path := strings.Join(paths, "/")
 	if strings.HasPrefix(ref, "#/") {
-		return id + path, nil
+		return parentId + path, nil
 	}
 	return path, nil
 }
 
-func definitionToPrefix(prefix string, id string, name string) string {
+func definitionToPrefix(prefix string, name string, id string) string {
 	return "/definitions/" + name
 }
 
-func definitionToDefName(prefix string, parentId string, anchor string, id string, name string) (string, error) {
+func definitionToDefName(prefix string, parentId string, name string, id string, anchor string) (string, error) {
 	if len(id) > 0 {
 		return prefix + id, nil
 	}
