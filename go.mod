@@ -11,7 +11,6 @@ require (
 	github.com/katydid/parser-go-json v0.5.6
 	github.com/katydid/parser-go-reflect v0.3.4
 	github.com/katydid/validator-go v0.6.5-0.20260622080302-ef79c335394f
-	github.com/qri-io/jsonpointer v0.1.1
 )
 
 require (

@@ -19,40 +19,47 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/qri-io/jsonpointer"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/translate/jsonpointer"
 )
 
 const reservedWordForEmpty = "reserved word for empty definition path"
 
 func parsePointer(s string) ([]string, error) {
-	prefix := ""
-	fragment := ""
+	var path []string
+	var err error
 	if strings.HasPrefix(s, "http://") || strings.HasPrefix(s, "https://") {
 		u, err := url.Parse(s)
 		if err != nil {
 			return nil, err
 		}
+		fragment := ""
 		if len(u.Fragment) == 0 {
 			fragment = ""
 		} else {
 			fragment = "/" + u.Fragment
 		}
 		u.Fragment = ""
-		prefix = u.String()
+		prefix := u.Scheme + "://" + u.Host + u.Path
+		path, err = jsonpointer.ParseFragment(fragment)
+		if err != nil {
+			return nil, err
+		}
+		path = append([]string{prefix}, path...)
 	} else if strings.HasPrefix(s, "file://") {
 		return nil, fmt.Errorf("file not supported")
 	} else if strings.HasPrefix(s, "#") {
 		// sometimes we forget to strip the hash from the front.
-		prefix = ""
-		fragment = s[1:]
+		path, err = jsonpointer.ParseFragment(s[1:])
+		if err != nil {
+			return nil, err
+		}
 	} else {
-		prefix = ""
-		fragment = s
+		path, err = jsonpointer.ParseFragment(s)
+		if err != nil {
+			return nil, err
+		}
 	}
-	path, err := jsonpointer.Parse(fragment)
-	if err != nil {
-		return nil, err
-	}
+
 	// This decodes the percent encoding, changing %25 to %
 	for i, p := range path {
 		u, err := url.PathUnescape(p)
@@ -66,8 +73,5 @@ func parsePointer(s string) ([]string, error) {
 			path[i] = reservedWordForEmpty
 		}
 	}
-	if prefix == "" {
-		return path, nil
-	}
-	return append([]string{prefix}, path...), nil
+	return path, nil
 }
