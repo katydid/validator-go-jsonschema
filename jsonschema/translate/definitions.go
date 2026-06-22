@@ -34,10 +34,17 @@ func findDefinitions(s *schema.Schema) (map[string]*schema.Schema, error) {
 }
 
 func getId(parentId string, s *schema.Schema) string {
-	if len(s.Id) > 0 {
+	if len(s.Id) == 0 {
+		return parentId
+	}
+	if len(parentId) == 0 {
 		return s.Id
 	}
-	return parentId
+	idPaths, err := parsePointer(s.Id)
+	if err != nil {
+		idPaths = []string{s.Id}
+	}
+	return prependParentId(parentId, idPaths)
 }
 
 func findSchemaDefinitions(root *schema.Schema, parentId string, prefix string, s *schema.Schema, res map[string]*schema.Schema) error {

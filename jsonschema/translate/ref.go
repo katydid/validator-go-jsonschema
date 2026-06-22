@@ -43,22 +43,22 @@ func refToDefName(parentId string, ref string) (string, error) {
 	if strings.HasPrefix(ref, "#/") {
 		// make sure relative path is pasted on the back of the back with no removal of the last item.
 		parentId += "/"
-		return prependParentId(parentId, paths)
+		return prependParentId(parentId, paths), nil
 	}
-	return prependParentId(parentId, paths)
+	return prependParentId(parentId, paths), nil
 }
 
 func definitionToPrefix(prefix string, name string, id string) string {
 	return "/definitions/" + name
 }
 
-func prependParentId(parentId string, paths []string) (string, error) {
+func prependParentId(parentId string, paths []string) string {
 	if parentId == "" {
-		return strings.Join(paths, "/"), nil
+		return strings.Join(paths, "/")
 	}
 	parentPaths, err := parsePointer(parentId)
 	if err != nil {
-		return "", err
+		parentPaths = []string{parentId}
 	}
 	i := 0
 	for i < len(parentPaths) && i < len(paths) && parentPaths[i] == paths[i] {
@@ -66,11 +66,11 @@ func prependParentId(parentId string, paths []string) (string, error) {
 	}
 	if i != 0 {
 		paths = append(parentPaths[:i], paths[i:]...)
-		return strings.Join(paths, "/"), nil
+		return strings.Join(paths, "/")
 	}
 	// remove last slash or last item
 	parentPaths = parentPaths[:len(parentPaths)-1]
-	return strings.Join(append(parentPaths, paths...), "/"), nil
+	return strings.Join(append(parentPaths, paths...), "/")
 }
 
 func definitionToDefName(prefix string, parentId string, name string, id string, anchor string) (string, error) {
@@ -79,14 +79,19 @@ func definitionToDefName(prefix string, parentId string, name string, id string,
 	}
 	if len(id) > 0 {
 		if strings.HasPrefix(id, "#") && !strings.HasPrefix(id, "#/") {
-			// anchor
+			if len(parentId) > 0 {
+				if !strings.HasSuffix(parentId, "/") {
+					parentId += "/"
+				}
+				return prependParentId(parentId, []string{id[1:]}), nil
+			}
 			return id, nil
 		}
 		paths, err := parsePointer(id)
 		if err != nil {
 			return "", err
 		}
-		return prependParentId(parentId, paths)
+		return prependParentId(parentId, paths), nil
 	}
 	name = "/definitions/" + name
 	s := prefix + name
@@ -98,5 +103,5 @@ func definitionToDefName(prefix string, parentId string, name string, id string,
 		// make sure relative path is pasted on the back of the back with no removal of the last item.
 		parentId += "/"
 	}
-	return prependParentId(parentId, paths)
+	return prependParentId(parentId, paths), nil
 }

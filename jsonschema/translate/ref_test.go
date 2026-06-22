@@ -286,3 +286,57 @@ func TestDraft4File(t *testing.T) {
 		t.Fatalf("got %s want %s", defName, want)
 	}
 }
+
+// # Draft 4 Test
+//
+//	{
+//		"description": "Location-independent identifier with base URI change in subschema",
+//		"schema": {
+//			"id": "http://localhost:1234/root",
+//			"allOf": [{
+//				"$ref": "http://localhost:1234/nested.json#foo"
+//			}],
+//			"definitions": {
+//				"A": {
+//					"id": "nested.json",
+//					"definitions": {
+//						"B": {
+//							"id": "#foo",
+//							"type": "integer"
+//						}
+//					}
+//				}
+//			}
+//		},
+//		"tests": [
+//			{
+//				"data": 1,
+//				"description": "match",
+//				"valid": true
+//			},
+//			{
+//				"data": "a",
+//				"description": "mismatch",
+//				"valid": false
+//			}
+//		]
+//	},
+func TestDraft4LocationIndependent(t *testing.T) {
+	want := "http://localhost:1234/nested.json/foo"
+	// prefix, parentId, name, id, anchor
+	defName, err := definitionToDefName("/definitions/A/definitions/B", "http://localhost:1234/nested.json", "B", "#foo", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// parentId, name
+	refName, err := refToDefName("http://localhost:1234/root", "http://localhost:1234/nested.json#foo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if defName != refName {
+		t.Fatalf("definitionToDefName = %s, but refToDefName = %s", defName, refName)
+	}
+	if defName != want {
+		t.Fatalf("got %s want %s", defName, want)
+	}
+}
