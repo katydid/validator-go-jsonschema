@@ -24,18 +24,12 @@ import (
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func findMainDefinitions(s *schema.Schema) (map[string]*schema.Schema, error) {
+func findDefinitions(s *schema.Schema) (map[string]*schema.Schema, error) {
 	defs := make(map[string]*schema.Schema)
 	err := findSchemaDefinitions(s, "", s, defs)
 	if err != nil {
 		return nil, err
 	}
-
-	if _, ok := defs["main"]; ok {
-		return nil, fmt.Errorf("main is a reserved definition name for katydid")
-	}
-	// katydid starts with the main pattern
-	defs["main"] = s
 	return defs, nil
 }
 
@@ -168,14 +162,9 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 				}
 				s.SetDefaultVersion(schema.VersionDraft4)
 				res[defName] = s
-				defs, err := findMainDefinitions(s)
-				if err != nil {
+				if err := findSchemaDefinitions(s, "", s, res); err != nil {
 					return err
 				}
-				for name, sch := range defs {
-					res[name] = sch
-				}
-				delete(res, "main")
 			}
 			// TODO if it has a local part that goes deeper into the schema and does not just reference it, then there is more work to do here.
 		} else if strings.HasPrefix(s.Ref, "file") {
@@ -274,10 +263,15 @@ func findSchema(pointer []string, s *schema.Schema) *schema.Schema {
 
 func translateDefinitions(s *schema.Schema) (map[string]*ast.Pattern, error) {
 	refs := make(map[string]*ast.Pattern)
-	defs, err := findMainDefinitions(s)
+	defs, err := findDefinitions(s)
 	if err != nil {
 		return nil, err
 	}
+	if _, ok := defs["main"]; ok {
+		return nil, fmt.Errorf("main is a reserved definition name for katydid")
+	}
+	// katydid starts with the main pattern
+	defs["main"] = s
 	names := std.SortedKeys(defs)
 	for _, name := range names {
 		p, err := translate(defs[name])
@@ -286,5 +280,6 @@ func translateDefinitions(s *schema.Schema) (map[string]*ast.Pattern, error) {
 		}
 		refs[name] = p
 	}
+
 	return refs, nil
 }
