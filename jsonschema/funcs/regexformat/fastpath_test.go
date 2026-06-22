@@ -94,3 +94,71 @@ func TestFastPathRangeCharSet(t *testing.T) {
 		})
 	}
 }
+
+func TestFastPathCharSetPrefix(t *testing.T) {
+	expr := "^[@$_#]"
+	match := tryFastPath(expr)
+	if match == nil {
+		t.Fatal("expected fast path")
+	}
+	if !match("@abc") {
+		t.Fatal()
+	}
+	if match("abc") {
+		t.Fatal()
+	}
+}
+
+func TestFastPathSpecialPrefix(t *testing.T) {
+	expr := "^x-"
+	match := tryFastPath(expr)
+	if match == nil {
+		t.Fatal("expected fast path")
+	}
+	if !match("x-y") {
+		t.Fatal()
+	}
+	if match("y-x") {
+		t.Fatal()
+	}
+}
+
+func TestFastPathLengthMinMax(t *testing.T) {
+	expr := "^.{1,5}$"
+	match := tryFastPath(expr)
+	if match == nil {
+		t.Fatal("expected fast path")
+	}
+	if !match("1") {
+		t.Fatal()
+	}
+	if !match("123") {
+		t.Fatal()
+	}
+	if !match("12345") {
+		t.Fatal()
+	}
+	if match("") {
+		t.Fatal()
+	}
+	if match("123456") {
+		t.Fatal()
+	}
+}
+
+func TestFastPathLengthExact(t *testing.T) {
+	expr := "^.{5}$"
+	match := tryFastPath(expr)
+	if match == nil {
+		t.Fatal("expected fast path")
+	}
+	if !match("12345") {
+		t.Fatal()
+	}
+	if match("1234") {
+		t.Fatal()
+	}
+	if match("123456") {
+		t.Fatal()
+	}
+}

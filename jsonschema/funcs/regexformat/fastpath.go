@@ -14,7 +14,10 @@
 
 package regexformat
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 func tryFastPath(expr string) func(s string) bool {
 	if fast := tryFastPathAny(expr); fast != nil {
@@ -24,6 +27,9 @@ func tryFastPath(expr string) func(s string) bool {
 		return fast
 	}
 	if fast := tryFastPathPrefix(expr); fast != nil {
+		return fast
+	}
+	if fast := tryFastPathLength(expr); fast != nil {
 		return fast
 	}
 	return nil
@@ -40,6 +46,78 @@ func tryFastPath(expr string) func(s string) bool {
 // "^[0-9]+(ns|ms|us|µs|s|m|h)$"
 // "^#[0-9a-fA-F]{6}$",
 // "^[a-z]{1,2}$"
+// "default|^[0-9]+$"
+// "^[a-zA-Z0-9_\\.\\-]*$"
+// "^[a-zA-Z0-9_\\-]*$":
+// "^[a-zA-Z0-9_\\.\\-]*"
+// "^(/[^/]+)+$"
+
+func tryFastPathLength(expr string) func(s string) bool {
+	if expr[0] != '^' {
+		return nil
+	}
+	expr = expr[1:]
+	if expr[len(expr)-1] != '$' {
+		return nil
+	}
+	expr = expr[:len(expr)-1]
+	if expr[0] != '.' {
+		return nil
+	}
+	expr = expr[1:]
+	if expr[0] != '{' {
+		return nil
+	}
+	expr = expr[1:]
+	if expr[len(expr)-1] != '}' {
+		return nil
+	}
+	expr = expr[:len(expr)-1]
+	ss := strings.Split(expr, ",")
+	if len(ss) == 1 {
+		exact, err := strconv.Atoi(ss[0])
+		if err != nil {
+			return nil
+		}
+		return func(s string) bool {
+			l := 0
+			if len(s) < exact {
+				return false
+			}
+			for range s {
+				l++
+				if l > exact {
+					return false
+				}
+			}
+			return l == exact
+		}
+	}
+	if len(ss) == 2 {
+		min, err := strconv.Atoi(ss[0])
+		if err != nil {
+			return nil
+		}
+		max, err := strconv.Atoi(ss[1])
+		if err != nil {
+			return nil
+		}
+		return func(s string) bool {
+			l := 0
+			if len(s) < min {
+				return false
+			}
+			for range s {
+				l++
+				if l > max {
+					return false
+				}
+			}
+			return l >= min && l <= max
+		}
+	}
+	return nil
+}
 
 func tryFastPathAny(expr string) func(s string) bool {
 	switch expr {
@@ -47,7 +125,7 @@ func tryFastPathAny(expr string) func(s string) bool {
 		return func(string) bool {
 			return true
 		}
-	case "^.+$", ".+":
+	case "^.+$", ".+", ".", "(.+)":
 		return func(s string) bool {
 			return len(s) != 0
 		}
@@ -61,16 +139,21 @@ func tryFastPathPrefix(expr string) func(s string) bool {
 		return nil
 	}
 	expr = expr[1:]
-	if expr[len(expr)-1] != '*' {
-		return nil
+	// ignore .*
+	if expr[len(expr)-1] == '*' {
+		expr = expr[:len(expr)-1]
+		if expr[len(expr)-1] == '.' {
+			expr = expr[:len(expr)-1]
+		} else {
+			return nil
+		}
 	}
-	expr = expr[:len(expr)-1]
-	if expr[len(expr)-1] != '.' {
-		return nil
-	}
-	expr = expr[:len(expr)-1]
 	for i := 0; i < len(expr); i++ {
 		if !isUnreservedAscii(expr[i]) {
+			if i == len(expr)-1 && expr[i] == '-' {
+				continue
+			}
+			// if '-' is last character it is not reserved
 			return nil
 		}
 	}
@@ -102,10 +185,11 @@ func tryFastPathCharSet(expr string) func(s string) bool {
 		return nil
 	}
 	expr = expr[1:]
-	if expr[len(expr)-1] != '$' {
-		return nil
+	justprefix := true
+	if expr[len(expr)-1] == '$' {
+		justprefix = false
+		expr = expr[:len(expr)-1]
 	}
-	expr = expr[:len(expr)-1]
 	plus := false
 	star := false
 	if expr[len(expr)-1] == '+' {
@@ -125,11 +209,14 @@ func tryFastPathCharSet(expr string) func(s string) bool {
 	if expr[offset] != ']' {
 		return nil
 	}
+	if justprefix && !star && !plus {
+		return matchFirstCharSet(set)
+	}
 	if plus {
-		return matchAlpha1(set)
+		return matchCharSet1(set)
 	}
 	if star {
-		return matchAlpha(set)
+		return matchCharSet(set)
 	}
 	return nil
 }
@@ -171,11 +258,13 @@ func isUnreservedInsideRange(c byte) bool {
 		return true
 	} else if c == '_' || c == '/' || c == '.' {
 		return true
+	} else if c == '#' || c == '@' || c == '$' {
+		return true
 	}
 	return false
 }
 
-func matchAlpha1(alphabet [256]byte) func(s string) bool {
+func matchCharSet1(alphabet [256]byte) func(s string) bool {
 	return func(s string) bool {
 		if len(s) == 0 {
 			return false
@@ -189,7 +278,7 @@ func matchAlpha1(alphabet [256]byte) func(s string) bool {
 	}
 }
 
-func matchAlpha(alphabet [256]byte) func(s string) bool {
+func matchCharSet(alphabet [256]byte) func(s string) bool {
 	return func(s string) bool {
 		for _, c := range s {
 			if alphabet[c] != 1 {
@@ -197,5 +286,14 @@ func matchAlpha(alphabet [256]byte) func(s string) bool {
 			}
 		}
 		return true
+	}
+}
+
+func matchFirstCharSet(alphabet [256]byte) func(s string) bool {
+	return func(s string) bool {
+		if len(s) == 0 {
+			return false
+		}
+		return alphabet[s[0]] == 1
 	}
 }
