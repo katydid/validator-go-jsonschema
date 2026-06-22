@@ -44,29 +44,58 @@ func refToDefName(parentId string, ref string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	path := strings.Join(paths, "/")
 	if strings.HasPrefix(ref, "#/") {
-		return parentId + path, nil
+		path := strings.Join(paths, "/")
+		return path, nil
 	}
-	return path, nil
+	return prependParentId(parentId, paths)
 }
 
 func definitionToPrefix(prefix string, name string, id string) string {
 	return "/definitions/" + name
 }
 
-func definitionToDefName(prefix string, parentId string, name string, id string, anchor string) (string, error) {
-	if len(id) > 0 {
-		return prefix + id, nil
+func prependParentId(parentId string, paths []string) (string, error) {
+	if parentId == "" {
+		return strings.Join(paths, "/"), nil
 	}
-	if len(anchor) > 0 {
-		return "#" + anchor, nil
-	}
-	name = "/definitions/" + name
-	s := prefix + name
-	path, err := parsePointer(s)
+	parentPaths, err := parsePointer(parentId)
 	if err != nil {
 		return "", err
 	}
-	return strings.Join(path, "/"), nil
+	i := 0
+	for i < len(parentPaths) && i < len(paths) && parentPaths[i] == paths[i] {
+		i++
+	}
+	if i != 0 {
+		paths = append(parentPaths[:i], paths[i:]...)
+		return strings.Join(paths, "/"), nil
+	}
+	// remove last slash or last item
+	parentPaths = parentPaths[:len(parentPaths)-1]
+	return strings.Join(append(parentPaths, paths...), "/"), nil
+}
+
+func definitionToDefName(prefix string, parentId string, name string, id string, anchor string) (string, error) {
+	if len(anchor) > 0 {
+		return "#" + anchor, nil
+	}
+	if len(id) > 0 {
+		if strings.HasPrefix(id, "#") && !strings.HasPrefix(id, "#/") {
+			// anchor
+			return id, nil
+		}
+		paths, err := parsePointer(id)
+		if err != nil {
+			return "", err
+		}
+		return prependParentId(parentId, paths)
+	}
+	name = "/definitions/" + name
+	s := prefix + name
+	paths, err := parsePointer(s)
+	if err != nil {
+		return "", err
+	}
+	return prependParentId(parentId, paths)
 }

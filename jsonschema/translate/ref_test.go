@@ -54,7 +54,8 @@ import "testing"
 //			}
 //		]
 //	},
-func TestRefPreventsSibling(t *testing.T) {
+func TestDraft4RefPreventsSibling(t *testing.T) {
+	want := "http://localhost:1234/sibling_id/base/foo.json"
 	// prefix, parentId, name, id, anchor
 	defName, err := definitionToDefName("", "http://localhost:1234/sibling_id/base/", "base_foo", "foo.json", "")
 	if err != nil {
@@ -67,5 +68,171 @@ func TestRefPreventsSibling(t *testing.T) {
 	}
 	if defName != refName {
 		t.Fatalf("definitionToDefName = %s, but refToDefName = %s", defName, refName)
+	}
+	if defName != want {
+		t.Fatalf("got %s want %s", defName, want)
+	}
+}
+
+// # Draft 4 test case:
+//
+//		{
+//		"description": "Recursive references between schemas",
+//		"schema": {
+//			"id": "http://localhost:1234/tree",
+//			"description": "tree of nodes",
+//			"type": "object",
+//			"properties": {
+//				"meta": {"type": "string"},
+//				"nodes": {
+//					"type": "array",
+//					"items": {"$ref": "node"}
+//				}
+//			},
+//			"required": ["meta", "nodes"],
+//			"definitions": {
+//				"node": {
+//					"id": "http://localhost:1234/node",
+//					"description": "node",
+//					"type": "object",
+//					"properties": {
+//						"value": {"type": "number"},
+//						"subtree": {"$ref": "tree"}
+//					},
+//					"required": ["value"]
+//				}
+//			}
+//		},
+//	}
+func TestDraft4RecursiveReferences1(t *testing.T) {
+	want := "http://localhost:1234/node"
+	// prefix, parentId, name, id, anchor
+	// is the prefix  "http://localhost:1234/tree" ?
+	defName, err := definitionToDefName("", "http://localhost:1234/tree", "node", "http://localhost:1234/node", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// parentId, name
+	refName, err := refToDefName("http://localhost:1234/tree", "node")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if defName != refName {
+		t.Fatalf("definitionToDefName = %s, but refToDefName = %s", defName, refName)
+	}
+	if defName != want {
+		t.Fatalf("got %s want %s", defName, want)
+	}
+}
+
+func TestDraft4RecursiveReferences2(t *testing.T) {
+	want := "http://localhost:1234/tree"
+	// prefix, parentId, name, id, anchor
+	defName, err := definitionToDefName("", "", "", "http://localhost:1234/tree", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// parentId, name
+	refName, err := refToDefName("http://localhost:1234/tree", "tree")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if defName != refName {
+		t.Fatalf("definitionToDefName = %s, but refToDefName = %s", defName, refName)
+	}
+	if defName != want {
+		t.Fatalf("got %s want %s", defName, want)
+	}
+}
+
+// # Draft 4 test case:
+//
+//	{
+//		"description": "id inside an enum is not a real identifier",
+//		"comment": "the implementation must not be confused by an id buried in the enum",
+//		"schema": {
+//			"definitions": {
+//				"id_in_enum": {
+//					"enum": [
+//						{
+//							"id": "https://localhost:1234/my_identifier.json",
+//							"type": "null"
+//						}
+//					]
+//				},
+//				"real_id_in_schema": {
+//					"id": "https://localhost:1234/my_identifier.json",
+//					"type": "string"
+//				},
+//				"zzz_id_in_const": {
+//					"const": {
+//						"id": "https://localhost:1234/my_identifier.json",
+//						"type": "null"
+//					}
+//				}
+//			},
+//			"anyOf": [
+//				{ "$ref": "#/definitions/id_in_enum" },
+//				{ "$ref": "https://localhost:1234/my_identifier.json" }
+//			]
+//		},
+//		"tests": [
+//			{
+//				"description": "exact match to enum, and type matches",
+//				"data": {
+//					"id": "https://localhost:1234/my_identifier.json",
+//					"type": "null"
+//				},
+//				"valid": true
+//			},
+//			{
+//				"description": "match $ref to id",
+//				"data": "a string to match #/definitions/id_in_enum",
+//				"valid": true
+//			},
+//			{
+//				"description": "no match on enum or $ref to id",
+//				"data": 1,
+//				"valid": false
+//			}
+//		]
+//	}
+func TestDraft4Id1(t *testing.T) {
+	want := "definitions/id_in_enum"
+	// prefix, parentId, name, id, anchor
+	defName, err := definitionToDefName("", "", "id_in_enum", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// parentId, name
+	refName, err := refToDefName("", "#/definitions/id_in_enum")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if defName != refName {
+		t.Fatalf("definitionToDefName = %s, but refToDefName = %s", defName, refName)
+	}
+	if defName != want {
+		t.Fatalf("got %s want %s", defName, want)
+	}
+}
+
+func TestDraft4Id2(t *testing.T) {
+	want := "https://localhost:1234/my_identifier.json"
+	// prefix, parentId, name, id, anchor
+	defName, err := definitionToDefName("", "", "real_id_in_schema", "https://localhost:1234/my_identifier.json", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// parentId, name
+	refName, err := refToDefName("", "https://localhost:1234/my_identifier.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if defName != refName {
+		t.Fatalf("definitionToDefName = %s, but refToDefName = %s", defName, refName)
+	}
+	if defName != want {
+		t.Fatalf("got %s want %s", defName, want)
 	}
 }

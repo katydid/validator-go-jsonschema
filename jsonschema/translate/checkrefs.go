@@ -43,7 +43,7 @@ func CheckRefs(g *ast.Grammar) error {
 	}
 	for _, refName := range v.refs {
 		if _, ok := refLookup[refName]; !ok {
-			return fmt.Errorf("reference to unknown definition %s", refName)
+			return fmt.Errorf("In %s. Reference to unknown definition %s", g, refName)
 		}
 	}
 	return nil

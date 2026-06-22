@@ -26,17 +26,24 @@ import (
 
 func findDefinitions(s *schema.Schema) (map[string]*schema.Schema, error) {
 	defs := make(map[string]*schema.Schema)
-	err := findSchemaDefinitions(s, "", s, defs)
+	err := findSchemaDefinitions(s, "", "", s, defs)
 	if err != nil {
 		return nil, err
 	}
 	return defs, nil
 }
 
-func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema, res map[string]*schema.Schema) error {
+func getId(parentId string, s *schema.Schema) string {
+	if len(s.Id) > 0 {
+		return s.Id
+	}
+	return parentId
+}
+
+func findSchemaDefinitions(root *schema.Schema, parentId string, prefix string, s *schema.Schema, res map[string]*schema.Schema) error {
 	for _, name := range std.SortedKeys(s.Definitions) {
 		sch := s.Definitions[name]
-		defname, err := definitionToDefName(prefix, sch.Id, name, s.Definitions[name].Id, sch.Anchor)
+		defname, err := definitionToDefName(prefix, getId(parentId, s), name, s.Definitions[name].Id, sch.Anchor)
 		if err != nil {
 			return err
 		}
@@ -47,82 +54,82 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 	}
 	for _, name := range std.SortedKeys(s.Definitions) {
 		sch := s.Definitions[name]
-		newprefix := definitionToPrefix(prefix, name, sch.Id)
-		if err := findSchemaDefinitions(root, newprefix, sch, res); err != nil {
+		newprefix := definitionToPrefix(prefix, name, getId(parentId, s))
+		if err := findSchemaDefinitions(root, getId(parentId, s), newprefix, sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.Array.AdditionalItems.GetSchema(); sch != nil {
-		if err := findSchemaDefinitions(root, prefix+"/additionalItems", sch, res); err != nil {
+		if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/additionalItems", sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.Array.GetItems().GetObject(); sch != nil {
-		if err := findSchemaDefinitions(root, prefix+"/items", sch, res); err != nil {
+		if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/items", sch, res); err != nil {
 			return err
 		}
 	}
 	for i, sch := range s.Array.GetItems().GetArray() {
-		if err := findSchemaDefinitions(root, prefix+"/items/"+strconv.Itoa(i), sch, res); err != nil {
+		if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/items/"+strconv.Itoa(i), sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.Object.AdditionalProperties.GetSchema(); sch != nil {
-		if err := findSchemaDefinitions(root, prefix+"/additionalProperties", sch, res); err != nil {
+		if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/additionalProperties", sch, res); err != nil {
 			return err
 		}
 	}
 	for _, sch := range s.Object.GetProperties() {
-		if err := findSchemaDefinitions(root, prefix+"/properties", sch, res); err != nil {
+		if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/properties", sch, res); err != nil {
 			return err
 		}
 	}
 	for _, sch := range s.Object.PatternProperties {
-		if err := findSchemaDefinitions(root, prefix+"/patternProperties", sch, res); err != nil {
+		if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/patternProperties", sch, res); err != nil {
 			return err
 		}
 	}
 	if s.Operators.Dependencies != nil {
 		for name, dep := range *s.Operators.Dependencies {
 			if sch := dep.Schema; sch != nil {
-				if err := findSchemaDefinitions(root, prefix+"/dependencies/"+name, sch, res); err != nil {
+				if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/dependencies/"+name, sch, res); err != nil {
 					return err
 				}
 			}
 		}
 	}
 	for _, sch := range s.AllOf {
-		if err := findSchemaDefinitions(root, prefix+"/allOf", sch, res); err != nil {
+		if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/allOf", sch, res); err != nil {
 			return err
 		}
 	}
 	for _, sch := range s.AnyOf {
-		if err := findSchemaDefinitions(root, prefix+"/anyOf", sch, res); err != nil {
+		if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/anyOf", sch, res); err != nil {
 			return err
 		}
 	}
 	for _, sch := range s.OneOf {
-		if err := findSchemaDefinitions(root, prefix+"/oneOf", sch, res); err != nil {
+		if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/oneOf", sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.Not; sch != nil {
-		if err := findSchemaDefinitions(root, prefix+"/not", sch, res); err != nil {
+		if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/not", sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.If; sch != nil {
-		if err := findSchemaDefinitions(root, prefix+"/if", sch, res); err != nil {
+		if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/if", sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.Then; sch != nil {
-		if err := findSchemaDefinitions(root, prefix+"/then", sch, res); err != nil {
+		if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/then", sch, res); err != nil {
 			return err
 		}
 	}
 	if sch := s.Else; sch != nil {
-		if err := findSchemaDefinitions(root, prefix+"/else", sch, res); err != nil {
+		if err := findSchemaDefinitions(root, getId(parentId, s), prefix+"/else", sch, res); err != nil {
 			return err
 		}
 	}
@@ -140,13 +147,13 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 			if sch == nil {
 				return fmt.Errorf("could not find schema for %s", s.Ref)
 			}
-			defName, err := refToDefName(s.Id, s.Ref)
+			defName, err := refToDefName(getId(parentId, s), s.Ref)
 			if err != nil {
 				return err
 			}
 			res[defName] = sch
 		} else if strings.HasPrefix(s.Ref, "http") {
-			defName, err := refToDefName(s.Id, s.Ref)
+			defName, err := refToDefName(getId(parentId, s), s.Ref)
 			if err != nil {
 				return err
 			}
@@ -163,7 +170,7 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 				s.Id = ""
 				s.SetDefaultVersion(schema.VersionDraft4)
 				res[defName] = s
-				if err := findSchemaDefinitions(s, "", s, res); err != nil {
+				if err := findSchemaDefinitions(s, "", "", s, res); err != nil {
 					return err
 				}
 			}
