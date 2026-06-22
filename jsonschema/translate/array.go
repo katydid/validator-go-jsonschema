@@ -41,7 +41,7 @@ func translateArray(s *schema.Schema) (*ast.Pattern, error) {
 			}
 		}
 		if s.AdditionalItems.Schema != nil {
-			p, err := translate(s.AdditionalItems.Schema)
+			p, err := translate(s.Id, s.AdditionalItems.Schema)
 			if err != nil {
 				return nil, err
 			}
@@ -52,14 +52,14 @@ func translateArray(s *schema.Schema) (*ast.Pattern, error) {
 		// TODO: There is a problem here when items are arrays or objects.
 		if s.Items.Object != nil {
 			sch := s.Items.Object
-			pattern, err := translate(sch)
+			pattern, err := translate(s.Id, sch)
 			if err != nil {
 				return nil, err
 			}
 			constraints = append(constraints, ast.NewZeroOrMore(anyIndex(pattern)))
 		} else if s.Items.Array != nil {
 			schs := s.Items.Array
-			patterns, err := std.MapErr(schs, translate)
+			patterns, err := std.MapErr(schs, translateWithParentId(s.Id))
 			if err != nil {
 				return nil, err
 			}

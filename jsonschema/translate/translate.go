@@ -27,7 +27,13 @@ func Translate(s *schema.Schema) (*ast.Grammar, error) {
 	return ast.NewGrammar(ast.RefLookup(defs)), nil
 }
 
-func translate(s *schema.Schema) (*ast.Pattern, error) {
+func translateWithParentId(parentId string) func(s *schema.Schema) (*ast.Pattern, error) {
+	return func(s *schema.Schema) (*ast.Pattern, error) {
+		return translate(parentId, s)
+	}
+}
+
+func translate(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 	if s.Const != nil {
 		// If there is a const no other constraints are necessary.
 		return translateConst(*s.Const)
@@ -48,7 +54,7 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 		ps = append(ps, p)
 	}
 	if len(s.Ref) > 0 {
-		p, err := translateRef(s.Id, s.Ref)
+		p, err := translateRef(parentId, s.Ref)
 		if err != nil {
 			return nil, err
 		}

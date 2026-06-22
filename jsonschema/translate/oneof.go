@@ -22,8 +22,8 @@ import (
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func translateOneOf(schemas []*schema.Schema) (*ast.Pattern, error) {
-	ps, err := std.MapErr(schemas, translate)
+func translateOneOf(parentId string, schemas []*schema.Schema) (*ast.Pattern, error) {
+	ps, err := std.MapErr(schemas, translateWithParentId(parentId))
 	if err != nil {
 		return nil, err
 	}

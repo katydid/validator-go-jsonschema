@@ -160,6 +160,7 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 				if err != nil {
 					return err
 				}
+				s.Id = ""
 				s.SetDefaultVersion(schema.VersionDraft4)
 				res[defName] = s
 				if err := findSchemaDefinitions(s, "", s, res); err != nil {
@@ -274,7 +275,7 @@ func translateDefinitions(s *schema.Schema) (map[string]*ast.Pattern, error) {
 	defs["main"] = s
 	names := std.SortedKeys(defs)
 	for _, name := range names {
-		p, err := translate(defs[name])
+		p, err := translate(s.Id, defs[name])
 		if err != nil {
 			return nil, err
 		}

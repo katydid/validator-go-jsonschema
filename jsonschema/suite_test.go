@@ -151,9 +151,9 @@ func runTests(t *testing.T, testPath string, supported *Supported, opts ...Optio
 		if err != nil || valid != test.Valid {
 			if supported.passingFiles[test.Filename] || supported.passingTests[test.String()] {
 				if err != nil {
-					t.Errorf("UNEXPECTED ERROR: %v: Interpret error %v", test, err)
+					t.Errorf("FAIL - UNEXPECTED ERROR: %v: Interpret error %v", test, err)
 				} else {
-					t.Errorf("UNEXPECTED FAILURE: %v: expected %v got %v", test, test.Valid, valid)
+					t.Errorf("FAIL - UNEXPECTED FAILURE: %v: expected %v got %v", test, test.Valid, valid)
 				}
 			} else {
 				if err != nil {

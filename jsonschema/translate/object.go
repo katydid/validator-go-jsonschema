@@ -92,14 +92,14 @@ func newProperties(s *schema.Schema) ([]*property, error) {
 	patternNames := std.SortedKeys(s.PatternProperties)
 	props := make([]*property, 0, len(names)+len(patternNames))
 	for _, name := range names {
-		p, err := newProperty(name, s.GetProperties()[name])
+		p, err := newProperty(s.Id, name, s.GetProperties()[name])
 		if err != nil {
 			return nil, err
 		}
 		props = append(props, p)
 	}
 	for _, name := range patternNames {
-		p, err := newPatternProperty(name, s.PatternProperties[name])
+		p, err := newPatternProperty(s.Id, name, s.PatternProperties[name])
 		if err != nil {
 			return nil, err
 		}
@@ -108,8 +108,8 @@ func newProperties(s *schema.Schema) ([]*property, error) {
 	return props, nil
 }
 
-func newProperty(name string, s *schema.Schema) (*property, error) {
-	child, err := translate(s)
+func newProperty(parentId string, name string, s *schema.Schema) (*property, error) {
+	child, err := translate(parentId, s)
 	if err != nil {
 		return nil, err
 	}
@@ -120,8 +120,8 @@ func newProperty(name string, s *schema.Schema) (*property, error) {
 	}, nil
 }
 
-func newPatternProperty(name string, s *schema.Schema) (*property, error) {
-	child, err := translate(s)
+func newPatternProperty(parentId string, name string, s *schema.Schema) (*property, error) {
+	child, err := translate(parentId, s)
 	if err != nil {
 		return nil, err
 	}
@@ -280,7 +280,7 @@ func translateAdditionalProperties(s *schema.Schema) (*ast.Pattern, error) {
 		if s.AdditionalProperties.Bool != nil && !(*s.AdditionalProperties.Bool) {
 			additional = ast.NewEmpty()
 		} else if s.AdditionalProperties.Schema != nil {
-			p, err := translate(s.AdditionalProperties.Schema)
+			p, err := translate(s.Id, s.AdditionalProperties.Schema)
 			if err != nil {
 				return nil, err
 			}

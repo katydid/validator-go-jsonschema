@@ -20,66 +20,66 @@ import (
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func translateOperators(schema *schema.Schema) (*ast.Pattern, error) {
+func translateOperators(s *schema.Schema) (*ast.Pattern, error) {
 	var res []*ast.Pattern
-	if schema.Enum != nil {
-		p, err := translateEnum(schema.Enum)
+	if s.Enum != nil {
+		p, err := translateEnum(s.Enum)
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, p)
 	}
-	if len(schema.AllOf) > 0 {
-		ps, err := std.MapErr(schema.AllOf, translate)
+	if len(s.AllOf) > 0 {
+		ps, err := std.MapErr(s.AllOf, translateWithParentId(s.Id))
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, newAnd(ps...))
 	}
-	if len(schema.AnyOf) > 0 {
-		ps, err := std.MapErr(schema.AnyOf, translate)
+	if len(s.AnyOf) > 0 {
+		ps, err := std.MapErr(s.AnyOf, translateWithParentId(s.Id))
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, newOr(ps...))
 	}
-	if len(schema.OneOf) > 0 {
-		p, err := translateOneOf(schema.OneOf)
+	if len(s.OneOf) > 0 {
+		p, err := translateOneOf(s.Id, s.OneOf)
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, p)
 	}
-	if schema.Not != nil {
-		p, err := translate(schema.Not)
+	if s.Not != nil {
+		p, err := translate(s.Id, s.Not)
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, ast.NewNot(p))
 	}
-	if schema.If != nil {
-		p, err := translateIf(schema.If, schema.Then, schema.Else)
+	if s.If != nil {
+		p, err := translateIf(s.Id, s.If, s.Then, s.Else)
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, p)
 	}
-	if schema.Dependencies != nil {
-		deps, err := translateDependencies(schema.Dependencies)
+	if s.Dependencies != nil {
+		deps, err := translateDependencies(s.Id, s.Dependencies)
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, deps)
 	}
-	if schema.DependentRequired != nil {
-		deps, err := translateDependentRequired(schema.DependentRequired)
+	if s.DependentRequired != nil {
+		deps, err := translateDependentRequired(s.DependentRequired)
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, deps)
 	}
-	if schema.DependentSchemas != nil {
-		deps, err := translateDependentSchemas(schema.DependentSchemas)
+	if s.DependentSchemas != nil {
+		deps, err := translateDependentSchemas(s.Id, s.DependentSchemas)
 		if err != nil {
 			return nil, err
 		}

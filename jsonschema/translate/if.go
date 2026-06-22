@@ -19,21 +19,21 @@ import (
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func translateIf(cnd, thn, els *schema.Schema) (*ast.Pattern, error) {
-	cndp, err := translate(cnd)
+func translateIf(parentId string, cnd, thn, els *schema.Schema) (*ast.Pattern, error) {
+	cndp, err := translate(parentId, cnd)
 	if err != nil {
 		return nil, err
 	}
 	thnp := ast.NewZAny()
 	if thn != nil {
-		thnp, err = translate(thn)
+		thnp, err = translate(parentId, thn)
 		if err != nil {
 			return nil, err
 		}
 	}
 	elsp := ast.NewZAny()
 	if els != nil {
-		elsp, err = translate(els)
+		elsp, err = translate(parentId, els)
 		if err != nil {
 			return nil, err
 		}

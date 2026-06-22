@@ -20,7 +20,7 @@ import (
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func translateDependencies(deps *schema.Dependencies) (*ast.Pattern, error) {
+func translateDependencies(parentId string, deps *schema.Dependencies) (*ast.Pattern, error) {
 	d := *deps
 	dependentRequired := make(map[string][]string)
 	dependentSchemas := make(map[string]*schema.Schema)
@@ -35,7 +35,7 @@ func translateDependencies(deps *schema.Dependencies) (*ast.Pattern, error) {
 	if err != nil {
 		return nil, err
 	}
-	p2, err := translateDependentSchemas(dependentSchemas)
+	p2, err := translateDependentSchemas(parentId, dependentSchemas)
 	if err != nil {
 		return nil, err
 	}
@@ -59,11 +59,11 @@ func translateDependentRequired(deps map[string][]string) (*ast.Pattern, error) 
 	return newAnd(res...), nil
 }
 
-func translateDependentSchemas(deps map[string]*schema.Schema) (*ast.Pattern, error) {
+func translateDependentSchemas(parentId string, deps map[string]*schema.Schema) (*ast.Pattern, error) {
 	res := []*ast.Pattern{}
 	names := std.SortedKeys(deps)
 	for _, name := range names {
-		thenPat, err := translate(deps[name])
+		thenPat, err := translate(parentId, deps[name])
 		if err != nil {
 			return nil, err
 		}
