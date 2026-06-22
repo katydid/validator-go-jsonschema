@@ -110,7 +110,7 @@ func NewMemoizer(schemaStr []byte, opts ...Option) (Matcher, error) {
 	if err != nil {
 		return nil, err
 	}
-	m, err := mem.NewRecord(g)
+	m, err := mem.New(g, mem.WithRecordOpts())
 	if err != nil {
 		return nil, err
 	}
@@ -141,6 +141,7 @@ func Compile(schemaStr []byte, opts ...Option) (Matcher, error) {
 	if err != nil {
 		return nil, err
 	}
+	// TODO: consider auto.WithEnterMemStr()
 	a, err := auto.Compile(g, auto.WithRecordOpts(), auto.WithMaxBitSetSize(10))
 	if err != nil {
 		if errors.Is(err, auto.ErrTooBig) {
