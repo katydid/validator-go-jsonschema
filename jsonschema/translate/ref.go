@@ -31,56 +31,40 @@ func translateRef(id string, name string) (*ast.Pattern, error) {
 }
 
 func refToDefName(id string, ref string) (string, error) {
-	if ref == "#" {
-		return "main", nil
-	}
 	if strings.HasPrefix(ref, "file:/") {
 		return "", fmt.Errorf("remoteRef file is not supported")
 	}
-	if strings.HasPrefix(ref, "#/") {
-		path, err := parsePointer(ref)
-		if err != nil {
-			return "", err
-		}
-		refName := id + strings.Join(path, "/")
-		return refName, nil
+	if ref == "#" {
+		return "main", nil
 	}
-	if strings.HasPrefix(ref, "#") {
+	if strings.HasPrefix(ref, "#") && !strings.HasPrefix(ref, "#/") {
+		// anchor
 		return ref, nil
 	}
-	s := ref
-	path, err := parsePointer(s)
+	paths, err := parsePointer(ref)
 	if err != nil {
 		return "", err
 	}
-	return strings.Join(path, "/"), nil
+	path := strings.Join(paths, "/")
+	if strings.HasPrefix(ref, "#/") {
+		return id + path, nil
+	}
+	return path, nil
 }
 
 func definitionToPrefix(prefix string, name string, sch *schema.Schema) string {
-	name = "/definitions/" + name
-	if len(sch.Id) > 0 {
-		return sch.Id
-	}
-	if len(sch.Anchor) > 0 {
-		return "#" + sch.Anchor
-	}
-	name = prefix + name
-	return name
+	return "/definitions/" + name
 }
 
 func definitionToDefName(prefix string, name string, sch *schema.Schema) (string, error) {
-	name = "/definitions/" + name
 	if len(sch.Id) > 0 {
-		return sch.Id, nil
+		return prefix + sch.Id, nil
 	}
 	if len(sch.Anchor) > 0 {
 		return "#" + sch.Anchor, nil
 	}
+	name = "/definitions/" + name
 	s := prefix + name
-	if strings.HasPrefix(s, "#") && !strings.HasPrefix(s, "#/") && s != "#" {
-		// anchors like #bla are also allowed
-		return s, nil
-	}
 	path, err := parsePointer(s)
 	if err != nil {
 		return "", err
