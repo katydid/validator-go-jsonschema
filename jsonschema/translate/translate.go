@@ -48,11 +48,7 @@ func translate(s *schema.Schema) (*ast.Pattern, error) {
 		ps = append(ps, p)
 	}
 	if len(s.Ref) > 0 {
-		prefix := ""
-		if len(s.Id) > 0 {
-			prefix = s.Id
-		}
-		p, err := translateRef(prefix, s.Ref)
+		p, err := translateRef(s.Id, s.Ref)
 		if err != nil {
 			return nil, err
 		}

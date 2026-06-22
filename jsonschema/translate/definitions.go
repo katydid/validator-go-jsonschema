@@ -35,45 +35,26 @@ func findMainDefinitions(s *schema.Schema) (map[string]*schema.Schema, error) {
 		return nil, fmt.Errorf("main is a reserved definition name for katydid")
 	}
 	// katydid starts with the main pattern
-	if len(s.Id) > 0 {
-		defs["main"] = &schema.Schema{Ref: s.Id}
-		defs[s.Id] = s
-	} else {
-		defs["main"] = s
-	}
+	defs["main"] = s
 	return defs, nil
-}
-
-func defName(prefix string, name string, sch *schema.Schema) string {
-	name = "/definitions/" + name
-	if len(sch.Id) > 0 {
-		return sch.Id
-	}
-	if len(sch.Anchor) > 0 {
-		return "#" + sch.Anchor
-	}
-	name = prefix + name
-	return name
 }
 
 func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema, res map[string]*schema.Schema) error {
 	for _, name := range std.SortedKeys(s.Definitions) {
 		sch := s.Definitions[name]
-		realname := defName(prefix, name, sch)
-		var err error
-		realname, err = newRefName(realname)
+		defname, err := definitionToDefName(prefix, name, sch)
 		if err != nil {
 			return err
 		}
-		if _, ok := res[realname]; ok {
-			return fmt.Errorf("duplicate definition name: %s", realname)
+		if _, ok := res[defname]; ok {
+			return fmt.Errorf("duplicate definition name: %s", defname)
 		}
-		res[realname] = sch
+		res[defname] = sch
 	}
 	for _, name := range std.SortedKeys(s.Definitions) {
 		sch := s.Definitions[name]
-		realname := defName(prefix, name, sch)
-		if err := findSchemaDefinitions(root, realname, sch, res); err != nil {
+		newprefix := definitionToPrefix(prefix, name, sch)
+		if err := findSchemaDefinitions(root, newprefix, sch, res); err != nil {
 			return err
 		}
 	}
@@ -165,19 +146,19 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 			if sch == nil {
 				return fmt.Errorf("could not find schema for %s", s.Ref)
 			}
-			refName, err := newRefName(s.Ref)
+			defName, err := refToDefName(s.Id, s.Ref)
 			if err != nil {
 				return err
 			}
-			res[refName] = sch
+			res[defName] = sch
 		} else if strings.HasPrefix(s.Ref, "http") {
-			refName, err := newRefName(s.Ref)
+			defName, err := refToDefName(s.Id, s.Ref)
 			if err != nil {
 				return err
 			}
-			switch refName {
+			switch defName {
 			case "http://json-schema.org/draft-04/schema":
-				if _, ok := res[refName]; ok {
+				if _, ok := res[defName]; ok {
 					return nil
 				}
 				// handle meta schema validation with unique items
@@ -186,7 +167,7 @@ func findSchemaDefinitions(root *schema.Schema, prefix string, s *schema.Schema,
 					return err
 				}
 				s.SetDefaultVersion(schema.VersionDraft4)
-				res[refName] = s
+				res[defName] = s
 				defs, err := findMainDefinitions(s)
 				if err != nil {
 					return err

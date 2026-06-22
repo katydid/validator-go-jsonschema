@@ -18,28 +18,65 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go/validator/ast"
 )
 
-func translateRef(prefix string, name string) (*ast.Pattern, error) {
-	if name == "#" {
-		return ast.NewReference("main"), nil
+func translateRef(id string, name string) (*ast.Pattern, error) {
+	defName, err := refToDefName(id, name)
+	if err != nil {
+		return nil, err
 	}
-	if strings.HasPrefix(name, "#/") || strings.HasPrefix(name, "http://") || strings.HasPrefix(name, "https://") {
-		refName, err := newRefName(name)
-		if err != nil {
-			return nil, err
-		}
-		return ast.NewReference(prefix + refName), nil
-	}
-	if strings.HasPrefix(name, "file:/") {
-		return nil, fmt.Errorf("remoteRef file is not supported")
-	}
-	// hope for the best
-	return ast.NewReference(name), nil
+	return ast.NewReference(defName), nil
 }
 
-func newRefName(s string) (string, error) {
+func refToDefName(id string, ref string) (string, error) {
+	if ref == "#" {
+		return "main", nil
+	}
+	if strings.HasPrefix(ref, "file:/") {
+		return "", fmt.Errorf("remoteRef file is not supported")
+	}
+	if strings.HasPrefix(ref, "#/") {
+		path, err := parsePointer(ref)
+		if err != nil {
+			return "", err
+		}
+		refName := id + strings.Join(path, "/")
+		return refName, nil
+	}
+	if strings.HasPrefix(ref, "#") {
+		return ref, nil
+	}
+	s := ref
+	path, err := parsePointer(s)
+	if err != nil {
+		return "", err
+	}
+	return strings.Join(path, "/"), nil
+}
+
+func definitionToPrefix(prefix string, name string, sch *schema.Schema) string {
+	name = "/definitions/" + name
+	if len(sch.Id) > 0 {
+		return sch.Id
+	}
+	if len(sch.Anchor) > 0 {
+		return "#" + sch.Anchor
+	}
+	name = prefix + name
+	return name
+}
+
+func definitionToDefName(prefix string, name string, sch *schema.Schema) (string, error) {
+	name = "/definitions/" + name
+	if len(sch.Id) > 0 {
+		return sch.Id, nil
+	}
+	if len(sch.Anchor) > 0 {
+		return "#" + sch.Anchor, nil
+	}
+	s := prefix + name
 	if strings.HasPrefix(s, "#") && !strings.HasPrefix(s, "#/") && s != "#" {
 		// anchors like #bla are also allowed
 		return s, nil
