@@ -141,7 +141,7 @@ func Compile(schemaStr []byte, opts ...Option) (Matcher, error) {
 	if err != nil {
 		return nil, err
 	}
-	a, err := auto.Compile(g, auto.WithRecordSimplificationRules(), auto.WithMaxBitSetSize(10), auto.WithFieldNameTable())
+	a, err := auto.Compile(g, auto.WithRecordSimplificationRules(), auto.WithMaxBitSetSize(20), auto.WithFieldNameTable())
 	if err != nil {
 		if errors.Is(err, auto.ErrTooBig) {
 			return NewMemoizer(schemaStr)
