@@ -54,7 +54,7 @@ type Schema struct {
 	Operators
 	Type *Type `json:"type,omitempty"`
 	// Const is *any because a JSON null (Go nil) is a valid value.
-	Const *any `json:"const,omitempty"`
+	Const Const `json:"const,omitempty"`
 
 	Ref string `json:"$ref,omitempty"`
 }

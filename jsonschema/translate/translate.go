@@ -34,9 +34,9 @@ func translateWithParentId(parentId string) func(s *schema.Schema) (*ast.Pattern
 }
 
 func translate(parentId string, s *schema.Schema) (*ast.Pattern, error) {
-	if s.Const != nil {
+	if s.Const.Value != nil {
 		// If there is a const no other constraints are necessary.
-		return translateConst(*s.Const)
+		return translateConst(*s.Const.Value)
 	}
 	if s.Default != nil {
 		// default works if we do nothing

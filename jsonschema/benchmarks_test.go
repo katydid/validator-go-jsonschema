@@ -91,13 +91,10 @@ func TestBenchmarkSuite(t *testing.T) {
 		"ui5-manifest-rmUniqueItems": "not supported by ajv, ajv-bun, boon, go-kaptinlin, go-santhosh-tekuri, hyperjump, networknt",
 		"cspell-rmUniqueItems":       "not supported by boon, go-kaptinlin, go-santhosh-tekuri, json_schemer and kmp",
 	}
-	// TODO fix these
-	notCompilingYet := map[string]string{
-		"ui5-invalid":     "look at https://github.com/clairey-zx81/json-model/issues/8 for hints",
+	skippingBecauseSlow := map[string]string{
 		"geojson-invalid": "just slow to compile",
 		"geojson":         "just slow to compile",
 	}
-	// TODO fix these
 	notMatchingYet := map[string]string{}
 	suites, err := getBenchmarks()
 	if err != nil {
@@ -111,7 +108,7 @@ func TestBenchmarkSuite(t *testing.T) {
 			if reason, ok := unsupportedByOthers[suite.name]; ok {
 				t.Skipf("skipping unsupported by others, because %v", reason)
 			}
-			if reason, ok := notCompilingYet[suite.name]; ok {
+			if reason, ok := skippingBecauseSlow[suite.name]; ok {
 				t.Skipf("skipping temporarily, because %v", reason)
 			}
 			matcher, err := Compile(suite.schema)

@@ -75,6 +75,7 @@ type Supported struct {
 	skippingFiles map[string]bool
 	passingTests  map[string]bool
 	skippingTests map[string]bool
+	strict        bool // everything that is not skipped must pass
 }
 
 func buildTests(t *testing.T, testPath string) []Test {
@@ -150,6 +151,12 @@ func runTests(t *testing.T, testPath string, supported *Supported, opts ...Optio
 		valid, err := MatchBytes(test.Schema, test.Data, opts...)
 		if err != nil || valid != test.Valid {
 			if supported.passingFiles[test.Filename] || supported.passingTests[test.String()] {
+				if err != nil {
+					t.Errorf("FAIL - UNEXPECTED ERROR: %v: Interpret error %v", test, err)
+				} else {
+					t.Errorf("FAIL - UNEXPECTED FAILURE: %v: expected %v got %v", test, test.Valid, valid)
+				}
+			} else if supported.strict {
 				if err != nil {
 					t.Errorf("FAIL - UNEXPECTED ERROR: %v: Interpret error %v", test, err)
 				} else {

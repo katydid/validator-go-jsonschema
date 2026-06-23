@@ -12,12 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package translate
+package schema
 
 import (
-	"github.com/katydid/validator-go/validator/ast"
+	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
 )
 
-func translateConst(c any) (*ast.Pattern, error) {
-	return exactMatch(c)
+type Const struct {
+	Value *any
+}
+
+func (this *Const) UnmarshalJSON(buf []byte) error {
+	var v any
+	err := std.UnmarshalJSON(buf, &v)
+	if err != nil {
+		return err
+	}
+	this.Value = &v
+	return nil
 }

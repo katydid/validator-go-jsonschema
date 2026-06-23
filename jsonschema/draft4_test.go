@@ -76,6 +76,7 @@ var supportedDraft4 = &Supported{
 	},
 	passingTests:  map[string]bool{},
 	skippingTests: map[string]bool{},
+	strict:        true,
 }
 
 func TestSuiteDraft4(t *testing.T) {

@@ -74,8 +74,8 @@ func exactMatch(a any) (*ast.Pattern, error) {
 }
 
 func hasConstString(s *schema.Schema) bool {
-	if s.Const != nil {
-		_, ok := (*s.Const).(string)
+	if s.Const.Value != nil && (*s.Const.Value) != nil {
+		_, ok := (*s.Const.Value).(string)
 		return ok
 	}
 	if s.Enum != nil {
