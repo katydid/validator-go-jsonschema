@@ -8,9 +8,9 @@ require (
 	github.com/dlclark/regexp2/v2 v2.0.1
 	github.com/jtacoma/uritemplates v1.0.0
 	github.com/katydid/parser-go v0.8.7
-	github.com/katydid/parser-go-json v0.5.6
-	github.com/katydid/parser-go-reflect v0.3.4
-	github.com/katydid/validator-go v0.6.5-0.20260622080302-ef79c335394f
+	github.com/katydid/parser-go-json v0.5.7
+	github.com/katydid/parser-go-reflect v0.3.5
+	github.com/katydid/validator-go v0.6.5-0.20260624180133-e0d32e3cbee9
 )
 
 require (
