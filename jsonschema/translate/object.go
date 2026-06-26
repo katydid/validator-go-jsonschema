@@ -32,6 +32,19 @@ func translateObject(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 	if s.MinProperties > 0 {
 		constraints = append(constraints, minProperties(int(s.MinProperties)))
 	}
+
+	props, err := newProperties(parentId, s)
+	if err != nil {
+		return nil, err
+	}
+	if len(s.Required) > 0 {
+		required, err := translateRequired(props)
+		if err != nil {
+			return nil, err
+		}
+		constraints = append(constraints, required)
+	}
+
 	additional, err := translateAdditionalProperties(parentId, s)
 	if err != nil {
 		return nil, err
@@ -55,18 +68,10 @@ func translateObject(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 		}
 	}
 
-	props, err := newProperties(parentId, s)
+	props, err = newProperties(parentId, s)
 	if err != nil {
 		return nil, err
 	}
-	if len(s.Required) > 0 {
-		required, err := translateRequired(props)
-		if err != nil {
-			return nil, err
-		}
-		constraints = append(constraints, required)
-	}
-
 	p, err := translateProps(props)
 	if err != nil {
 		return nil, err
