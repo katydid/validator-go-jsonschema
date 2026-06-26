@@ -31,7 +31,7 @@ type benchsuite struct {
 	datas  [][]byte
 }
 
-func getBenchmarks() ([]*benchsuite, error) {
+func getBenchmarks(names ...string) ([]*benchsuite, error) {
 	res := []*benchsuite{}
 	entries, err := os.ReadDir(pathBenchmarks)
 	if err != nil {
@@ -40,6 +40,18 @@ func getBenchmarks() ([]*benchsuite, error) {
 	for _, entry := range entries {
 		if !entry.IsDir() {
 			continue
+		}
+		if len(names) > 0 {
+			found := false
+			for _, name := range names {
+				if name == entry.Name() {
+					found = true
+					break
+				}
+			}
+			if !found {
+				continue
+			}
 		}
 		path := filepath.Join(pathBenchmarks, entry.Name())
 		schemaName := filepath.Join(path, "schema.json")

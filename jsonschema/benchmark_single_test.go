@@ -18,11 +18,23 @@ import (
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/katydid/validator-go/validator/ast"
+	"github.com/katydid/validator-go/validator/intern"
 )
 
+func printIntern(t *testing.T, g *ast.Grammar) {
+	c := intern.NewConstructorOptimizedForRecords()
+	_, err := c.AddGrammar(g)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("intern translated to: %v", c.String())
+}
+
 func TestBenchmarkSuiteSingle(t *testing.T) {
-	filename := "clang-format-invalid"
-	suites, err := getBenchmarks()
+	filename := "jsck-complex-invalid"
+	suites, err := getBenchmarks(filename)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -34,20 +46,24 @@ func TestBenchmarkSuiteSingle(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		t.Logf("translated to: %v", g.String())
+		printIntern(t, g)
 		matcher, err := Compile(suite.schema)
 		if err != nil {
 			t.Fatal(err)
 		}
 		fails := []string{}
 		want := !strings.Contains(suite.name, "-invalid")
-		for i, data := range suite.datas {
-			got, err := matcher.MatchBytes(data)
-			if err != nil {
-				t.Fatalf("at %d error: %v, given: %q", i, err, string(data))
-			}
-			if want != got {
-				fails = append(fails, string(data))
-				t.Errorf("at %d want %v got %v, given: %q", i, want, got, string(data))
+		for range 100 {
+			for i, data := range suite.datas {
+				got, err := matcher.MatchBytes(data)
+				if err != nil {
+					t.Fatalf("at %d error: %v, given: %q", i, err, string(data))
+				}
+				if want != got {
+					fails = append(fails, string(data))
+					t.Errorf("at %d want %v got %v, given: %q", i, want, got, string(data))
+				}
 			}
 		}
 		slices.SortFunc(fails, func(x, y string) int {
@@ -57,6 +73,8 @@ func TestBenchmarkSuiteSingle(t *testing.T) {
 			return len(x) - len(y)
 		})
 		t.Logf("translated to: %v", g.String())
+		printIntern(t, g)
+
 		if len(fails) > 0 {
 			t.Fatalf("smallest fail = %s", fails[0])
 		}

@@ -134,6 +134,6 @@ var supported202012 = &Supported{
 	},
 }
 
-func TestSuite202012(t *testing.T) {
+func TestSuiteDraft202012(t *testing.T) {
 	runTests(t, path202012, supported202012, WithDefaultVersion(schema.VersionDraft2020))
 }
