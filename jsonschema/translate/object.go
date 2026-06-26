@@ -17,6 +17,7 @@ package translate
 import (
 	"errors"
 	"regexp"
+	"slices"
 
 	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
 	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
@@ -30,13 +31,6 @@ func translateObject(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 	}
 	if s.MinProperties > 0 {
 		constraints = append(constraints, minProperties(int(s.MinProperties)))
-	}
-	if len(s.Required) > 0 {
-		required, err := translateRequired(s.Required)
-		if err != nil {
-			return nil, err
-		}
-		constraints = append(constraints, required)
 	}
 	additional, err := translateAdditionalProperties(parentId, s)
 	if err != nil {
@@ -65,6 +59,13 @@ func translateObject(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(s.Required) > 0 {
+		required, err := translateRequired(props)
+		if err != nil {
+			return nil, err
+		}
+		constraints = append(constraints, required)
+	}
 
 	p, err := translateProps(props)
 	if err != nil {
@@ -81,18 +82,33 @@ func translateObject(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 }
 
 type property struct {
-	key     string
-	pattern bool
-	name    *ast.NameExpr
-	child   *ast.Pattern
+	key      string
+	pattern  bool
+	name     *ast.NameExpr
+	child    *ast.Pattern
+	required bool
 }
 
 func newProperties(parentId string, s *schema.Schema) ([]*property, error) {
 	names := std.SortedKeys(s.GetProperties())
 	patternNames := std.SortedKeys(s.PatternProperties)
 	props := make([]*property, 0, len(names)+len(patternNames))
+	requires := make([]string, len(s.Required))
+	copy(requires, s.Required)
 	for _, name := range names {
-		p, err := newProperty(getId(parentId, s), name, s.GetProperties()[name])
+		index := slices.Index(requires, name)
+		required := index != -1
+		if required {
+			requires = slices.Delete(requires, index, index+1)
+		}
+		p, err := newProperty(getId(parentId, s), name, s.GetProperties()[name], required)
+		if err != nil {
+			return nil, err
+		}
+		props = append(props, p)
+	}
+	for _, name := range requires {
+		p, err := newProperty(getId(parentId, s), name, &schema.Schema{}, true)
 		if err != nil {
 			return nil, err
 		}
@@ -108,15 +124,16 @@ func newProperties(parentId string, s *schema.Schema) ([]*property, error) {
 	return props, nil
 }
 
-func newProperty(parentId string, name string, s *schema.Schema) (*property, error) {
+func newProperty(parentId string, name string, s *schema.Schema, required bool) (*property, error) {
 	child, err := translate(parentId, s)
 	if err != nil {
 		return nil, err
 	}
 	return &property{
-		key:   name,
-		name:  ast.NewStringName(name),
-		child: child,
+		key:      name,
+		name:     ast.NewStringName(name),
+		child:    child,
+		required: required,
 	}, nil
 }
 
@@ -225,10 +242,12 @@ func findOverlapping(props []*property) ([]*property, []*property, error) {
 	return overlapping, others, nil
 }
 
-func translateRequired(required []string) (*ast.Pattern, error) {
+func translateRequired(props []*property) (*ast.Pattern, error) {
 	res := []*ast.Pattern{}
-	for _, req := range required {
-		res = append(res, ast.NewContains(ast.NewTreeNode(ast.NewStringName(req), ast.NewZAny())))
+	for _, prop := range props {
+		if prop.required {
+			res = append(res, ast.NewContains(ast.NewTreeNode(prop.name, ast.NewZAny())))
+		}
 	}
 	if len(res) == 0 {
 		return ast.NewZAny(), nil
