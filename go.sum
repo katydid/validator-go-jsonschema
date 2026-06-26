@@ -50,5 +50,9 @@ github.com/katydid/validator-go v0.6.5-0.20260626182554-1e12aabe3c6e h1:TWIF8J3O
 github.com/katydid/validator-go v0.6.5-0.20260626182554-1e12aabe3c6e/go.mod h1:ynv0Bda23kvggMEfPP2CIknEXtFulVQy6/3FPuHMYG4=
 github.com/katydid/validator-go v0.6.5-0.20260626183002-1c2234d3f08e h1:0Rpa34GrZAkA37ClBflqrER1v+vkzSsv3RIYqwTif5E=
 github.com/katydid/validator-go v0.6.5-0.20260626183002-1c2234d3f08e/go.mod h1:ynv0Bda23kvggMEfPP2CIknEXtFulVQy6/3FPuHMYG4=
+github.com/katydid/validator-go v0.6.5-0.20260626193327-6073cd5e574d h1:xc/ZT0YVRSQ+MpYktESMyWTfmgIj1mY7wKNjbagojyk=
+github.com/katydid/validator-go v0.6.5-0.20260626193327-6073cd5e574d/go.mod h1:ynv0Bda23kvggMEfPP2CIknEXtFulVQy6/3FPuHMYG4=
+github.com/katydid/validator-go v0.6.5-0.20260626193555-413873ab49f5 h1:wy793Jt9Zyg3GKo/L1OcIo7r+RiMPkLFCKy52JinbHo=
+github.com/katydid/validator-go v0.6.5-0.20260626193555-413873ab49f5/go.mod h1:ynv0Bda23kvggMEfPP2CIknEXtFulVQy6/3FPuHMYG4=
 golang.org/x/mod v0.8.0 h1:LUYupSeNrTNCGzR/hVBk2NHZO4hXcVaW1k4Qx7rjPx8=
 golang.org/x/mod v0.8.0/go.mod h1:iBbtSCu2XBx23ZKBPSOrRkjjQPZFPuis4dIYUhu/chs=
