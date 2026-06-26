@@ -68,7 +68,7 @@ func exactMatch(a any) (*ast.Pattern, error) {
 		if len(ps) == 0 {
 			return NewObjectNode(ast.NewEmpty()), nil
 		}
-		return NewObjectNode(ast.NewInterleave(ps...)), nil
+		return NewObjectNode(newInterleave(ps...)), nil
 	}
 	return nil, fmt.Errorf("unsupported type %T for value %v", a, a)
 }

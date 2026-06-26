@@ -33,22 +33,7 @@ func translateObject(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 		constraints = append(constraints, minProperties(int(s.MinProperties)))
 	}
 
-	props, err := newProperties(parentId, s)
-	if err != nil {
-		return nil, err
-	}
-	if len(s.Required) > 0 {
-		required, err := translateRequired(props)
-		if err != nil {
-			return nil, err
-		}
-		constraints = append(constraints, required)
-	}
-
-	additional, err := translateAdditionalProperties(parentId, s)
-	if err != nil {
-		return nil, err
-	}
+	propertyNamesHandlesAdditional := false
 	if s.PropertyNames != nil {
 		// currently only pattern property names are supported.
 		if s.PropertyNames.Pattern != nil {
@@ -58,8 +43,7 @@ func translateObject(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 			s.PatternProperties[*s.PropertyNames.Pattern] = &schema.Schema{}
 			if s.AdditionalProperties != nil {
 				if s.AdditionalProperties.Schema != nil {
-					// we handle additional properties in propertyNames, so we can ignore it later.
-					additional = ast.NewEmpty()
+					propertyNamesHandlesAdditional = true
 					s.PatternProperties[*s.PropertyNames.Pattern] = s.AdditionalProperties.Schema
 				}
 			}
@@ -68,19 +52,49 @@ func translateObject(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 		}
 	}
 
-	props, err = newProperties(parentId, s)
+	props, err := newProperties(parentId, s)
 	if err != nil {
 		return nil, err
+	}
+	hasPatterns := slices.ContainsFunc(props, func(p *property) bool { return p.pattern })
+	if len(props) > 1 && len(props) <= 10 && !hasPatterns && s.AdditionalProperties != nil && s.AdditionalProperties.Bool != nil && !(*s.AdditionalProperties.Bool) {
+		// special case for simple objects
+		res := std.Map(props, func(prop *property) *ast.Pattern {
+			r := ast.NewTreeNode(prop.name, prop.child)
+			if !prop.required {
+				r = ast.NewOptional(r)
+			}
+			return r
+		})
+		p := newInterleave(res...)
+		constraints = append(constraints, p)
+		return newAnd(constraints...), nil
+	}
+	if len(s.Required) > 0 {
+		required, err := translateRequired(props)
+		if err != nil {
+			return nil, err
+		}
+		constraints = append(constraints, required)
 	}
 	p, err := translateProps(props)
 	if err != nil {
 		return nil, err
 	}
 
+	additional, err := translateAdditionalProperties(parentId, s)
+	if err != nil {
+		return nil, err
+	}
+	if propertyNamesHandlesAdditional {
+		// we handle additional properties in propertyNames, so we can ignore it.
+		additional = ast.NewEmpty()
+	}
+
 	if len(props) == 0 {
 		constraints = append(constraints, additional)
 	} else {
-		constraints = append(constraints, ast.NewInterleave(p, additional))
+		constraints = append(constraints, newInterleave(p, additional))
 	}
 
 	return newAnd(constraints...), nil

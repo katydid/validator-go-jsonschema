@@ -49,3 +49,13 @@ func newXor(ps ...*ast.Pattern) *ast.Pattern {
 func andExpr(list []*ast.Expr) *ast.Expr {
 	return std.MustFoldA(list, combinator.And)
 }
+
+func newInterleave(ps ...*ast.Pattern) *ast.Pattern {
+	ps = slices.DeleteFunc(ps, func(p *ast.Pattern) bool {
+		return p.Empty != nil
+	})
+	if len(ps) == 0 {
+		return ast.NewEmpty()
+	}
+	return ast.NewInterleave(ps...)
+}
