@@ -10,7 +10,7 @@ require (
 	github.com/katydid/parser-go v0.8.7
 	github.com/katydid/parser-go-json v0.5.7
 	github.com/katydid/parser-go-reflect v0.3.5
-	github.com/katydid/validator-go v0.6.5-0.20260626193555-413873ab49f5
+	github.com/katydid/validator-go v0.7.0
 )
 
 require (
