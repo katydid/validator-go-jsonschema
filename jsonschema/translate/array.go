@@ -49,7 +49,6 @@ func translateArray(parentId string, s *schema.Schema) (*ast.Pattern, error) {
 		}
 	}
 	if s.Items != nil {
-		// TODO: There is a problem here when items are arrays or objects.
 		if s.Items.Object != nil {
 			sch := s.Items.Object
 			pattern, err := translate(getId(parentId, s), sch)

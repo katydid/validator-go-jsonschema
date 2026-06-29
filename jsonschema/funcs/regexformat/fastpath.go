@@ -19,6 +19,12 @@ import (
 	"strings"
 )
 
+// TODO: fast paths to consider building in future
+// TODO: consider including `\\/` and `\\.` and `\\-` and `/` and `|` and `@` and `#` in charset
+// TODO: length min and max "^[charset]{1,30}$"
+// TODO: support a prefix before a charset "^prefix[charset]+$"
+// TODO: support times "^[0-9]+(ns|ms|us|µs|s|m|h)$"
+
 func tryFastPath(expr string) func(s string) bool {
 	if fast := tryFastPathAny(expr); fast != nil {
 		return fast
@@ -34,23 +40,6 @@ func tryFastPath(expr string) func(s string) bool {
 	}
 	return nil
 }
-
-// TODO: fast paths to consider building in future
-// "^[a-zA-Z0-9\\/_]{1,30}$"
-// "^[A-F0-9]{1,32}$"
-// "^[a-zA-Z0-9_\\.\\-/|@#]*$"
-// "^[a-z][a-z0-9_]+$"
-// "^[a-z][a-z0-9-_]{1,63}$"
-// "^[1-9][0-9]*$"
-// "^:[0-9]+$"
-// "^[0-9]+(ns|ms|us|µs|s|m|h)$"
-// "^#[0-9a-fA-F]{6}$",
-// "^[a-z]{1,2}$"
-// "default|^[0-9]+$"
-// "^[a-zA-Z0-9_\\.\\-]*$"
-// "^[a-zA-Z0-9_\\-]*$":
-// "^[a-zA-Z0-9_\\.\\-]*"
-// "^(/[^/]+)+$"
 
 func tryFastPathLength(expr string) func(s string) bool {
 	if expr[0] != '^' {

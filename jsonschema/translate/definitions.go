@@ -181,11 +181,8 @@ func findSchemaDefinitions(root *schema.Schema, parentId string, prefix string, 
 					return err
 				}
 			}
-			// TODO if it has a local part that goes deeper into the schema and does not just reference it, then there is more work to do here.
 		} else if strings.HasPrefix(s.Ref, "file") {
 			return fmt.Errorf("file ref not supported")
-		} else {
-			// TODO if it has a local part that goes deeper into the schema and does not just reference it, then there is more work to do here.
 		}
 	}
 
