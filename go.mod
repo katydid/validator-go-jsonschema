@@ -7,10 +7,10 @@ tool github.com/goccmack/gocc
 require (
 	github.com/dlclark/regexp2/v2 v2.0.1
 	github.com/jtacoma/uritemplates v1.0.0
-	github.com/katydid/parser-go v0.8.7
-	github.com/katydid/parser-go-json v0.5.7
-	github.com/katydid/parser-go-reflect v0.3.5
-	github.com/katydid/validator-go v0.7.0
+	github.com/katydid/parser-go v0.8.8
+	github.com/katydid/parser-go-json v0.5.8
+	github.com/katydid/parser-go-reflect v0.3.6
+	github.com/katydid/validator-go v0.7.1
 )
 
 require (

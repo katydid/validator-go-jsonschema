@@ -20,6 +20,10 @@ test:
 	go clean -testcache
 	TESTSUITE=MUST go test -v ./...
 
+test-purego:
+	go clean -testcache
+	TESTSUITE=MUST go test -tags=purego -v ./...
+
 suite_draft4:
 	go clean -testcache
 	go test -run=TestSuiteDraft4 -v ./jsonschema
