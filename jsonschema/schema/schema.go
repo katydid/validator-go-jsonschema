@@ -25,6 +25,14 @@ func ParseSchema(jsonSchema []byte) (*Schema, error) {
 	if err := std.UnmarshalJSON(jsonSchema, schema); err != nil {
 		return nil, err
 	}
+	for key, value := range schema.Defs {
+		if schema.Definitions == nil {
+			schema.Definitions = make(map[string]*Schema)
+		}
+		schema.Definitions[key] = value
+	}
+	schema.Defs = nil
+
 	return schema, nil
 }
 
@@ -46,6 +54,7 @@ type Schema struct {
 
 	//  This keyword's value MUST be an object. Each member value of this object MUST be a valid JSON Schema.
 	Definitions map[string]*Schema `json:"definitions,omitempty"`
+	Defs        map[string]*Schema `json:"$defs,omitempty"`
 
 	Numeric
 	String
