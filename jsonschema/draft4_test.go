@@ -20,7 +20,7 @@ import (
 	"katydid.org.za/go/validator-go-jsonschema/jsonschema/schema"
 )
 
-const pathDraft4 = "../../../json-schema-org/JSON-Schema-Test-Suite/tests/draft4/"
+const pathDraft4 = "../../../../github.com/json-schema-org/JSON-Schema-Test-Suite/tests/draft4/"
 
 var supportedDraft4 = &Supported{
 	passingFiles: map[string]bool{
