@@ -17,10 +17,10 @@ package funcs
 import (
 	"math/big"
 
-	"github.com/katydid/parser-go/cast"
-	"github.com/katydid/parser-go/parse"
-	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/funcs"
+	"katydid.org.za/go/parser-go/cast"
+	"katydid.org.za/go/parser-go/parse"
+	"katydid.org.za/go/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go/validator/funcs"
 )
 
 type integer struct {
@@ -55,7 +55,8 @@ func (this *integer) Eval() (bool, error) {
 	if kind != parse.DecimalKind {
 		return false, nil
 	}
-	s := cast.ToString(v)
+	var s string
+	cast.ToStringPtr(v, &s)
 	_, ok := this.big.SetString(s, 10)
 	return ok, nil
 }

@@ -17,7 +17,7 @@ package ipv4
 import (
 	"testing"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ipv4/lexer"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/ipv4/lexer"
 )
 
 var testData1 = map[string]bool{

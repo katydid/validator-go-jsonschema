@@ -7,7 +7,7 @@ import (
 	"io"
 	"unicode/utf8"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/email/token"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/email/token"
 )
 
 func (l *Lexer) IsValid(data []byte) bool {

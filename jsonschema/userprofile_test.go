@@ -17,8 +17,8 @@ package jsonschema
 import (
 	"testing"
 
-	"github.com/katydid/parser-go-json/json"
-	"github.com/katydid/parser-go/parse"
+	"katydid.org.za/go/parser-go-json/json"
+	"katydid.org.za/go/parser-go/parse"
 )
 
 const SchemaJSONSchemaExampleUserProfile = `{

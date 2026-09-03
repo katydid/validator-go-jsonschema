@@ -17,7 +17,7 @@ package schema
 import (
 	"encoding/json"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/std"
 )
 
 // http://json-schema.org/latest/json-schema-validation.html#anchor53

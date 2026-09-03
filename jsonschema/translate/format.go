@@ -14,7 +14,7 @@
 
 package translate
 
-import "github.com/katydid/validator-go/validator/ast"
+import "katydid.org.za/go/validator-go/validator/ast"
 
 func translateFormat(format string) (*ast.Expr, error) {
 	switch format {

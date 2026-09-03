@@ -17,7 +17,7 @@ package schema
 import (
 	"fmt"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/std"
 )
 
 /*

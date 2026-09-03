@@ -17,15 +17,15 @@ package jsonschema
 import (
 	"errors"
 
-	"github.com/katydid/parser-go-json/json"
-	"github.com/katydid/parser-go/parse"
-	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
-	"github.com/katydid/validator-go-jsonschema/jsonschema/translate"
-	"github.com/katydid/validator-go/validator"
-	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/auto"
-	"github.com/katydid/validator-go/validator/intern"
-	"github.com/katydid/validator-go/validator/mem"
+	"katydid.org.za/go/parser-go-json/json"
+	"katydid.org.za/go/parser-go/parse"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/schema"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/translate"
+	"katydid.org.za/go/validator-go/validator"
+	"katydid.org.za/go/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go/validator/auto"
+	"katydid.org.za/go/validator-go/validator/intern"
+	"katydid.org.za/go/validator-go/validator/mem"
 )
 
 type version string

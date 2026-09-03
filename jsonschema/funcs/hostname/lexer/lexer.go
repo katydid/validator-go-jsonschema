@@ -6,7 +6,7 @@ import (
 	"os"
 	"unicode/utf8"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/hostname/token"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/hostname/token"
 )
 
 const (

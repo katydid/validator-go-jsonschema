@@ -15,12 +15,12 @@
 package funcs
 
 import (
-	"github.com/katydid/parser-go/cast"
-	"github.com/katydid/parser-go/parse"
-	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/funcs"
+	"katydid.org.za/go/parser-go/cast"
+	"katydid.org.za/go/parser-go/parse"
+	"katydid.org.za/go/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go/validator/funcs"
 
-	jsonschema "github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ianlancetaylor"
+	jsonschema "katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/ianlancetaylor"
 )
 
 // URI returns whether a string is a valid uri
@@ -66,7 +66,8 @@ func (this *uri) Eval() (bool, error) {
 		// ignore non appropriate kinds
 		return true, nil
 	}
-	str := cast.ToString(v)
+	var str string
+	cast.ToStringPtr(v, &str)
 	valid := isURI(str)
 	return valid, nil
 }

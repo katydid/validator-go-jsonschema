@@ -17,7 +17,7 @@ package jsonschema
 import (
 	"testing"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/schema"
 )
 
 const pathDraft4 = "../../../json-schema-org/JSON-Schema-Test-Suite/tests/draft4/"
@@ -71,7 +71,7 @@ var supportedDraft4 = &Supported{
 		"optional/format/uri.json":       true,
 	},
 	skippingFiles: map[string]bool{
-		"uniqueItems.json": true, // We do not support uniqueItems, see https://github.com/katydid/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
+		"uniqueItems.json": true, // We do not support uniqueItems, see https://git.katydid.org.za/validator-go-jsonschema/blob/main/decisions/uniqueItems.md
 		"refRemote.json":   true, // remote and file ref support should be relatively easy to add, but is just not of theoretical importance at this stage.
 	},
 	passingTests:  map[string]bool{},

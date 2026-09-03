@@ -5,7 +5,7 @@ package lexer
 import (
 	"fmt"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ipv6/token"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/ipv6/token"
 )
 
 type ActionTable [NumStates]ActionRow

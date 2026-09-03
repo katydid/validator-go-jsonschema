@@ -17,7 +17,7 @@ package funcs
 import (
 	"testing"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/regexformat"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/regexformat"
 )
 
 type regexSuite struct {

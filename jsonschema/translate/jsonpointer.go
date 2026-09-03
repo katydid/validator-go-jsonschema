@@ -18,7 +18,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/translate/jsonpointer"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/translate/jsonpointer"
 )
 
 const reservedWordForEmpty = "reserved word for empty definition path"

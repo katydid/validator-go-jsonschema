@@ -18,8 +18,8 @@ import (
 	goreflect "reflect"
 	"testing"
 
-	"github.com/katydid/parser-go-reflect/reflect"
-	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
+	"katydid.org.za/go/parser-go-reflect/reflect"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/std"
 )
 
 func TestReflectInteger(t *testing.T) {

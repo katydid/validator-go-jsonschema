@@ -17,7 +17,7 @@ package funcs
 import (
 	"testing"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/hostname/lexer"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/hostname/lexer"
 )
 
 func TestHostname(t *testing.T) {

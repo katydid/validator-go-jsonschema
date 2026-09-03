@@ -17,7 +17,7 @@ package std
 import (
 	"testing"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/std/testutil"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/std/testutil"
 )
 
 func TestComplementarySubsets(t *testing.T) {

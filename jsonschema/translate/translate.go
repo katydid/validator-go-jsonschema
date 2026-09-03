@@ -15,8 +15,8 @@
 package translate
 
 import (
-	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
-	"github.com/katydid/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/schema"
+	"katydid.org.za/go/validator-go/validator/ast"
 )
 
 func Translate(s *schema.Schema) (*ast.Grammar, error) {

@@ -17,10 +17,10 @@ package funcs
 import (
 	"unicode/utf8"
 
-	"github.com/katydid/parser-go/cast"
-	"github.com/katydid/parser-go/parse"
-	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/funcs"
+	"katydid.org.za/go/parser-go/cast"
+	"katydid.org.za/go/parser-go/parse"
+	"katydid.org.za/go/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go/validator/funcs"
 )
 
 type maxLength struct {
@@ -72,7 +72,8 @@ func runeCountLe(bs []byte, max int) bool {
 	for ; n < np; n++ {
 		if c := bs[n]; c >= utf8.RuneSelf {
 			// non-ASCII slow path
-			s := cast.ToString(bs[n:])
+			var s string
+			cast.ToStringPtr(bs[n:], &s)
 			return runeCountStringLe(s, max-n)
 		}
 		if n > max {

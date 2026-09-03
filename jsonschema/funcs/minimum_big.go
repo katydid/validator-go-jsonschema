@@ -15,13 +15,14 @@
 package funcs
 
 import (
+	"math"
 	"math/big"
 	"strings"
 
-	"github.com/katydid/parser-go/cast"
-	"github.com/katydid/parser-go/parse"
-	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/funcs"
+	"katydid.org.za/go/parser-go/cast"
+	"katydid.org.za/go/parser-go/parse"
+	"katydid.org.za/go/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go/validator/funcs"
 )
 
 type minimumbig struct {
@@ -64,11 +65,16 @@ func (this *minimumbig) Eval() (bool, error) {
 	var n *big.Float
 	switch kind {
 	case parse.Int64Kind:
-		n = big.NewFloat(float64(cast.ToInt64(v)))
+		var i int64
+		cast.ToInt64Ptr(v, &i)
+		n = big.NewFloat(float64(i))
 	case parse.Float64Kind:
-		n = big.NewFloat(cast.ToFloat64(v))
+		var u uint64
+		cast.ToFloat64BitsPtr(v, &u)
+		n = big.NewFloat(math.Float64frombits(u))
 	case parse.DecimalKind:
-		s := cast.ToString(v)
+		var s string
+		cast.ToStringPtr(v, &s)
 		n, _, err = new(big.Float).Parse(s, 10)
 		if err != nil {
 			return false, nil

@@ -15,7 +15,7 @@
 package translate
 
 import (
-	"github.com/katydid/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go/validator/ast"
 )
 
 func translateConst(c any) (*ast.Pattern, error) {

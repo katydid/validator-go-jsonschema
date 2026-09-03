@@ -17,9 +17,9 @@ package translate
 import (
 	"slices"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
-	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/combinator"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/std"
+	"katydid.org.za/go/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go/validator/combinator"
 )
 
 func newAnd(ps ...*ast.Pattern) *ast.Pattern {

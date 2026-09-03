@@ -17,7 +17,7 @@ package translate
 import (
 	"testing"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/std/testutil"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/std/testutil"
 )
 
 func TestJSONPointer(t *testing.T) {

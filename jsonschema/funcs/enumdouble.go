@@ -15,10 +15,10 @@
 package funcs
 
 import (
-	"github.com/katydid/parser-go/cast"
-	"github.com/katydid/parser-go/parse"
-	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/funcs"
+	"katydid.org.za/go/parser-go/cast"
+	"katydid.org.za/go/parser-go/parse"
+	"katydid.org.za/go/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go/validator/funcs"
 )
 
 // EnumDouble returns a function that checks whether the element is contained in the list.
@@ -30,9 +30,9 @@ func EnumDouble(list funcs.ConstDoubles) (funcs.Bool, error) {
 	if err != nil {
 		return nil, err
 	}
-	set := make(map[float64]struct{})
+	set := make(map[uint64]struct{})
 	for i := range l {
-		set[l[i]] = struct{}{}
+		set[uint64(l[i])] = struct{}{}
 	}
 	return funcs.TrimBool(&inSetDouble{
 		List:        list,
@@ -51,7 +51,7 @@ func (this *inSetDouble) SetValue(v parse.Token) {
 type inSetDouble struct {
 	Token       parse.Token
 	List        funcs.ConstDoubles
-	set         map[float64]struct{}
+	set         map[uint64]struct{}
 	hash        uint64
 	hasVariable bool
 }
@@ -63,12 +63,14 @@ func (this *inSetDouble) Eval() (bool, error) {
 	}
 	switch kind {
 	case parse.Float64Kind:
-		s := cast.ToFloat64(v)
-		_, ok := this.set[s]
+		var u uint64
+		cast.ToFloat64BitsPtr(v, &u)
+		_, ok := this.set[u]
 		return ok, nil
 	case parse.Int64Kind:
-		s := cast.ToInt64(v)
-		_, ok := this.set[float64(s)]
+		var i int64
+		cast.ToInt64Ptr(v, &i)
+		_, ok := this.set[uint64(i)]
 		return ok, nil
 	}
 	return false, nil

@@ -18,7 +18,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/katydid/parser-go-json/json"
+	"katydid.org.za/go/parser-go-json/json"
 )
 
 func BenchmarkComplexValid(b *testing.B) {

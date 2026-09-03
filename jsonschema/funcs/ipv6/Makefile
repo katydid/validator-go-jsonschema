@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-package = 'github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ipv6'
+package = 'katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/ipv6'
 
 generate:
 	gocc -p $(package) grammar.bnf

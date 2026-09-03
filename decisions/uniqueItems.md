@@ -198,7 +198,7 @@ This means that to support `uniqueItems`, we would need to remove this assumptio
 The theoretical and performance considerations are both things that can be worked around.
 We can make Katydid's validator extendible with new operators and not push these issues into the core algorithm.
 Then embracing these issues will be a concious decision by the extender, for example this json schema validator.
-We even created a [proof of concept for extendible operators](https://github.com/katydid/validator-go/pull/37), but this unfortunately won't be enough.
+We even created a [proof of concept for extendible operators](https://git.katydid.org.za/validator-go/pull/37), but this unfortunately won't be enough.
 The `uniqueItems` is special in another way, which breaks even more of the assumptions that the Katydid algorithm is built on.
 
 It is possible to use `uniqueItems` in a derivative algorithm, but it is **not** possible to use `uniqueItems` in Katydid's optimized derivative algorithm.

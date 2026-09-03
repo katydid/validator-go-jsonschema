@@ -14,7 +14,7 @@
 
 package std
 
-import "github.com/katydid/validator-go/validator/sets"
+import "katydid.org.za/go/validator-go/validator/sets"
 
 func ComplementarySubsets[A any](xs []A) []struct {
 	Left  []A

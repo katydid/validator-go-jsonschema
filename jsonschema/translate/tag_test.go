@@ -17,8 +17,8 @@ package translate
 import (
 	"testing"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
-	. "github.com/katydid/validator-go-jsonschema/jsonschema/std/testutil"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/schema"
+	. "katydid.org.za/go/validator-go-jsonschema/jsonschema/std/testutil"
 )
 
 func TestType(t *testing.T) {

@@ -7,7 +7,7 @@ import (
 	"io"
 	"unicode/utf8"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/ipv4/token"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/ipv4/token"
 )
 
 func (l *Lexer) IsValid(data []byte) bool {

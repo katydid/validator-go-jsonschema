@@ -17,11 +17,11 @@ package funcs
 import (
 	"bytes"
 
-	"github.com/katydid/parser-go/parse"
-	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/funcs"
+	"katydid.org.za/go/parser-go/parse"
+	"katydid.org.za/go/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go/validator/funcs"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/hostname/lexer"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/hostname/lexer"
 )
 
 // Hostname returns whether a string is a valid hostname

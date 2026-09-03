@@ -15,10 +15,10 @@
 package funcs
 
 import (
-	"github.com/katydid/parser-go/cast"
-	"github.com/katydid/parser-go/parse"
-	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/funcs"
+	"katydid.org.za/go/parser-go/cast"
+	"katydid.org.za/go/parser-go/parse"
+	"katydid.org.za/go/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go/validator/funcs"
 )
 
 // EnumString returns a function that checks whether the element is contained in the list.
@@ -64,7 +64,8 @@ func (this *inSetString) Eval() (bool, error) {
 	if kind != parse.StringKind {
 		return false, nil
 	}
-	s := cast.ToString(v)
+	var s string
+	cast.ToStringPtr(v, &s)
 	_, ok := this.set[s]
 	return ok, nil
 }

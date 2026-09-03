@@ -18,10 +18,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
-	"github.com/katydid/validator-go-jsonschema/jsonschema/std"
-	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/combinator"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/schema"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/std"
+	"katydid.org.za/go/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go/validator/combinator"
 )
 
 func exactMatch(a any) (*ast.Pattern, error) {

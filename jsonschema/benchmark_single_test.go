@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/intern"
+	"katydid.org.za/go/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go/validator/intern"
 )
 
 func printIntern(t *testing.T, g *ast.Grammar) {
@@ -33,7 +33,7 @@ func printIntern(t *testing.T, g *ast.Grammar) {
 }
 
 func TestBenchmarkSuiteSingle(t *testing.T) {
-	filename := "jsck-complex-invalid"
+	filename := "zschema-advanced-rmUniqueItems-invalid"
 	suites, err := getBenchmarks(filename)
 	if err != nil {
 		t.Fatal(err)

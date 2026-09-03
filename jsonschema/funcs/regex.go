@@ -18,9 +18,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/katydid/validator-go-jsonschema/jsonschema/funcs/regexformat"
-	"github.com/katydid/validator-go/validator/ast"
-	"github.com/katydid/validator-go/validator/funcs"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/regexformat"
+	"katydid.org.za/go/validator-go/validator/ast"
+	"katydid.org.za/go/validator-go/validator/funcs"
 )
 
 var errRegexVar = errors.New("regex requires a constant expression as its first parameter, but it has a variable parameter")

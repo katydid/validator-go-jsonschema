@@ -1,7 +1,7 @@
 # Json Schema using Brzozowski's derivatives
 
 JSON Schema in Go using Katydid underlying algorithm.
-This project translates JSON Schema to a regular hedge grammar and then executes validation via Katydid's [validator-go](github.com/katydid/validator-go).
+This project translates JSON Schema to a regular hedge grammar and then executes validation via Katydid's [validator-go](https://git.katydid.org.za/validator-go).
 
 ## Usage Example
 

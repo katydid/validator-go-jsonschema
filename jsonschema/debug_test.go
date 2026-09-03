@@ -18,11 +18,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/katydid/parser-go-json/json"
-	"github.com/katydid/parser-go/parse/debug"
-	"github.com/katydid/validator-go-jsonschema/jsonschema/schema"
-	"github.com/katydid/validator-go-jsonschema/jsonschema/translate"
-	"github.com/katydid/validator-go/validator/intern"
+	"katydid.org.za/go/parser-go-json/json"
+	"katydid.org.za/go/parser-go/parse/log"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/schema"
+	"katydid.org.za/go/validator-go-jsonschema/jsonschema/translate"
+	"katydid.org.za/go/validator-go/validator/intern"
 )
 
 func DTestDebug(t *testing.T) {
@@ -63,7 +63,7 @@ func testDebug(t *testing.T, test Test, opts ...Option) {
 	// }
 
 	jsonp := json.NewJSONSchemaParser()
-	p := debug.NewLogger(jsonp, debug.NewLineLogger())
+	p := log.WrapParserWithInit(jsonp)
 	p.Init(test.Data)
 
 	valid, err := intern.Interpret(g, true, p)
