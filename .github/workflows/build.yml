@@ -24,7 +24,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: katydid/validator-jsonschema-benchmarks
-        path: gopath/src/github.com/katydid/validator-jsonschema-benchmarks
+        path: gopath/src/git.katydid.org.za/validator-jsonschema-benchmarks
     - name: Setup Go
       uses: actions/setup-go@v3
       with:

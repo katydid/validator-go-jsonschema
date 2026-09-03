@@ -23,7 +23,7 @@ import (
 	"testing"
 )
 
-const pathBenchmarks = "../../validator-jsonschema-benchmarks/schemas/"
+const pathBenchmarks = "../../../../git.katydid.org.za/validator-jsonschema-benchmarks/schemas/"
 
 type benchsuite struct {
 	name   string
