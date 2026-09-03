@@ -3,7 +3,7 @@
 package lexer
 
 import (
-	"os"
+	"io/ioutil"
 	"unicode/utf8"
 
 	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/hostname/token"
@@ -45,7 +45,7 @@ func (s *SourceContext) Source() string {
 }
 
 func NewLexerFile(fpath string) (*Lexer, error) {
-	src, err := os.ReadFile(fpath)
+	src, err := ioutil.ReadFile(fpath)
 	if err != nil {
 		return nil, err
 	}

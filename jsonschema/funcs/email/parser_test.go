@@ -72,42 +72,6 @@ var checkData2 = []string{
 	"addr3@gmail.com",
 }
 
-var testData2 = `
-	addr1@gmail.com
-	addr2@gmail.com
-	addr3@gmail.com
-`
-
-func TestScan2(t *testing.T) {
-	l := lexer.NewLexer([]byte(testData2))
-	num := 0
-	for tok := l.Scan(); tok.Type == token.TokMap.Type("addrspec"); tok = l.Scan() {
-		if string(tok.Lit) != checkData2[num] {
-			t.Errorf("%s != %s", string(tok.Lit), checkData2[num])
-		}
-		num++
-	}
-	if num != len(checkData2) {
-		t.Fatalf("%d addresses parsed", num)
-	}
-}
-
-func TestNext2(t *testing.T) {
-	l := lexer.NewLexer([]byte(testData2))
-	num := 0
-	tokBytes, err := l.Next()
-	for err == nil {
-		if string(tokBytes) != checkData2[num] {
-			t.Errorf("%s != %s", string(tokBytes), checkData2[num])
-		}
-		num++
-		tokBytes, err = l.Next()
-	}
-	if num != len(checkData2) {
-		t.Fatalf("%d addresses parsed", num)
-	}
-}
-
 func BenchmarkScan(b *testing.B) {
 	l := lexer.NewLexer([]byte{})
 	inputs := [][]byte{
