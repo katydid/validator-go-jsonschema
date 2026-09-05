@@ -6,6 +6,11 @@ This project translates JSON Schema to a regular hedge grammar and then executes
 ## Usage Example
 
 ```go
+import (
+    "katydid.org.za/go/validator-go-jsonschema/jsonschema"
+)
+
+func main() {
 	schemaBytes := []byte(`
     { "title": "small jsonschema for a blogpost",
       "type":"object", "additionalProperties":false, "required": ["content"],
@@ -17,11 +22,12 @@ This project translates JSON Schema to a regular hedge grammar and then executes
         "properties": {
           "username": { "type":"string" },
           "email": { "type":"string", "format":"email" } } } } }`)
-	compiled, err := Compile(schemaBytes)
+	compiled, err := jsonschema.Compile(schemaBytes)
 	...
 	input := []byte(`{"content": "Dragons", "author": {"username": "Khaleesi"}}`)
 	matched, err := compiled.MatchBytes(input)
 	...
+}
 ```
 
 ## Test Suites passed
