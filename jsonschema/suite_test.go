@@ -21,7 +21,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/std"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/std"
 )
 
 func getFileNames(testPath string) []string {

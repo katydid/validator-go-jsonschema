@@ -17,7 +17,7 @@ package ipv6
 import (
 	"testing"
 
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/ipv6/lexer"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/funcs/ipv6/lexer"
 )
 
 func TestValidIPv6(t *testing.T) {

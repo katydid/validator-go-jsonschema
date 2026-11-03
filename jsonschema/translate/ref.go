@@ -17,7 +17,7 @@ package translate
 import (
 	"strings"
 
-	"katydid.org.za/go/validator-go/validator/ast"
+	"go.katydid.org.za/validator-go/validator/ast"
 )
 
 func translateRef(parentId string, name string) (*ast.Pattern, error) {

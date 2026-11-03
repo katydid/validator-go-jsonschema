@@ -18,8 +18,8 @@ import (
 	"net/mail"
 	"testing"
 
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/email/lexer"
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/email/token"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/funcs/email/lexer"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/funcs/email/token"
 )
 
 var testData1 = map[string]bool{

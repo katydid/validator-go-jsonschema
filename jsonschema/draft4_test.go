@@ -17,7 +17,7 @@ package jsonschema
 import (
 	"testing"
 
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/schema"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/schema"
 )
 
 const pathDraft4 = "../../../../github.com/json-schema-org/JSON-Schema-Test-Suite/tests/draft4/"

@@ -19,9 +19,9 @@ import (
 	"strconv"
 	"strings"
 
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/schema"
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/std"
-	"katydid.org.za/go/validator-go/validator/ast"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/schema"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/std"
+	"go.katydid.org.za/validator-go/validator/ast"
 )
 
 func findDefinitions(s *schema.Schema) (map[string]*schema.Schema, error) {

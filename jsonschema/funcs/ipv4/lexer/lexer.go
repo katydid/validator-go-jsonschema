@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"unicode/utf8"
 
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/ipv4/token"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/funcs/ipv4/token"
 )
 
 const (

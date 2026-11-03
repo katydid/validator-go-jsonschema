@@ -16,10 +16,10 @@ package translate
 
 import (
 	// make sure the funcs are registered
-	_ "katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs"
+	_ "go.katydid.org.za/validator-go-jsonschema/jsonschema/funcs"
 
-	"katydid.org.za/go/validator-go/validator/ast"
-	"katydid.org.za/go/validator-go/validator/combinator"
+	"go.katydid.org.za/validator-go/validator/ast"
+	"go.katydid.org.za/validator-go/validator/combinator"
 )
 
 func multipleOfExpr(d float64) *ast.Expr {

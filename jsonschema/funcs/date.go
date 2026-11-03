@@ -15,11 +15,11 @@
 package funcs
 
 import (
-	"katydid.org.za/go/parser-go/parse"
-	"katydid.org.za/go/validator-go/validator/ast"
-	"katydid.org.za/go/validator-go/validator/funcs"
+	"go.katydid.org.za/parser-go/parse"
+	"go.katydid.org.za/validator-go/validator/ast"
+	"go.katydid.org.za/validator-go/validator/funcs"
 
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/dateformat"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/funcs/dateformat"
 )
 
 // Date returns whether a string is a valid date

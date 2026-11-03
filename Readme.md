@@ -7,7 +7,7 @@ This project translates JSON Schema to a regular hedge grammar and then executes
 
 ```go
 import (
-    "katydid.org.za/go/validator-go-jsonschema/jsonschema"
+    "go.katydid.org.za/validator-go-jsonschema/jsonschema"
 )
 
 func main() {

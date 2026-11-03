@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"katydid.org.za/go/validator-go/validator/ast"
-	"katydid.org.za/go/validator-go/validator/intern"
+	"go.katydid.org.za/validator-go/validator/ast"
+	"go.katydid.org.za/validator-go/validator/intern"
 )
 
 func printIntern(t *testing.T, g *ast.Grammar) {

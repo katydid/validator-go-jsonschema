@@ -15,9 +15,9 @@
 package translate
 
 import (
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/schema"
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/std"
-	"katydid.org.za/go/validator-go/validator/ast"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/schema"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/std"
+	"go.katydid.org.za/validator-go/validator/ast"
 )
 
 func translateOperators(parentId string, s *schema.Schema) (*ast.Pattern, error) {

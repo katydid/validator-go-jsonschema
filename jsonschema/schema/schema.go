@@ -17,7 +17,7 @@ package schema
 import (
 	"encoding/json"
 
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/std"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/std"
 )
 
 func ParseSchema(jsonSchema []byte) (*Schema, error) {

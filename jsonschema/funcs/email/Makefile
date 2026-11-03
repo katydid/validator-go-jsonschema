@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-package = 'katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/email'
+package = 'go.katydid.org.za/validator-go-jsonschema/jsonschema/funcs/email'
 
 generate:
 	gocc -p $(package) grammar.bnf

@@ -17,8 +17,8 @@ package jsonschema
 import (
 	"testing"
 
-	"katydid.org.za/go/parser-go-json/json"
-	"katydid.org.za/go/parser-go/parse"
+	"go.katydid.org.za/parser-go-json/json"
+	"go.katydid.org.za/parser-go/parse"
 )
 
 const SchemaJSONSchemaExampleBlogPost = `{

@@ -18,7 +18,7 @@ import (
 	"errors"
 	"math/big"
 
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/std"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/std"
 )
 
 // http://json-schema.org/latest/json-schema-validation.html#anchor13

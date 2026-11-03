@@ -17,7 +17,7 @@ package funcs
 import (
 	"testing"
 
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/email/lexer"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/funcs/email/lexer"
 )
 
 func TestEmail(t *testing.T) {

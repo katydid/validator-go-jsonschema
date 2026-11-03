@@ -17,7 +17,7 @@ package hostname
 import (
 	"testing"
 
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/funcs/hostname/lexer"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/funcs/hostname/lexer"
 )
 
 var testData = map[string]bool{

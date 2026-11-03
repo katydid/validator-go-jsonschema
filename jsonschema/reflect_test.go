@@ -17,9 +17,9 @@ package jsonschema
 import (
 	goreflect "reflect"
 
-	"katydid.org.za/go/parser-go-reflect/reflect"
-	"katydid.org.za/go/parser-go/parse"
-	"katydid.org.za/go/validator-go-jsonschema/jsonschema/std"
+	"go.katydid.org.za/parser-go-reflect/reflect"
+	"go.katydid.org.za/parser-go/parse"
+	"go.katydid.org.za/validator-go-jsonschema/jsonschema/std"
 )
 
 func unmarshal(data []byte) (any, error) {
